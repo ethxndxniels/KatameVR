@@ -1,14 +1,13 @@
-///////////////////////////////////////////
-// Main                                  //
-///////////////////////////////////////////
+#include "src/Core/Application.h"
+#include "src/Core/Log.h"
 
-// Katame Stuff
-#include "Core/Application.h"
-//
+int wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
+{
+	Katame::Log::Init();
+	KM_CORE_WARN( "Initialized Log!" );
+	int a = 5;
+	KM_INFO( "Hello! Var={0}", a );
 
-int __stdcall wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int ) {
-
-	
 	Katame::Application app;
 
 	bool quit = false;
@@ -22,7 +21,7 @@ int __stdcall wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int ) {
 
 			if (app.get_session_state() != XR_SESSION_STATE_VISIBLE &&
 				app.get_session_state() != XR_SESSION_STATE_FOCUSED) {
-				//this_thread::sleep_for( chrono::milliseconds( 250 ) );
+				std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
 			}
 		}
 	}
