@@ -1,0 +1,3 @@
+[submodule "KatameVR/vendor/spdlog"]
+	path = KatameVR/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
