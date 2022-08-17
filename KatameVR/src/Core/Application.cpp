@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Log.h"
 
 namespace Katame
 {
@@ -135,23 +136,43 @@ namespace Katame
 	{
 	}
 
-	void Application::Run()
+	void Application::Launch()
 	{
-		while (m_Running)
+		KM_CORE_INFO( "Launching Application.." );
+		while (m_Running) 
 		{
-			if (!m_Minimized)
-			{
-				//for (Layer* layer : m_LayerStack)
-					//layer->OnUpdate();
-				// Render ImGui on render thread
-				Application* app = this;
-				//KM_RENDER_1( app, { app->RenderImGui(); } );
-
-				//Renderer::Get().WaitAndRender();
+			openxr_poll_events();
+			if (xr_running) {
+				openxr_poll_actions();
+				Update();
+				openxr_render_frame();
+				if (get_session_state() != XR_SESSION_STATE_VISIBLE &&
+					get_session_state() != XR_SESSION_STATE_FOCUSED) {
+					std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
+				}
 			}
-			//m_Window->OnUpdate();
 		}
+		openxr_shutdown();
+		d3d_shutdown();
 	}
+
+	//void Application::Run()
+	//{
+	//	while (m_Running)
+	//	{
+	//		if (!m_Minimized)
+	//		{
+	//			//for (Layer* layer : m_LayerStack)
+	//				//layer->OnUpdate();
+	//			// Render ImGui on render thread
+	//			Application* app = this;
+	//			//KM_RENDER_1( app, { app->RenderImGui(); } );
+
+	//			//Renderer::Get().WaitAndRender();
+	//		}
+	//		//m_Window->OnUpdate();
+	//	}
+	//}
 
 	std::vector<XrPosef> app_cubes;
 	void Application::Draw( XrCompositionLayerProjectionView& view ) 
@@ -673,8 +694,8 @@ namespace Katame
 
 	///////////////////////////////////////////
 
-	void Application::openxr_poll_events( bool& exit ) {
-		exit = false;
+	void Application::openxr_poll_events() {
+		m_Running = true;
 
 		XrEventDataBuffer event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
 
@@ -696,11 +717,11 @@ namespace Katame
 					xr_running = false;
 					xrEndSession( xr_session );
 				} break;
-				case XR_SESSION_STATE_EXITING:      exit = true;              break;
-				case XR_SESSION_STATE_LOSS_PENDING: exit = true;              break;
+				case XR_SESSION_STATE_EXITING:      m_Running = false;              break;
+				case XR_SESSION_STATE_LOSS_PENDING: m_Running = false;              break;
 				}
 			} break;
-			case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: exit = true; return;
+			case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: m_Running = false; return;
 			}
 			event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
 		}

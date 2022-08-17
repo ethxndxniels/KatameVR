@@ -28,7 +28,7 @@ namespace Katame {
 		Application();
 		~Application();
 
-		void Run();
+		void Launch();
 
 		void Draw( XrCompositionLayerProjectionView& view );
 		void Update();
@@ -36,12 +36,11 @@ namespace Katame {
 
 		// OPENXR
 		bool openxr_init( const char* app_name, int64_t swapchain_format );
-		void openxr_poll_events( bool& exit );
+		void openxr_poll_events();
 		void openxr_make_actions();
 		bool openxr_render_layer( XrTime predictedTime, std::vector<XrCompositionLayerProjectionView>& views, XrCompositionLayerProjection& layer );
 		void openxr_poll_actions();
 		void openxr_render_frame();
-		bool get_xr_running() { return xr_running; };
 		void openxr_shutdown();
 		void d3d_shutdown();
 		bool d3d_init( LUID & adapter_luid );
