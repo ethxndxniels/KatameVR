@@ -45,6 +45,7 @@ namespace Katame {
 		void openxr_shutdown();
 		void d3d_shutdown();
 		bool d3d_init( LUID & adapter_luid );
+		void d3d_render_layer( XrCompositionLayerProjectionView& view, struct swapchain_surfdata_t& surface );
 		DirectX::XMMATRIX d3d_xr_projection( XrFovf fov, float clip_near, float clip_far );
 		IDXGIAdapter1* d3d_get_adapter( LUID& adapter_luid );
 		void openxr_poll_predicted( XrTime predicted_time );

@@ -320,7 +320,7 @@ namespace Katame
 
 	///////////////////////////////////////////
 
-	void d3d_render_layer( XrCompositionLayerProjectionView& view, swapchain_surfdata_t& surface ) {
+	void Application::d3d_render_layer( XrCompositionLayerProjectionView& view, swapchain_surfdata_t& surface ) {
 		// Set up where on the render target we want to draw, the view has a 
 		XrRect2Di& rect = view.subImage.imageRect;
 		D3D11_VIEWPORT viewport = CD3D11_VIEWPORT( (float)rect.offset.x, (float)rect.offset.y, (float)rect.extent.width, (float)rect.extent.height );
@@ -333,7 +333,7 @@ namespace Katame
 		d3d_context->OMSetRenderTargets( 1, &surface.target_view, surface.depth_view );
 
 		// And now that we're set up, pass on the rest of our rendering to the application
-		//app_draw( view );
+		Draw( view );
 	}
 
 	///////////////////////////////////////////
