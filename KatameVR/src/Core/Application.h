@@ -66,7 +66,6 @@ namespace Katame {
 		//std::unique_ptr<Window> m_Window;
 		bool m_Running = true, m_Minimized = false;
 		//LayerStack m_LayerStack;
-		//ImGuiLayer* m_ImGuiLayer;
 		bool xr_running = false;
 		XrSessionState xr_session_state = XR_SESSION_STATE_UNKNOWN;
 

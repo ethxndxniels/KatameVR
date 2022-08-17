@@ -137,6 +137,20 @@ namespace Katame
 
 	void Application::Run()
 	{
+		while (m_Running)
+		{
+			if (!m_Minimized)
+			{
+				//for (Layer* layer : m_LayerStack)
+					//layer->OnUpdate();
+				// Render ImGui on render thread
+				Application* app = this;
+				//KM_RENDER_1( app, { app->RenderImGui(); } );
+
+				//Renderer::Get().WaitAndRender();
+			}
+			//m_Window->OnUpdate();
+		}
 	}
 
 	std::vector<XrPosef> app_cubes;
