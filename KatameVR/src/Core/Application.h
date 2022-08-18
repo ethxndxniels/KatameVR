@@ -21,6 +21,9 @@
 #include <algorithm> // any_of
 
 
+#include "IndexedTriangleList.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "InputLayout.h"
@@ -136,15 +139,17 @@ namespace Katame
 		ID3D11DeviceContext* d3d_context = nullptr;
 		int64_t              d3d_swapchain_fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
 
+		VertexBuffer* app_vertex_buffer = nullptr;
+		IndexBuffer* app_index_buffer = nullptr;
 		VertexShader* app_vshader = nullptr;
 		PixelShader* app_pshader = nullptr;
 		InputLayout* app_shader_layout = nullptr;
 		//ID3D11VertexShader* app_vshader = nullptr;
 		//ID3D11PixelShader* app_pshader = nullptr;
-		ID3D11InputLayout* app_shader_layout = nullptr;
+		//ID3D11InputLayout* app_shader_layout = nullptr;
 		ID3D11Buffer* app_constant_buffer = nullptr;
-		ID3D11Buffer* app_vertex_buffer = nullptr;
-		ID3D11Buffer* app_index_buffer = nullptr;
+		//ID3D11Buffer* app_vertex_buffer = nullptr;
+		//ID3D11Buffer* app_index_buffer = nullptr;
 
 	};
 

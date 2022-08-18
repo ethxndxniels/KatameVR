@@ -239,7 +239,7 @@ namespace Dvtx
 		template<typename ...Params>
 		void EmplaceBack( Params&&... params ) noexcept
 		{
-			assert( sizeof...(params) == layout.GetElementCount() && "Param count doesn't match number of vertex elements" );
+			//assert( sizeof...(params) == layout.GetElementCount() && "Param count doesn't match number of vertex elements" );
 			buffer.resize( buffer.size() + layout.Size() );
 			Back().SetAttributeByIndex( 0u, std::forward<Params>( params )... );
 		}

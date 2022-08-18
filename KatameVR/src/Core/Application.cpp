@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "Log.h"
 
+#include "Cube.h"
+
 namespace Katame
 {
 	Application::Application()
@@ -11,32 +13,27 @@ namespace Katame
 		}
 		openxr_make_actions();
 
-		float app_verts[] = {
-			-1,-1,-1, -1,-1,-1, // Bottom verts
-			1,-1,-1,  1,-1,-1,
-			1, 1,-1,  1, 1,-1,
-			-1, 1,-1, -1, 1,-1,
-			-1,-1, 1, -1,-1, 1, // Top verts
-			1,-1, 1,  1,-1, 1,
-			1, 1, 1,  1, 1, 1,
-			-1, 1, 1, -1, 1, 1, };
+		auto cube = Cube::MakeIndependent( std::move(
+			Dvtx::VertexLayout{}
+			.Append( Dvtx::VertexLayout::Position3D )
+			.Append( Dvtx::VertexLayout::Normal )
+		) );
+		cube.Transform( DirectX::XMMatrixScaling( 5.0f, 5.0f, 5.0f ) );
+		cube.SetNormalsIndependentFlat();
 
-		uint16_t app_inds[] = {
-			1,2,0, 2,3,0, 4,6,5, 7,6,4,
-			6,2,1, 5,6,1, 3,7,4, 0,3,4,
-			4,5,1, 0,4,1, 2,7,3, 2,6,7, };
+		app_vertex_buffer = new VertexBuffer( d3d_device, cube.vertices );
+		app_index_buffer = new IndexBuffer( d3d_device, cube.indices );
 
 		app_vshader = new VertexShader( d3d_device, "./Shaders/Bin/VertexShader.cso" );
 		app_pshader = new PixelShader( d3d_device, "./Shaders/Bin/PixelShader.cso" );
 
-
-		//app_shader_layout = new InputLayout( d3d_device );
+		app_shader_layout = new InputLayout( d3d_device, cube.vertices.GetLayout(), app_vshader->GetBytecode());
 
 		// Describe how our mesh is laid out in memory
 	/*	D3D11_INPUT_ELEMENT_DESC vert_desc[] = {
 			{"SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"NORMAL",      0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}, };
-		d3d_device->CreateInputLayout( vert_desc, (UINT)_countof( vert_desc ), app_vshader->GetBytecode()->GetBufferPointer(), app_vshader->GetBytecode()->GetBufferSize(), &app_shader_l*/ayout);
+		d3d_device->CreateInputLayout( vert_desc, (UINT)_countof( vert_desc ), app_vshader->GetBytecode()->GetBufferPointer(), app_vshader->GetBytecode()->GetBufferSize(), &app_shader_layout);
 
 		// Create GPU resources for our mesh's vertices and indices! Constant buffers are for passing transform
 		// matrices into the shaders, so make a buffer for them too!
@@ -44,10 +41,11 @@ namespace Katame
 		D3D11_SUBRESOURCE_DATA ind_buff_data = { app_inds };
 		CD3D11_BUFFER_DESC     vert_buff_desc( sizeof( app_verts ), D3D11_BIND_VERTEX_BUFFER );
 		CD3D11_BUFFER_DESC     ind_buff_desc( sizeof( app_inds ), D3D11_BIND_INDEX_BUFFER );
+		//d3d_device->CreateBuffer( &vert_buff_desc, &vert_buff_data, &app_vertex_buffer );
+		d3d_device->CreateBuffer( &ind_buff_desc, &ind_buff_data, &app_index_buffer );*/
 		CD3D11_BUFFER_DESC     const_buff_desc( sizeof( app_transform_buffer_t ), D3D11_BIND_CONSTANT_BUFFER );
-		d3d_device->CreateBuffer( &vert_buff_desc, &vert_buff_data, &app_vertex_buffer );
-		d3d_device->CreateBuffer( &ind_buff_desc, &ind_buff_data, &app_index_buffer );
 		d3d_device->CreateBuffer( &const_buff_desc, nullptr, &app_constant_buffer );
+		
 	}
 
 	Application::~Application()
@@ -91,10 +89,15 @@ namespace Katame
 		// Set up the cube mesh's information
 		UINT strides[] = { sizeof( float ) * 6 };
 		UINT offsets[] = { 0 };
-		d3d_context->IASetVertexBuffers( 0, 1, &app_vertex_buffer, strides, offsets );
-		d3d_context->IASetIndexBuffer( app_index_buffer, DXGI_FORMAT_R16_UINT, 0 );
+		//d3d_context->IASetVertexBuffers( 0, 1, &app_vertex_buffer, strides, offsets );
+		app_vertex_buffer->Bind( d3d_context );
+		//d3d_context->IASetIndexBuffer( app_index_buffer, DXGI_FORMAT_R16_UINT, 0 );
+		app_index_buffer->Bind( d3d_context );
 		d3d_context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		d3d_context->IASetInputLayout( app_shader_layout );
+		//d3d_context->IASetInputLayout( app_shader_layout );
+		app_shader_layout->Bind( d3d_context );
+
+
 
 		// Put camera matrices into the shader's constant buffer
 		app_transform_buffer_t transform_buffer;
@@ -122,8 +125,10 @@ namespace Katame
 	{
 		// If the user presses the select action, lets add a cube at that location!
 		for (uint32_t i = 0; i < 2; i++) {
-			if (xr_input.handSelect[i])
+			if (xr_input.handSelect[i]) {
 				app_cubes.push_back( xr_input.handPose[i] );
+				KM_CORE_INFO( "Placing block at x:{}, y:{}, z:{}", xr_input.handPose[i].position.x, xr_input.handPose[i].position.y, xr_input.handPose[i].position.z );
+			}
 		}
 	}
 

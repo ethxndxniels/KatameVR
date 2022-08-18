@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\IndexBuffer.cpp" />
     <ClCompile Include="src\Core\InputLayout.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
@@ -99,12 +100,16 @@
     <ClCompile Include="src\Core\PixelShader.cpp" />
     <ClCompile Include="src\Core\VertexShader.cpp" />
     <ClCompile Include="src\Core\Vertex.cpp" />
+    <ClCompile Include="src\Core\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Cube.h" />
+    <ClInclude Include="src\Core\IndexBuffer.h" />
     <ClInclude Include="src\Core\Color.h" />
+    <ClInclude Include="src\Core\IndexedTriangleList.h" />
     <ClInclude Include="src\Core\InputLayout.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Log.h" />
@@ -314,6 +319,7 @@
     <ClInclude Include="vendor\spdlog\tests\test_sink.h" />
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
     <ClInclude Include="src\Core\Vertex.h" />
+    <ClInclude Include="src\Core\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\PixelShader.hlsl">
