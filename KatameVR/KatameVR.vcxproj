@@ -92,16 +92,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\InputLayout.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\PixelShader.cpp" />
     <ClCompile Include="src\Core\VertexShader.cpp" />
+    <ClCompile Include="src\Core\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Color.h" />
+    <ClInclude Include="src\Core\InputLayout.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\PixelShader.h" />
@@ -309,6 +313,7 @@
     <ClInclude Include="vendor\spdlog\tests\includes.h" />
     <ClInclude Include="vendor\spdlog\tests\test_sink.h" />
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
+    <ClInclude Include="src\Core\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\PixelShader.hlsl">

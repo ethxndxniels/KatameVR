@@ -29,11 +29,14 @@ namespace Katame
 		app_vshader = new VertexShader( d3d_device, "./Shaders/Bin/VertexShader.cso" );
 		app_pshader = new PixelShader( d3d_device, "./Shaders/Bin/PixelShader.cso" );
 
+
+		//app_shader_layout = new InputLayout( d3d_device );
+
 		// Describe how our mesh is laid out in memory
-		D3D11_INPUT_ELEMENT_DESC vert_desc[] = {
+	/*	D3D11_INPUT_ELEMENT_DESC vert_desc[] = {
 			{"SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"NORMAL",      0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}, };
-		d3d_device->CreateInputLayout( vert_desc, (UINT)_countof( vert_desc ), app_vshader->GetBytecode()->GetBufferPointer(), app_vshader->GetBytecode()->GetBufferSize(), &app_shader_layout);
+		d3d_device->CreateInputLayout( vert_desc, (UINT)_countof( vert_desc ), app_vshader->GetBytecode()->GetBufferPointer(), app_vshader->GetBytecode()->GetBufferSize(), &app_shader_l*/ayout);
 
 		// Create GPU resources for our mesh's vertices and indices! Constant buffers are for passing transform
 		// matrices into the shaders, so make a buffer for them too!

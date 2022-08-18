@@ -23,6 +23,7 @@
 
 #include "VertexShader.h"
 #include "PixelShader.h"
+#include "InputLayout.h"
 
 namespace Katame 
 {
@@ -137,7 +138,7 @@ namespace Katame
 
 		VertexShader* app_vshader = nullptr;
 		PixelShader* app_pshader = nullptr;
-
+		InputLayout* app_shader_layout = nullptr;
 		//ID3D11VertexShader* app_vshader = nullptr;
 		//ID3D11PixelShader* app_pshader = nullptr;
 		ID3D11InputLayout* app_shader_layout = nullptr;
