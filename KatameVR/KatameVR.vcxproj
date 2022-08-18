@@ -79,7 +79,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\spdlog\src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\spdlog\src;vendor\assimp\include;vendor\glm;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -88,24 +88,20 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>KatameVR\vendor\assimp\bin\win64\assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
-    <ClCompile Include="src\Core\LayerStack.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Renderer\Renderer.h" />
     <ClInclude Include="src\Core\Application.h" />
-    <ClInclude Include="src\Core\LayerStack.h" />
     <ClInclude Include="src\Core\Log.h" />
-    <ClInclude Include="src\KatameVR.h" />
     <ClInclude Include="src\Libraries\spdlog\async.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger-inl.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger.h" />

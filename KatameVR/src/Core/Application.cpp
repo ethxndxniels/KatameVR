@@ -3,86 +3,6 @@
 
 namespace Katame
 {
-	float app_verts[] = {
-	-1,-1,-1, -1,-1,-1, // Bottom verts
-	 1,-1,-1,  1,-1,-1,
-	 1, 1,-1,  1, 1,-1,
-	-1, 1,-1, -1, 1,-1,
-	-1,-1, 1, -1,-1, 1, // Top verts
-	 1,-1, 1,  1,-1, 1,
-	 1, 1, 1,  1, 1, 1,
-	-1, 1, 1, -1, 1, 1, };
-
-	uint16_t app_inds[] = {
-		1,2,0, 2,3,0, 4,6,5, 7,6,4,
-		6,2,1, 5,6,1, 3,7,4, 0,3,4,
-		4,5,1, 0,4,1, 2,7,3, 2,6,7, };
-
-	struct swapchain_surfdata_t {
-		ID3D11DepthStencilView* depth_view;
-		ID3D11RenderTargetView* target_view;
-	};
-
-	struct swapchain_t {
-		XrSwapchain handle;
-		int32_t     width;
-		int32_t     height;
-		std::vector<XrSwapchainImageD3D11KHR> surface_images;
-		std::vector<swapchain_surfdata_t>     surface_data;
-	};
-
-	struct input_state_t {
-		XrActionSet actionSet;
-		XrAction    poseAction;
-		XrAction    selectAction;
-		XrPath   handSubactionPath[2];
-		XrSpace  handSpace[2];
-		XrPosef  handPose[2];
-		XrBool32 renderHand[2];
-		XrBool32 handSelect[2];
-	};
-
-
-	ID3D11Device* d3d_device = nullptr;
-	ID3D11DeviceContext* d3d_context = nullptr;
-	int64_t              d3d_swapchain_fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-	ID3D11VertexShader* app_vshader;
-	ID3D11PixelShader* app_pshader;
-	ID3D11InputLayout* app_shader_layout;
-	ID3D11Buffer* app_constant_buffer;
-	ID3D11Buffer* app_vertex_buffer;
-	ID3D11Buffer* app_index_buffer;
-
-	struct app_transform_buffer_t {
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMFLOAT4X4 viewproj;
-	};
-	constexpr char app_shader_code[] = R"_(
-	cbuffer TransformBuffer : register(b0) {
-		float4x4 world;
-		float4x4 viewproj;
-	};
-	struct vsIn {
-		float4 pos  : SV_POSITION;
-		float3 norm : NORMAL;
-	};
-	struct psIn {
-		float4 pos   : SV_POSITION;
-		float3 color : COLOR0;
-	};
-	psIn vs(vsIn input) {
-		psIn output;
-		output.pos = mul(float4(input.pos.xyz, 1), world);
-		output.pos = mul(output.pos, viewproj);
-		float3 normal = normalize(mul(float4(input.norm, 0), world).xyz);
-		output.color = saturate(dot(normal, float3(0,1,0))).xxx;
-		return output;
-	}
-	float4 ps(psIn input) : SV_TARGET {
-		return float4(input.color, 1);
-	})_";
-
 	ID3DBlob* d3d_compile_shader( const char* hlsl, const char* entrypoint, const char* target ) {
 		DWORD flags = D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
 #ifdef _DEBUG
@@ -156,25 +76,6 @@ namespace Katame
 		d3d_shutdown();
 	}
 
-	//void Application::Run()
-	//{
-	//	while (m_Running)
-	//	{
-	//		if (!m_Minimized)
-	//		{
-	//			//for (Layer* layer : m_LayerStack)
-	//				//layer->OnUpdate();
-	//			// Render ImGui on render thread
-	//			Application* app = this;
-	//			//KM_RENDER_1( app, { app->RenderImGui(); } );
-
-	//			//Renderer::Get().WaitAndRender();
-	//		}
-	//		//m_Window->OnUpdate();
-	//	}
-	//}
-
-	std::vector<XrPosef> app_cubes;
 	void Application::Draw( XrCompositionLayerProjectionView& view ) 
 	{
 		// Set up camera matrices based on OpenXR's predicted viewpoint information
@@ -216,27 +117,6 @@ namespace Katame
 		}
 	}
 
-	const XrPosef  xr_pose_identity = { {0,0,0,1}, {0,0,0} };
-	XrInstance     xr_instance = {};
-	XrSession      xr_session = {};
-	
-
-	XrSpace        xr_app_space = {};
-	XrSystemId     xr_system_id = XR_NULL_SYSTEM_ID;
-	input_state_t  xr_input = { };
-	XrEnvironmentBlendMode   xr_blend = {};
-	XrDebugUtilsMessengerEXT xr_debug = {};
-
-	std::vector<XrView>                  xr_views;
-	std::vector<XrViewConfigurationView> xr_config_views;
-	std::vector<swapchain_t>             xr_swapchains;
-
-
-
-	XrFormFactor            app_config_form = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
-	XrViewConfigurationType app_config_view = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
-
-
 	void Application::Update()
 	{
 		// If the user presses the select action, lets add a cube at that location!
@@ -260,7 +140,7 @@ namespace Katame
 	
 
 
-	///////////////////////////////////////////
+///////////////////////////////////////////
 // DirectX code                          //
 ///////////////////////////////////////////
 
@@ -392,16 +272,6 @@ namespace Katame
 	}
 
 	///////////////////////////////////////////
-
-
-
-
-
-
-	// Function pointers for some OpenXR extension methods we'll use.
-	PFN_xrGetD3D11GraphicsRequirementsKHR ext_xrGetD3D11GraphicsRequirementsKHR = nullptr;
-	PFN_xrCreateDebugUtilsMessengerEXT    ext_xrCreateDebugUtilsMessengerEXT = nullptr;
-	PFN_xrDestroyDebugUtilsMessengerEXT   ext_xrDestroyDebugUtilsMessengerEXT = nullptr;
 
 
 
