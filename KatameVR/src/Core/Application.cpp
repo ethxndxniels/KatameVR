@@ -3,42 +3,37 @@
 
 namespace Katame
 {
-	ID3DBlob* d3d_compile_shader( const char* hlsl, const char* entrypoint, const char* target ) {
-		DWORD flags = D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
-#ifdef _DEBUG
-		flags |= D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
-#else
-		flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
-#endif
-
-		ID3DBlob* compiled, * errors;
-		if (FAILED( D3DCompile( hlsl, strlen( hlsl ), nullptr, nullptr, nullptr, entrypoint, target, flags, 0, &compiled, &errors ) ))
-			printf( "Error: D3DCompile failed %s", (char*)errors->GetBufferPointer() );
-		if (errors) errors->Release();
-
-		return compiled;
-	}
-
 	Application::Application()
 	{
 		if (!openxr_init( "Single file OpenXR", d3d_swapchain_fmt )) {
 			d3d_shutdown();
-			MessageBox( nullptr, L"OpenXR initialization failed\n", L"Error", 1 );
-			//return 1;
+			KM_CORE_ERROR( "OpenXR initialization failed." );
 		}
 		openxr_make_actions();
 
-		// Compile our shader code, and turn it into a shader resource!
-		ID3DBlob* vert_shader_blob = d3d_compile_shader( app_shader_code, "vs", "vs_5_0" );
-		ID3DBlob* pixel_shader_blob = d3d_compile_shader( app_shader_code, "ps", "ps_5_0" );
-		d3d_device->CreateVertexShader( vert_shader_blob->GetBufferPointer(), vert_shader_blob->GetBufferSize(), nullptr, &app_vshader );
-		d3d_device->CreatePixelShader( pixel_shader_blob->GetBufferPointer(), pixel_shader_blob->GetBufferSize(), nullptr, &app_pshader );
+		float app_verts[] = {
+			-1,-1,-1, -1,-1,-1, // Bottom verts
+			1,-1,-1,  1,-1,-1,
+			1, 1,-1,  1, 1,-1,
+			-1, 1,-1, -1, 1,-1,
+			-1,-1, 1, -1,-1, 1, // Top verts
+			1,-1, 1,  1,-1, 1,
+			1, 1, 1,  1, 1, 1,
+			-1, 1, 1, -1, 1, 1, };
+
+		uint16_t app_inds[] = {
+			1,2,0, 2,3,0, 4,6,5, 7,6,4,
+			6,2,1, 5,6,1, 3,7,4, 0,3,4,
+			4,5,1, 0,4,1, 2,7,3, 2,6,7, };
+
+		app_vshader = new VertexShader( d3d_device, "./Shaders/Bin/VertexShader.cso" );
+		app_pshader = new PixelShader( d3d_device, "./Shaders/Bin/PixelShader.cso" );
 
 		// Describe how our mesh is laid out in memory
 		D3D11_INPUT_ELEMENT_DESC vert_desc[] = {
 			{"SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"NORMAL",      0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}, };
-		d3d_device->CreateInputLayout( vert_desc, (UINT)_countof( vert_desc ), vert_shader_blob->GetBufferPointer(), vert_shader_blob->GetBufferSize(), &app_shader_layout );
+		d3d_device->CreateInputLayout( vert_desc, (UINT)_countof( vert_desc ), app_vshader->GetBytecode()->GetBufferPointer(), app_vshader->GetBytecode()->GetBufferSize(), &app_shader_layout);
 
 		// Create GPU resources for our mesh's vertices and indices! Constant buffers are for passing transform
 		// matrices into the shaders, so make a buffer for them too!
@@ -87,8 +82,8 @@ namespace Katame
 
 		// Set the active shaders and constant buffers.
 		d3d_context->VSSetConstantBuffers( 0, 1, &app_constant_buffer );
-		d3d_context->VSSetShader( app_vshader, nullptr, 0 );
-		d3d_context->PSSetShader( app_pshader, nullptr, 0 );
+		app_vshader->Bind( d3d_context );
+		app_pshader->Bind( d3d_context );
 
 		// Set up the cube mesh's information
 		UINT strides[] = { sizeof( float ) * 6 };
@@ -101,7 +96,10 @@ namespace Katame
 		// Put camera matrices into the shader's constant buffer
 		app_transform_buffer_t transform_buffer;
 		XMStoreFloat4x4( &transform_buffer.viewproj, DirectX::XMMatrixTranspose( mat_view * mat_projection ) );
-
+		uint16_t app_inds[] = {
+			1,2,0, 2,3,0, 4,6,5, 7,6,4,
+			6,2,1, 5,6,1, 3,7,4, 0,3,4,
+			4,5,1, 0,4,1, 2,7,3, 2,6,7, };
 		// Draw all the cubes we have in our list!
 		for (size_t i = 0; i < app_cubes.size(); i++) {
 			// Create a translate, rotate, scale matrix for the cube's world location
@@ -192,8 +190,8 @@ namespace Katame
 
 	///////////////////////////////////////////
 
-	swapchain_surfdata_t d3d_make_surface_data( XrBaseInStructure& swapchain_img ) {
-		swapchain_surfdata_t result = {};
+	Application::swapchain_surfdata_t Application::d3d_make_surface_data( XrBaseInStructure& swapchain_img ) {
+		Application::swapchain_surfdata_t result = {};
 
 		// Get information about the swapchain image that OpenXR made for us!
 		XrSwapchainImageD3D11KHR& d3d_swapchain_img = (XrSwapchainImageD3D11KHR&)swapchain_img;
@@ -253,7 +251,7 @@ namespace Katame
 
 	///////////////////////////////////////////
 
-	void d3d_swapchain_destroy( swapchain_t& swapchain ) {
+	void Application::d3d_swapchain_destroy( swapchain_t& swapchain ) {
 		for (uint32_t i = 0; i < swapchain.surface_data.size(); i++) {
 			swapchain.surface_data[i].depth_view->Release();
 			swapchain.surface_data[i].target_view->Release();

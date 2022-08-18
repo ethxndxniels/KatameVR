@@ -1,5 +1,5 @@
-#include "src/Core/Application.h"
-#include "src/Core/Log.h"
+#include "Application.h"
+#include "Log.h"
 
 int main( int argc, char** argv )
 {
