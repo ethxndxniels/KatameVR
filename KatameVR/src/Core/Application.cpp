@@ -7,9 +7,11 @@ namespace Katame
 {
 	Application::Application()
 	{
-		if (!openxr_init( "Single file OpenXR", d3d_swapchain_fmt )) {
-			d3d_shutdown();
-			KM_CORE_ERROR( "OpenXR initialization failed." );
+		gfx = new Graphics( 1280, 720 );
+
+		if (!openxr_init( "Single file OpenXR", gfx->m_Swapchain_fmt )) {
+			delete gfx;
+			throw std::exception( "OpenXR initialization failed." );
 		}
 		openxr_make_actions();
 
@@ -21,30 +23,14 @@ namespace Katame
 		cube.Transform( DirectX::XMMatrixScaling( 5.0f, 5.0f, 5.0f ) );
 		cube.SetNormalsIndependentFlat();
 
-		app_vertex_buffer = new VertexBuffer( d3d_device, cube.vertices );
-		app_index_buffer = new IndexBuffer( d3d_device, cube.indices );
+		app_vertex_buffer = new VertexBuffer( gfx->m_Device, cube.vertices );
+		app_index_buffer = new IndexBuffer( gfx->m_Device, cube.indices );
+		app_vshader = new VertexShader( gfx->m_Device, "./Shaders/Bin/VertexShader.cso" );
+		app_pshader = new PixelShader( gfx->m_Device, "./Shaders/Bin/PixelShader.cso" );
+		app_shader_layout = new InputLayout( gfx->m_Device, cube.vertices.GetLayout(), app_vshader->GetBytecode());
 
-		app_vshader = new VertexShader( d3d_device, "./Shaders/Bin/VertexShader.cso" );
-		app_pshader = new PixelShader( d3d_device, "./Shaders/Bin/PixelShader.cso" );
-
-		app_shader_layout = new InputLayout( d3d_device, cube.vertices.GetLayout(), app_vshader->GetBytecode());
-
-		// Describe how our mesh is laid out in memory
-	/*	D3D11_INPUT_ELEMENT_DESC vert_desc[] = {
-			{"SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL",      0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}, };
-		d3d_device->CreateInputLayout( vert_desc, (UINT)_countof( vert_desc ), app_vshader->GetBytecode()->GetBufferPointer(), app_vshader->GetBytecode()->GetBufferSize(), &app_shader_layout);
-
-		// Create GPU resources for our mesh's vertices and indices! Constant buffers are for passing transform
-		// matrices into the shaders, so make a buffer for them too!
-		D3D11_SUBRESOURCE_DATA vert_buff_data = { app_verts };
-		D3D11_SUBRESOURCE_DATA ind_buff_data = { app_inds };
-		CD3D11_BUFFER_DESC     vert_buff_desc( sizeof( app_verts ), D3D11_BIND_VERTEX_BUFFER );
-		CD3D11_BUFFER_DESC     ind_buff_desc( sizeof( app_inds ), D3D11_BIND_INDEX_BUFFER );
-		//d3d_device->CreateBuffer( &vert_buff_desc, &vert_buff_data, &app_vertex_buffer );
-		d3d_device->CreateBuffer( &ind_buff_desc, &ind_buff_data, &app_index_buffer );*/
 		CD3D11_BUFFER_DESC     const_buff_desc( sizeof( app_transform_buffer_t ), D3D11_BIND_CONSTANT_BUFFER );
-		d3d_device->CreateBuffer( &const_buff_desc, nullptr, &app_constant_buffer );
+		gfx->m_Device->CreateBuffer( &const_buff_desc, nullptr, &app_constant_buffer );
 		
 	}
 
@@ -69,33 +55,30 @@ namespace Katame
 			}
 		}
 		openxr_shutdown();
-		d3d_shutdown();
+		delete gfx;
 	}
 
 	void Application::Draw( XrCompositionLayerProjectionView& view ) 
 	{
 		// Set up camera matrices based on OpenXR's predicted viewpoint information
-		DirectX::XMMATRIX mat_projection = d3d_xr_projection( view.fov, 0.05f, 100.0f );
+		DirectX::XMMATRIX mat_projection = gfx->GetXRProjection( view.fov, 0.05f, 100.0f );
 		DirectX::XMMATRIX mat_view = XMMatrixInverse( nullptr, XMMatrixAffineTransformation(
 			DirectX::g_XMOne, DirectX::g_XMZero,
 			DirectX::XMLoadFloat4( (DirectX::XMFLOAT4*)&view.pose.orientation ),
 			DirectX::XMLoadFloat3( (DirectX::XMFLOAT3*)&view.pose.position ) ) );
 
 		// Set the active shaders and constant buffers.
-		d3d_context->VSSetConstantBuffers( 0, 1, &app_constant_buffer );
-		app_vshader->Bind( d3d_context );
-		app_pshader->Bind( d3d_context );
+		gfx->m_Context->VSSetConstantBuffers( 0, 1, &app_constant_buffer );
+		app_vshader->Bind( gfx->m_Context );
+		app_pshader->Bind( gfx->m_Context );
 
 		// Set up the cube mesh's information
 		UINT strides[] = { sizeof( float ) * 6 };
 		UINT offsets[] = { 0 };
-		//d3d_context->IASetVertexBuffers( 0, 1, &app_vertex_buffer, strides, offsets );
-		app_vertex_buffer->Bind( d3d_context );
-		//d3d_context->IASetIndexBuffer( app_index_buffer, DXGI_FORMAT_R16_UINT, 0 );
-		app_index_buffer->Bind( d3d_context );
-		d3d_context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		//d3d_context->IASetInputLayout( app_shader_layout );
-		app_shader_layout->Bind( d3d_context );
+		app_vertex_buffer->Bind( gfx->m_Context );
+		app_index_buffer->Bind( gfx->m_Context );
+		gfx->m_Context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		app_shader_layout->Bind( gfx->m_Context );
 
 
 
@@ -116,8 +99,8 @@ namespace Katame
 
 			// Update the shader's constant buffer with the transform matrix info, and then draw the mesh!
 			XMStoreFloat4x4( &transform_buffer.world, DirectX::XMMatrixTranspose( mat_model ) );
-			d3d_context->UpdateSubresource( app_constant_buffer, 0, nullptr, &transform_buffer, 0, 0 );
-			d3d_context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
+			gfx->m_Context->UpdateSubresource( app_constant_buffer, 0, nullptr, &transform_buffer, 0, 0 );
+			gfx->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		}
 	}
 
@@ -143,139 +126,6 @@ namespace Katame
 		}
 	}
 
-	
-
-
-///////////////////////////////////////////
-// DirectX code                          //
-///////////////////////////////////////////
-
-	bool Application::d3d_init( LUID& adapter_luid ) {
-		IDXGIAdapter1* adapter = d3d_get_adapter( adapter_luid );
-		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
-
-		if (adapter == nullptr)
-			return false;
-		if (FAILED( D3D11CreateDevice( adapter, D3D_DRIVER_TYPE_UNKNOWN, 0, 0, featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION, &d3d_device, nullptr, &d3d_context ) ))
-			return false;
-
-		adapter->Release();
-		return true;
-	}
-
-	///////////////////////////////////////////
-
-	IDXGIAdapter1* Application::d3d_get_adapter( LUID& adapter_luid ) {
-		// Turn the LUID into a specific graphics device adapter
-		IDXGIAdapter1* final_adapter = nullptr;
-		IDXGIAdapter1* curr_adapter = nullptr;
-		IDXGIFactory1* dxgi_factory;
-		DXGI_ADAPTER_DESC1 adapter_desc;
-
-		CreateDXGIFactory1( __uuidof(IDXGIFactory1), (void**)(&dxgi_factory) );
-
-		int curr = 0;
-		while (dxgi_factory->EnumAdapters1( curr++, &curr_adapter ) == S_OK) {
-			curr_adapter->GetDesc1( &adapter_desc );
-
-			if (memcmp( &adapter_desc.AdapterLuid, &adapter_luid, sizeof( &adapter_luid ) ) == 0) {
-				final_adapter = curr_adapter;
-				break;
-			}
-			curr_adapter->Release();
-			curr_adapter = nullptr;
-		}
-		dxgi_factory->Release();
-		return final_adapter;
-	}
-
-	///////////////////////////////////////////
-
-	void Application::d3d_shutdown() {
-		if (d3d_context) { d3d_context->Release(); d3d_context = nullptr; }
-		if (d3d_device) { d3d_device->Release();  d3d_device = nullptr; }
-	}
-
-	///////////////////////////////////////////
-
-	Application::swapchain_surfdata_t Application::d3d_make_surface_data( XrBaseInStructure& swapchain_img ) {
-		Application::swapchain_surfdata_t result = {};
-
-		// Get information about the swapchain image that OpenXR made for us!
-		XrSwapchainImageD3D11KHR& d3d_swapchain_img = (XrSwapchainImageD3D11KHR&)swapchain_img;
-		D3D11_TEXTURE2D_DESC      color_desc;
-		d3d_swapchain_img.texture->GetDesc( &color_desc );
-
-		// Create a view resource for the swapchain image target that we can use to set up rendering.
-		D3D11_RENDER_TARGET_VIEW_DESC target_desc = {};
-		target_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		// NOTE: Why not use color_desc.Format? Check the notes over near the xrCreateSwapchain call!
-		// Basically, the color_desc.Format of the OpenXR created swapchain is TYPELESS, but in order to
-		// create a View for the texture, we need a concrete variant of the texture format like UNORM.
-		target_desc.Format = (DXGI_FORMAT)d3d_swapchain_fmt;
-		d3d_device->CreateRenderTargetView( d3d_swapchain_img.texture, &target_desc, &result.target_view );
-
-		// Create a depth buffer that matches 
-		ID3D11Texture2D* depth_texture;
-		D3D11_TEXTURE2D_DESC depth_desc = {};
-		depth_desc.SampleDesc.Count = 1;
-		depth_desc.MipLevels = 1;
-		depth_desc.Width = color_desc.Width;
-		depth_desc.Height = color_desc.Height;
-		depth_desc.ArraySize = color_desc.ArraySize;
-		depth_desc.Format = DXGI_FORMAT_R32_TYPELESS;
-		depth_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
-		d3d_device->CreateTexture2D( &depth_desc, nullptr, &depth_texture );
-
-		// And create a view resource for the depth buffer, so we can set that up for rendering to as well!
-		D3D11_DEPTH_STENCIL_VIEW_DESC stencil_desc = {};
-		stencil_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		stencil_desc.Format = DXGI_FORMAT_D32_FLOAT;
-		d3d_device->CreateDepthStencilView( depth_texture, &stencil_desc, &result.depth_view );
-
-		// We don't need direct access to the ID3D11Texture2D object anymore, we only need the view
-		depth_texture->Release();
-
-		return result;
-	}
-
-	///////////////////////////////////////////
-
-	void Application::d3d_render_layer( XrCompositionLayerProjectionView& view, swapchain_surfdata_t& surface ) {
-		// Set up where on the render target we want to draw, the view has a 
-		XrRect2Di& rect = view.subImage.imageRect;
-		D3D11_VIEWPORT viewport = CD3D11_VIEWPORT( (float)rect.offset.x, (float)rect.offset.y, (float)rect.extent.width, (float)rect.extent.height );
-		d3d_context->RSSetViewports( 1, &viewport );
-
-		// Wipe our swapchain color and depth target clean, and then set them up for rendering!
-		float clear[] = { 0, 0, 0, 1 };
-		d3d_context->ClearRenderTargetView( surface.target_view, clear );
-		d3d_context->ClearDepthStencilView( surface.depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-		d3d_context->OMSetRenderTargets( 1, &surface.target_view, surface.depth_view );
-
-		// And now that we're set up, pass on the rest of our rendering to the application
-		Draw( view );
-	}
-
-	///////////////////////////////////////////
-
-	void Application::d3d_swapchain_destroy( swapchain_t& swapchain ) {
-		for (uint32_t i = 0; i < swapchain.surface_data.size(); i++) {
-			swapchain.surface_data[i].depth_view->Release();
-			swapchain.surface_data[i].target_view->Release();
-		}
-	}
-
-	///////////////////////////////////////////
-
-	DirectX::XMMATRIX Application::d3d_xr_projection( XrFovf fov, float clip_near, float clip_far ) {
-		const float left = clip_near * tanf( fov.angleLeft );
-		const float right = clip_near * tanf( fov.angleRight );
-		const float down = clip_near * tanf( fov.angleDown );
-		const float up = clip_near * tanf( fov.angleUp );
-
-		return DirectX::XMMatrixPerspectiveOffCenterRH( left, right, down, up, clip_near, clip_far );
-	}
 
 	///////////////////////////////////////////
 
@@ -404,13 +254,13 @@ namespace Katame
 			// like laptops with integrated graphics chips in addition to dedicated graphics cards.
 			XrGraphicsRequirementsD3D11KHR requirement = { XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR };
 			ext_xrGetD3D11GraphicsRequirementsKHR( xr_instance, xr_system_id, &requirement );
-			if (!d3d_init( requirement.adapterLuid ))
+			if (!gfx->Init( requirement.adapterLuid ))
 				return false;
 
 			// A session represents this application's desire to display things! This is where we hook up our graphics API.
 			// This does not start the session, for that, you'll need a call to xrBeginSession, which we do in openxr_poll_events
 			XrGraphicsBindingD3D11KHR binding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
-			binding.device = d3d_device;
+			binding.device = gfx->m_Device;
 			XrSessionCreateInfo sessionInfo = { XR_TYPE_SESSION_CREATE_INFO };
 			sessionInfo.next = &binding;
 			sessionInfo.systemId = xr_system_id;
@@ -470,7 +320,7 @@ namespace Katame
 				swapchain.surface_data.resize( surface_count );
 				xrEnumerateSwapchainImages( swapchain.handle, surface_count, &surface_count, (XrSwapchainImageBaseHeader*)swapchain.surface_images.data() );
 				for (uint32_t i = 0; i < surface_count; i++) {
-					swapchain.surface_data[i] = d3d_make_surface_data( (XrBaseInStructure&)swapchain.surface_images[i] );
+					swapchain.surface_data[i] = gfx->MakeSurfaceData( (XrBaseInStructure&)swapchain.surface_images[i] );
 				}
 				xr_swapchains.push_back( swapchain );
 			}
@@ -551,7 +401,7 @@ namespace Katame
 		// give it a chance to release anythig here!
 		for (int32_t i = 0; i < xr_swapchains.size(); i++) {
 			xrDestroySwapchain( xr_swapchains[i].handle );
-			d3d_swapchain_destroy( xr_swapchains[i] );
+			gfx->SwapchainDestroy( xr_swapchains[i] );
 		}
 		xr_swapchains.clear();
 
@@ -744,7 +594,8 @@ namespace Katame
 			views[i].subImage.imageRect.extent = { xr_swapchains[i].width, xr_swapchains[i].height };
 
 			// Call the rendering callback with our view and swapchain info
-			d3d_render_layer( views[i], xr_swapchains[i].surface_data[img_id] );
+			gfx->RenderLayer( views[i], xr_swapchains[i].surface_data[img_id] );
+			Draw( views[i] );
 
 			// And tell OpenXR we're done with rendering to this one!
 			XrSwapchainImageReleaseInfo release_info = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };

@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Graphics.cpp" />
     <ClCompile Include="src\Core\IndexBuffer.cpp" />
     <ClCompile Include="src\Core\InputLayout.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
@@ -106,6 +107,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Graphics.h" />
     <ClInclude Include="src\Core\Cube.h" />
     <ClInclude Include="src\Core\IndexBuffer.h" />
     <ClInclude Include="src\Core\Color.h" />
