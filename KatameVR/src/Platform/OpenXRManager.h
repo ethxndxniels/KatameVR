@@ -46,6 +46,7 @@ namespace Katame
 		XrPosef GetHandPos( int i );
 		const XrPosef GetPoseIdentity();
 		input_state_t GetInput();
+		void SwapchainDestroy( swapchain_t& swapchain );
 
 		bool openxr_init( const char* app_name, int64_t swapchain_format );
 		void openxr_poll_events( bool& m_Running, bool& xr_running );

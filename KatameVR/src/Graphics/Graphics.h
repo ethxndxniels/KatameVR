@@ -32,10 +32,9 @@ namespace Katame
 		void BeginFrame( float red, float green, float blue ) noexcept;
 		void EndFrame();
 		void DrawIndexed( int count )  noexcept;
-		void RenderLayer( struct XrCompositionLayerProjectionView& view, swapchain_surfdata_t& surface );
-		swapchain_surfdata_t MakeSurfaceData( struct XrBaseInStructure& swapchain_img );
-		void SwapchainDestroy( struct swapchain_t& swapchain );
-		DirectX::XMMATRIX GetXRProjection( struct XrFovf fov, float clip_near, float clip_far );
+		void RenderLayer( float offset_x, float offset_y, float extent_width, float extent_height, swapchain_surfdata_t& surface );
+		swapchain_surfdata_t MakeSurfaceData( ID3D11Texture2D* texture );
+		DirectX::XMMATRIX GetXRProjection( float angleLeft, float angleRight, float angleUp, float angleDown, float clip_near, float clip_far );
 	private:
 		IDXGIAdapter1* GetAdapter( LUID& adapter_luid );
 	public:

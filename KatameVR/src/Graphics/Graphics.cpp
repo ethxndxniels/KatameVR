@@ -1,8 +1,6 @@
 #include "Graphics.h"
 #include "../Core/Log.h"
 
-#include "../Platform/OpenXRManager.h"
-
 namespace Katame
 {
 
@@ -45,11 +43,10 @@ namespace Katame
 	{
 	}
 
-	void Graphics::RenderLayer( XrCompositionLayerProjectionView& view, swapchain_surfdata_t& surface )
+	void Graphics::RenderLayer( float offset_x, float offset_y, float extent_width, float extent_height, swapchain_surfdata_t& surface )
 	{
 		// Set up where on the render target we want to draw, the view has a 
-		XrRect2Di& rect = view.subImage.imageRect;
-		D3D11_VIEWPORT viewport = CD3D11_VIEWPORT( (float)rect.offset.x, (float)rect.offset.y, (float)rect.extent.width, (float)rect.extent.height );
+		D3D11_VIEWPORT viewport = CD3D11_VIEWPORT( offset_x, offset_y, extent_width, extent_height );
 		m_Context->RSSetViewports( 1, &viewport );
 
 		// Wipe our swapchain color and depth target clean, and then set them up for rendering!
@@ -59,14 +56,12 @@ namespace Katame
 		m_Context->OMSetRenderTargets( 1, &surface.target_view, surface.depth_view );
 	}
 
-	swapchain_surfdata_t Graphics::MakeSurfaceData( XrBaseInStructure& swapchain_img )
+	swapchain_surfdata_t Graphics::MakeSurfaceData( ID3D11Texture2D* texture )
 	{
 		swapchain_surfdata_t result = {};
 
-		// Get information about the swapchain image that OpenXR made for us!
-		XrSwapchainImageD3D11KHR& d3d_swapchain_img = (XrSwapchainImageD3D11KHR&)swapchain_img;
 		D3D11_TEXTURE2D_DESC      color_desc;
-		d3d_swapchain_img.texture->GetDesc( &color_desc );
+		texture->GetDesc( &color_desc );
 
 		// Create a view resource for the swapchain image target that we can use to set up rendering.
 		D3D11_RENDER_TARGET_VIEW_DESC target_desc = {};
@@ -75,7 +70,7 @@ namespace Katame
 		// Basically, the color_desc.Format of the OpenXR created swapchain is TYPELESS, but in order to
 		// create a View for the texture, we need a concrete variant of the texture format like UNORM.
 		target_desc.Format = (DXGI_FORMAT)m_Swapchain_fmt;
-		m_Device->CreateRenderTargetView( d3d_swapchain_img.texture, &target_desc, &result.target_view );
+		m_Device->CreateRenderTargetView( texture, &target_desc, &result.target_view );
 
 		// Create a depth buffer that matches 
 		ID3D11Texture2D* depth_texture;
@@ -101,20 +96,12 @@ namespace Katame
 		return result;
 	}
 
-	void Graphics::SwapchainDestroy( swapchain_t& swapchain )
+	DirectX::XMMATRIX Graphics::GetXRProjection( float angleLeft, float angleRight, float angleUp, float angleDown, float clip_near, float clip_far )
 	{
-		for (uint32_t i = 0; i < swapchain.surface_data.size(); i++) {
-			swapchain.surface_data[i].depth_view->Release();
-			swapchain.surface_data[i].target_view->Release();
-		}
-	}
-
-	DirectX::XMMATRIX Graphics::GetXRProjection( XrFovf fov, float clip_near, float clip_far )
-	{
-		const float left = clip_near * tanf( fov.angleLeft );
-		const float right = clip_near * tanf( fov.angleRight );
-		const float down = clip_near * tanf( fov.angleDown );
-		const float up = clip_near * tanf( fov.angleUp );
+		const float left = clip_near * tanf( angleLeft );
+		const float right = clip_near * tanf( angleRight );
+		const float down = clip_near * tanf( angleDown );
+		const float up = clip_near * tanf( angleUp );
 
 		return DirectX::XMMatrixPerspectiveOffCenterRH( left, right, down, up, clip_near, clip_far );
 	}

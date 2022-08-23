@@ -45,6 +45,14 @@ namespace Katame
 		return xr_input;
 	}
 
+	void OpenXRManager::SwapchainDestroy( swapchain_t& swapchain )
+	{
+		for (uint32_t i = 0; i < swapchain.surface_data.size(); i++) {
+			swapchain.surface_data[i].depth_view->Release();
+			swapchain.surface_data[i].target_view->Release();
+		}
+	}
+
 	bool OpenXRManager::openxr_init( const char* app_name, int64_t swapchain_format ) {
 		KM_CORE_INFO( "Initializing OpenXR.." );
 		// OpenXR will fail to initialize if we ask for an extension that OpenXR
@@ -227,7 +235,10 @@ namespace Katame
 				swapchain.surface_data.resize( surface_count );
 				xrEnumerateSwapchainImages( swapchain.handle, surface_count, &surface_count, (XrSwapchainImageBaseHeader*)swapchain.surface_images.data() );
 				for (uint32_t i = 0; i < surface_count; i++) {
-					swapchain.surface_data[i] = gfx->MakeSurfaceData( (XrBaseInStructure&)swapchain.surface_images[i] );
+
+					// Get information about the swapchain image that OpenXR made for us!
+					XrSwapchainImageD3D11KHR& d3d_swapchain_img = (XrSwapchainImageD3D11KHR&)swapchain.surface_images[i];
+					swapchain.surface_data[i] = gfx->MakeSurfaceData( d3d_swapchain_img.texture );
 				}
 				xr_swapchains.push_back( swapchain );
 			}
@@ -309,7 +320,7 @@ namespace Katame
 		// give it a chance to release anythig here!
 		for (int32_t i = 0; i < xr_swapchains.size(); i++) {
 			xrDestroySwapchain( xr_swapchains[i].handle );
-			gfx->SwapchainDestroy( xr_swapchains[i] );
+			SwapchainDestroy( xr_swapchains[i] );
 		}
 		xr_swapchains.clear();
 
@@ -502,7 +513,7 @@ namespace Katame
 			views[i].subImage.imageRect.extent = { xr_swapchains[i].width, xr_swapchains[i].height };
 
 			// Call the rendering callback with our view and swapchain info
-			gfx->RenderLayer( views[i], xr_swapchains[i].surface_data[img_id] );
+			gfx->RenderLayer( views[i].subImage.imageRect.offset.x, views[i].subImage.imageRect.offset.y, views[i].subImage.imageRect.extent.width, views[i].subImage.imageRect.extent.width, xr_swapchains[i].surface_data[img_id] );
 			app->Draw( views[i] );
 
 			// And tell OpenXR we're done with rendering to this one!
