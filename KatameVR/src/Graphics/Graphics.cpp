@@ -1,6 +1,5 @@
 #include "Graphics.h"
-
-
+#include "../Core/Log.h"
 
 namespace Katame
 {
@@ -17,6 +16,8 @@ namespace Katame
 
 	bool Graphics::Init( LUID& adapter_luid )
 	{
+		KM_CORE_INFO( "Initializing Graphics.." );
+
 		IDXGIAdapter1* adapter = GetAdapter( adapter_luid );
 		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 
@@ -25,6 +26,8 @@ namespace Katame
 		D3D11CreateDevice( adapter, D3D_DRIVER_TYPE_UNKNOWN, 0, 0, featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION, &m_Device, nullptr, &m_Context );
 
 		adapter->Release();
+
+		KM_CORE_INFO( "Initialized Graphics!" );
 		return true;
 	}
 

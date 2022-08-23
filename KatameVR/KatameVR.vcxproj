@@ -92,31 +92,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\Graphics.cpp" />
-    <ClCompile Include="src\Core\IndexBuffer.cpp" />
-    <ClCompile Include="src\Core\InputLayout.cpp" />
+    <ClCompile Include="src\Graphics\Graphics.cpp" />
+    <ClCompile Include="src\Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="src\Graphics\InputLayout.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
-    <ClCompile Include="src\Core\PixelShader.cpp" />
-    <ClCompile Include="src\Core\VertexShader.cpp" />
-    <ClCompile Include="src\Core\Vertex.cpp" />
-    <ClCompile Include="src\Core\VertexBuffer.cpp" />
+    <ClCompile Include="src\Graphics\PixelShader.cpp" />
+    <ClCompile Include="src\Graphics\VertexShader.cpp" />
+    <ClCompile Include="src\Graphics\Vertex.cpp" />
+    <ClCompile Include="src\Graphics\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Graphics.h" />
-    <ClInclude Include="src\Core\Cube.h" />
-    <ClInclude Include="src\Core\IndexBuffer.h" />
-    <ClInclude Include="src\Core\Color.h" />
-    <ClInclude Include="src\Core\IndexedTriangleList.h" />
-    <ClInclude Include="src\Core\InputLayout.h" />
+    <ClInclude Include="src\Graphics\Graphics.h" />
+    <ClInclude Include="src\Geometry\Cube.h" />
+    <ClInclude Include="src\Graphics\IndexBuffer.h" />
+    <ClInclude Include="src\Graphics\Color.h" />
+    <ClInclude Include="src\Graphics\IndexedTriangleList.h" />
+    <ClInclude Include="src\Graphics\InputLayout.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Log.h" />
-    <ClInclude Include="src\Core\PixelShader.h" />
-    <ClInclude Include="src\Core\VertexShader.h" />
+    <ClInclude Include="src\Graphics\PixelShader.h" />
+    <ClInclude Include="src\Graphics\VertexShader.h" />
     <ClInclude Include="src\Libraries\spdlog\async.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger-inl.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger.h" />
@@ -320,8 +320,8 @@
     <ClInclude Include="vendor\spdlog\tests\includes.h" />
     <ClInclude Include="vendor\spdlog\tests\test_sink.h" />
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
-    <ClInclude Include="src\Core\Vertex.h" />
-    <ClInclude Include="src\Core\VertexBuffer.h" />
+    <ClInclude Include="src\Graphics\Vertex.h" />
+    <ClInclude Include="src\Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\PixelShader.hlsl">

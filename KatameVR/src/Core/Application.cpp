@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "Log.h"
 
-#include "Cube.h"
+#include "../Geometry/Cube.h"
 
 namespace Katame
 {
@@ -140,6 +140,7 @@ namespace Katame
 	
 
 	bool Application::openxr_init( const char* app_name, int64_t swapchain_format ) {
+		KM_CORE_INFO( "Initializing OpenXR.." );
 		// OpenXR will fail to initialize if we ask for an extension that OpenXR
 		// can't provide! So we need to check our all extensions before 
 		// initializing OpenXR with them. Note that even if the extension is 
@@ -325,6 +326,7 @@ namespace Katame
 				xr_swapchains.push_back( swapchain );
 			}
 
+			KM_CORE_INFO( "Initialized OpenXR!" );
 			return true;
 	}
 

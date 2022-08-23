@@ -2,19 +2,19 @@
 
 #include <string>
 
-#include "Graphics.h"
+#include "../Graphics/Graphics.h"
 
 #include <thread> // sleep_for
 #include <vector>
 #include <algorithm> // any_of
 
 
-#include "IndexedTriangleList.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexShader.h"
-#include "PixelShader.h"
-#include "InputLayout.h"
+#include "../Graphics/IndexedTriangleList.h"
+#include "../Graphics/VertexBuffer.h"
+#include "../Graphics/IndexBuffer.h"
+#include "../Graphics/VertexShader.h"
+#include "../Graphics/PixelShader.h"
+#include "../Graphics/InputLayout.h"
 
 namespace Katame 
 {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <optional>
-#include "Vertex.h"
-#include "IndexedTriangleList.h"
+#include "../Graphics/Vertex.h"
+#include "../Graphics/IndexedTriangleList.h"
 #include <DirectXMath.h>
 #include <array>
 
