@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "../Platform/OpenXRManager.h"
 #include "../Graphics/Graphics.h"
 
 #include <thread> // sleep_for
@@ -28,50 +29,19 @@ namespace Katame
 		void Launch();
 
 	private:
-		Graphics* gfx;
+		Graphics* gfx() { return openxrManager->gfx; };
+		OpenXRManager* openxrManager;
 	public:
 
 		void Draw( XrCompositionLayerProjectionView& view );
 		void Update();
 		void Update_Predicted();
 
-		// OPENXR
-		bool openxr_init( const char* app_name, int64_t swapchain_format );
-		void openxr_poll_events();
-		void openxr_make_actions();
-		bool openxr_render_layer( XrTime predictedTime, std::vector<XrCompositionLayerProjectionView>& views, XrCompositionLayerProjection& layer );
-		void openxr_poll_actions();
-		void openxr_render_frame();
-		void openxr_shutdown();
-		void openxr_poll_predicted( XrTime predicted_time );
-		XrSessionState get_session_state() { return xr_session_state; };
 	private:
 		bool m_Running = true, m_Minimized = false;
 		bool xr_running = false;
 
-		XrSessionState xr_session_state = XR_SESSION_STATE_UNKNOWN;
-
-		const XrPosef  xr_pose_identity = { {0,0,0,1}, {0,0,0} };
-		XrInstance     xr_instance = {};
-		XrSession      xr_session = {};
-
-
-		XrSpace        xr_app_space = {};
-		XrSystemId     xr_system_id = XR_NULL_SYSTEM_ID;
-		input_state_t  xr_input = { };
-		XrEnvironmentBlendMode   xr_blend = {};
-		XrDebugUtilsMessengerEXT xr_debug = {};
-
-		std::vector<XrView>                  xr_views;
-		std::vector<XrViewConfigurationView> xr_config_views;
-		std::vector<swapchain_t>             xr_swapchains;
-		XrFormFactor            app_config_form = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
-		XrViewConfigurationType app_config_view = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
-
-		// Function pointers for some OpenXR extension methods we'll use.
-		PFN_xrGetD3D11GraphicsRequirementsKHR ext_xrGetD3D11GraphicsRequirementsKHR = nullptr;
-		PFN_xrCreateDebugUtilsMessengerEXT    ext_xrCreateDebugUtilsMessengerEXT = nullptr;
-		PFN_xrDestroyDebugUtilsMessengerEXT   ext_xrDestroyDebugUtilsMessengerEXT = nullptr;
+		
 
 		std::vector<XrPosef> app_cubes;
 

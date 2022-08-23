@@ -4,15 +4,9 @@
 #pragma comment(lib,"D3dcompiler.lib") // for shader compile
 #pragma comment(lib,"Dxgi.lib") // for CreateDXGIFactory1
 
-// Tell OpenXR what platform code we'll be using
-#define XR_USE_PLATFORM_WIN32
-#define XR_USE_GRAPHICS_API_D3D11
-
 #include <d3d11.h>
 #include <directxmath.h> // Matrix math functions and objects
 #include <d3dcompiler.h> // For compiling shaders! D3DCompile
-#include <openxr/openxr.h>
-#include <openxr/openxr_platform.h>
 
 #include <vector>
 
@@ -21,25 +15,6 @@ namespace Katame
 	struct swapchain_surfdata_t {
 		ID3D11DepthStencilView* depth_view;
 		ID3D11RenderTargetView* target_view;
-	};
-
-	struct swapchain_t {
-		XrSwapchain handle;
-		int32_t     width;
-		int32_t     height;
-		std::vector<XrSwapchainImageD3D11KHR> surface_images;
-		std::vector<swapchain_surfdata_t>     surface_data;
-	};
-
-	struct input_state_t {
-		XrActionSet actionSet;
-		XrAction    poseAction;
-		XrAction    selectAction;
-		XrPath   handSubactionPath[2];
-		XrSpace  handSpace[2];
-		XrPosef  handPose[2];
-		XrBool32 renderHand[2];
-		XrBool32 handSelect[2];
 	};
 
 	struct app_transform_buffer_t {
@@ -57,10 +32,10 @@ namespace Katame
 		void BeginFrame( float red, float green, float blue ) noexcept;
 		void EndFrame();
 		void DrawIndexed( int count )  noexcept;
-		void RenderLayer( class XrCompositionLayerProjectionView& view, swapchain_surfdata_t& surface );
-		swapchain_surfdata_t MakeSurfaceData( XrBaseInStructure& swapchain_img );
-		void SwapchainDestroy( swapchain_t& swapchain );
-		DirectX::XMMATRIX GetXRProjection( XrFovf fov, float clip_near, float clip_far );
+		void RenderLayer( struct XrCompositionLayerProjectionView& view, swapchain_surfdata_t& surface );
+		swapchain_surfdata_t MakeSurfaceData( struct XrBaseInStructure& swapchain_img );
+		void SwapchainDestroy( struct swapchain_t& swapchain );
+		DirectX::XMMATRIX GetXRProjection( struct XrFovf fov, float clip_near, float clip_far );
 	private:
 		IDXGIAdapter1* GetAdapter( LUID& adapter_luid );
 	public:

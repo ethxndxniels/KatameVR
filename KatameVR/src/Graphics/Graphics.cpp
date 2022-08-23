@@ -1,6 +1,8 @@
 #include "Graphics.h"
 #include "../Core/Log.h"
 
+#include "../Platform/OpenXRManager.h"
+
 namespace Katame
 {
 
