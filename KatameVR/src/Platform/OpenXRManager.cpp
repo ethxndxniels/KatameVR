@@ -53,7 +53,8 @@ namespace Katame
 		}
 	}
 
-	bool OpenXRManager::openxr_init( const char* app_name, int64_t swapchain_format ) {
+	bool OpenXRManager::openxr_init( const char* app_name, int64_t swapchain_format ) 
+	{
 		KM_CORE_INFO( "Initializing OpenXR.." );
 		// OpenXR will fail to initialize if we ask for an extension that OpenXR
 		// can't provide! So we need to check our all extensions before 
@@ -247,9 +248,8 @@ namespace Katame
 			return true;
 	}
 
-	///////////////////////////////////////////
-
-	void OpenXRManager::openxr_make_actions() {
+	void OpenXRManager::openxr_make_actions() 
+	{
 		XrActionSetCreateInfo actionset_info = { XR_TYPE_ACTION_SET_CREATE_INFO };
 		strcpy_s( actionset_info.actionSetName, "gameplay" );
 		strcpy_s( actionset_info.localizedActionSetName, "Gameplay" );
@@ -313,8 +313,6 @@ namespace Katame
 		xrAttachSessionActionSets( xr_session, &attach_info );
 	}
 
-	///////////////////////////////////////////
-
 	void OpenXRManager::openxr_shutdown() {
 		// We used a graphics API to initialize the swapchain data, so we'll
 		// give it a chance to release anythig here!
@@ -337,44 +335,45 @@ namespace Katame
 		if (xr_instance != XR_NULL_HANDLE) xrDestroyInstance( xr_instance );
 	}
 
-	///////////////////////////////////////////
-
 	void OpenXRManager::openxr_poll_events( bool& m_Running, bool& xr_running ) {
 		m_Running = true;
 
 		XrEventDataBuffer event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
 
 		while (xrPollEvent( xr_instance, &event_buffer ) == XR_SUCCESS) {
-			switch (event_buffer.type) {
-			case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED: {
-				XrEventDataSessionStateChanged* changed = (XrEventDataSessionStateChanged*)&event_buffer;
-				xr_session_state = changed->state;
+			switch (event_buffer.type) 
+			{
+				case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED: 
+				{
+					XrEventDataSessionStateChanged* changed = (XrEventDataSessionStateChanged*)&event_buffer;
+					xr_session_state = changed->state;
 
-				// Session state change is where we can begin and end sessions, as well as find quit messages!
-				switch (xr_session_state) {
-				case XR_SESSION_STATE_READY: {
-					XrSessionBeginInfo begin_info = { XR_TYPE_SESSION_BEGIN_INFO };
-					begin_info.primaryViewConfigurationType = app_config_view;
-					xrBeginSession( xr_session, &begin_info );
-					xr_running = true;
-				} break;
-				case XR_SESSION_STATE_STOPPING: {
-					xr_running = false;
-					xrEndSession( xr_session );
-				} break;
-				case XR_SESSION_STATE_EXITING:      m_Running = false;              break;
-				case XR_SESSION_STATE_LOSS_PENDING: m_Running = false;              break;
-				}
-			} break;
-			case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: m_Running = false; return;
+					// Session state change is where we can begin and end sessions, as well as find quit messages!
+					switch (xr_session_state) 
+					{
+						case XR_SESSION_STATE_READY: {
+							XrSessionBeginInfo begin_info = { XR_TYPE_SESSION_BEGIN_INFO };
+							begin_info.primaryViewConfigurationType = app_config_view;
+							xrBeginSession( xr_session, &begin_info );
+							xr_running = true;
+						} break;
+						case XR_SESSION_STATE_STOPPING: {
+							xr_running = false;
+							xrEndSession( xr_session );
+						} break;
+						case XR_SESSION_STATE_EXITING:      m_Running = false;              break;
+						case XR_SESSION_STATE_LOSS_PENDING: m_Running = false;              break;
+					}
+				} 
+				break;
+				case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: m_Running = false; return;
 			}
 			event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
 		}
 	}
 
-	///////////////////////////////////////////
-
-	void OpenXRManager::openxr_poll_actions() {
+	void OpenXRManager::openxr_poll_actions() 
+	{
 		if (xr_session_state != XR_SESSION_STATE_FOCUSED)
 			return;
 
@@ -418,9 +417,8 @@ namespace Katame
 		}
 	}
 
-	///////////////////////////////////////////
-
-	void OpenXRManager::openxr_poll_predicted( XrTime predicted_time ) {
+	void OpenXRManager::openxr_poll_predicted( XrTime predicted_time ) 
+	{
 		if (xr_session_state != XR_SESSION_STATE_FOCUSED)
 			return;
 
@@ -439,9 +437,8 @@ namespace Katame
 		}
 	}
 
-	///////////////////////////////////////////
-
-	void OpenXRManager::openxr_render_frame( Application* app ) {
+	void OpenXRManager::openxr_render_frame( Application* app ) 
+	{
 		// Block until the previous frame is finished displaying, and is ready for another one.
 		// Also returns a prediction of when the next frame will be displayed, for use with predicting
 		// locations of controllers, viewpoints, etc.
@@ -475,9 +472,8 @@ namespace Katame
 		xrEndFrame( xr_session, &end_info );
 	}
 
-	///////////////////////////////////////////
-
-	bool OpenXRManager::openxr_render_layer( XrTime predictedTime, std::vector<XrCompositionLayerProjectionView>& views, XrCompositionLayerProjection& layer, Application* app ) {
+	bool OpenXRManager::openxr_render_layer( XrTime predictedTime, std::vector<XrCompositionLayerProjectionView>& views, XrCompositionLayerProjection& layer, Application* app ) 
+	{
 
 		// Find the state and location of each viewpoint at the predicted time
 		uint32_t         view_count = 0;

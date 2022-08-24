@@ -17,11 +17,11 @@ namespace Katame
 		cube.Transform( DirectX::XMMatrixScaling( 5.0f, 5.0f, 5.0f ) );
 		cube.SetNormalsIndependentFlat();
 
-		app_vertex_buffer = new VertexBuffer( gfx()->m_Device, cube.vertices );
-		app_index_buffer = new IndexBuffer( gfx()->m_Device, cube.indices );
-		app_vshader = new VertexShader( gfx()->m_Device, "./Shaders/Bin/VertexShader.cso" );
-		app_pshader = new PixelShader( gfx()->m_Device, "./Shaders/Bin/PixelShader.cso" );
-		app_shader_layout = new InputLayout( gfx()->m_Device, cube.vertices.GetLayout(), app_vshader->GetBytecode());
+		app_vertex_buffer = new Bind::VertexBuffer( gfx(), cube.vertices );
+		app_index_buffer = new Bind::IndexBuffer( gfx(), cube.indices );
+		app_vshader = new Bind::VertexShader( gfx(), "./Shaders/Bin/VertexShader.cso" );
+		app_pshader = new Bind::PixelShader( gfx(), "./Shaders/Bin/PixelShader.cso" );
+		app_shader_layout = new Bind::InputLayout( gfx(), cube.vertices.GetLayout(), app_vshader->GetBytecode());
 
 		CD3D11_BUFFER_DESC     const_buff_desc( sizeof( app_transform_buffer_t ), D3D11_BIND_CONSTANT_BUFFER );
 		gfx()->m_Device->CreateBuffer(&const_buff_desc, nullptr, &app_constant_buffer);
@@ -63,16 +63,16 @@ namespace Katame
 
 		// Set the active shaders and constant buffers.
 		gfx()->m_Context->VSSetConstantBuffers( 0, 1, &app_constant_buffer );
-		app_vshader->Bind( gfx()->m_Context );
-		app_pshader->Bind( gfx()->m_Context );
+		app_vshader->Bind( gfx() );
+		app_pshader->Bind( gfx() );
 
 		// Set up the cube mesh's information
 		UINT strides[] = { sizeof( float ) * 6 };
 		UINT offsets[] = { 0 };
-		app_vertex_buffer->Bind( gfx()->m_Context );
-		app_index_buffer->Bind( gfx()->m_Context );
+		app_vertex_buffer->Bind( gfx() );
+		app_index_buffer->Bind( gfx() );
 		gfx()->m_Context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		app_shader_layout->Bind( gfx()->m_Context );
+		app_shader_layout->Bind( gfx() );
 
 
 

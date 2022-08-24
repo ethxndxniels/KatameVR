@@ -22,7 +22,10 @@ namespace Katame
 		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 
 		if (adapter == nullptr)
+		{
+			KM_CORE_ERROR( "Failed to get adapter, make sure headset is connected." );
 			return false;
+		}
 		D3D11CreateDevice( adapter, D3D_DRIVER_TYPE_UNKNOWN, 0, 0, featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION, &m_Device, nullptr, &m_Context );
 
 		adapter->Release();
@@ -104,6 +107,11 @@ namespace Katame
 		const float up = clip_near * tanf( angleUp );
 
 		return DirectX::XMMatrixPerspectiveOffCenterRH( left, right, down, up, clip_near, clip_far );
+	}
+
+	DirectX::XMMATRIX Graphics::GetViewMatrix() noexcept
+	{
+		return m_ViewMatrix;
 	}
 
 	IDXGIAdapter1* Graphics::GetAdapter( LUID& adapter_luid )

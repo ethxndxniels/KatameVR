@@ -11,11 +11,11 @@
 
 
 #include "../Graphics/IndexedTriangleList.h"
-#include "../Graphics/VertexBuffer.h"
-#include "../Graphics/IndexBuffer.h"
-#include "../Graphics/VertexShader.h"
-#include "../Graphics/PixelShader.h"
-#include "../Graphics/InputLayout.h"
+#include "../Bindables/VertexBuffer.h"
+#include "../Bindables/IndexBuffer.h"
+#include "../Bindables/VertexShader.h"
+#include "../Bindables/PixelShader.h"
+#include "../Bindables/InputLayout.h"
 
 namespace Katame 
 {
@@ -46,11 +46,11 @@ namespace Katame
 		std::vector<XrPosef> app_cubes;
 
 
-		VertexBuffer* app_vertex_buffer = nullptr;
-		IndexBuffer* app_index_buffer = nullptr;
-		VertexShader* app_vshader = nullptr;
-		PixelShader* app_pshader = nullptr;
-		InputLayout* app_shader_layout = nullptr;
+		Bind::VertexBuffer* app_vertex_buffer = nullptr;
+		Bind::IndexBuffer* app_index_buffer = nullptr;
+		Bind::VertexShader* app_vshader = nullptr;
+		Bind::PixelShader* app_pshader = nullptr;
+		Bind::InputLayout* app_shader_layout = nullptr;
 		//ID3D11VertexShader* app_vshader = nullptr;
 		//ID3D11PixelShader* app_pshader = nullptr;
 		//ID3D11InputLayout* app_shader_layout = nullptr;
