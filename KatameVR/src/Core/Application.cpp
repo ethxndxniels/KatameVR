@@ -17,6 +17,9 @@ namespace Katame
 		cube.Transform( DirectX::XMMatrixScaling( 5.0f, 5.0f, 5.0f ) );
 		cube.SetNormalsIndependentFlat();
 
+		m_Model = new Model( gfx(), "Models\\petty_imp\\untitled.fbx", 1.0f / 20.0f );
+
+
 		app_vertex_buffer = new Bind::VertexBuffer( gfx(), cube.vertices );
 		app_index_buffer = new Bind::IndexBuffer( gfx(), cube.indices );
 		app_vshader = new Bind::VertexShader( gfx(), "./Shaders/Bin/VertexShader.cso" );
@@ -96,6 +99,9 @@ namespace Katame
 			gfx()->m_Context->UpdateSubresource( app_constant_buffer, 0, nullptr, &transform_buffer, 0, 0 );
 			gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		}
+		//m_Model->SetRootTransform( DirectX::XMMatrixTranslation( openxrManager->GetHandPos( 0 ).position.x, openxrManager->GetHandPos( 0 ).position.y, openxrManager->GetHandPos( 0 ).position.z ) );
+		m_Model->Draw( gfx(), false );
+
 	}
 
 	void Application::Update()

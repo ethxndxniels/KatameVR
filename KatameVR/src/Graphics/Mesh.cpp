@@ -1,692 +1,125 @@
 #include "Mesh.h"
-#include "../Graphics/Graphics.h"
-#include <unordered_map>
-#include <sstream>
-#include <filesystem>
-#include "../Utilities/KatameXM.h"
-#include "../Bindables/DynamicConstant.h"
-#include "../Bindables/ConstantBuffersEx.h"
-#include "../Bindables/Blender.h"
-#include "../Bindables/BindableCommon.h"
-#include "LayoutCodex.h"
+#include "../Core/Log.h"
 
-namespace Katame
-{
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/LogStream.hpp>
 
-	namespace dx = DirectX;
+#define KM_CORE_ASSERT(x, ...) { if(!(x)) { KM_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 
-	Mesh::Mesh( Graphics* gfx, bool isAlpha, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs )
-		:
-		isAlpha( isAlpha )
+namespace Katame {
+
+	namespace {
+		const unsigned int ImportFlags =
+			aiProcess_CalcTangentSpace |
+			aiProcess_Triangulate |
+			aiProcess_SortByPType |
+			aiProcess_PreTransformVertices |
+			aiProcess_GenNormals |
+			aiProcess_GenUVCoords |
+			aiProcess_OptimizeMeshes |
+			aiProcess_Debone |
+			aiProcess_ValidateDataStructure;
+	}
+
+	struct LogStream : public Assimp::LogStream
 	{
-		AddBind( Bind::Topology::Resolve( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
-
-		for (auto& pb : bindPtrs)
+		static void Initialize()
 		{
-			AddBind( std::move( pb ) );
-		}
-
-		AddBind( std::make_shared<Bind::TransformCbuf>( gfx, *this ) );
-	}
-
-	bool Mesh::HasAlpha()
-	{
-		return isAlpha;
-	}
-
-	void Mesh::Draw( Graphics* gfx, DirectX::FXMMATRIX accumulatedTransform, bool isDepthPass ) const noexcept
-	{
-		DirectX::XMStoreFloat4x4( &transform, accumulatedTransform );
-		if (!isDepthPass)
-			Drawable::Draw( gfx );
-		else
-			Drawable::DrawDepth( gfx );
-	}
-
-	DirectX::XMMATRIX Mesh::GetTransformXM() const noexcept
-	{
-		return DirectX::XMLoadFloat4x4( &transform );
-	}
-
-
-	// Node
-	Node::Node( int id, const std::string& name, std::vector<Mesh*> meshPtrs, std::vector<Mesh*> meshPtrsAlpha, const DirectX::XMMATRIX& transform_in ) noexcept
-		:
-		id( id ),
-		meshPtrs( std::move( meshPtrs ) ),
-		meshPtrsAlpha( std::move( meshPtrsAlpha ) ),
-		name( name )
-	{
-		dx::XMStoreFloat4x4( &transform, transform_in );
-		dx::XMStoreFloat4x4( &appliedTransform, dx::XMMatrixIdentity() );
-	}
-
-	void Node::Draw( Graphics* gfx, DirectX::FXMMATRIX accumulatedTransform, bool isDepthPass ) const noexcept
-	{
-		const auto built =
-			dx::XMLoadFloat4x4( &appliedTransform ) *
-			dx::XMLoadFloat4x4( &transform ) *
-			accumulatedTransform;
-		for (const auto pm : meshPtrs)
-		{
-			pm->Draw( gfx, built, isDepthPass );
-		}
-		for (const auto& pc : childPtrs)
-		{
-			pc->Draw( gfx, built, isDepthPass );
-		}
-		for (const auto& pa : meshPtrsAlpha)
-		{
-			pa->Draw( gfx, built, isDepthPass );
-		}
-	}
-
-	void Node::AddChild( std::unique_ptr<Node> pChild ) noexcept
-	{
-		assert( pChild );
-		childPtrs.push_back( std::move( pChild ) );
-	}
-
-	void Node::ShowTree( Node*& pSelectedNode ) const noexcept
-	{
-	}
-
-	const Dcb::Buffer* Node::GetMaterialConstants() const noexcept
-	{
-		if (meshPtrs.size() == 0)
-		{
-			return nullptr;
-		}
-		auto pBindable = meshPtrs.front()->QueryBindable<Bind::CachingPixelConstantBufferEX>();
-		return &pBindable->GetBuffer();
-	}
-
-	void Node::SetMaterialConstants( const Dcb::Buffer& buf_in ) noexcept
-	{
-		auto pcb = meshPtrs.front()->QueryBindable<Bind::CachingPixelConstantBufferEX>();
-		assert( pcb != nullptr );
-		pcb->SetBuffer( buf_in );
-	}
-
-	void Node::SetAppliedTransform( DirectX::FXMMATRIX transform ) noexcept
-	{
-		dx::XMStoreFloat4x4( &appliedTransform, transform );
-	}
-
-	const DirectX::XMFLOAT4X4& Node::GetAppliedTransform() const noexcept
-	{
-		return appliedTransform;
-	}
-
-	int Node::GetId() const noexcept
-	{
-		return id;
-	}
-
-
-	// Model
-	class ModelWindow // pImpl idiom, only defined in this .cpp
-	{
-	public:
-		void Show( Graphics* gfx, const char* windowName, const Node& root ) noexcept
-		{
-		}
-		void ApplyParameters() noexcept
-		{
-			if (TransformDirty())
+			if (Assimp::DefaultLogger::isNullLogger())
 			{
-				pSelectedNode->SetAppliedTransform( GetTransform() );
-				ResetTransformDirty();
-			}
-			if (MaterialDirty())
-			{
-				pSelectedNode->SetMaterialConstants( GetMaterial() );
-				ResetMaterialDirty();
+				Assimp::DefaultLogger::create( "", Assimp::Logger::VERBOSE );
+				Assimp::DefaultLogger::get()->attachStream( new LogStream, Assimp::Logger::Err | Assimp::Logger::Warn );
 			}
 		}
-	private:
-		dx::XMMATRIX GetTransform() const noexcept
+
+		void write( const char* message ) override
 		{
-			assert( pSelectedNode != nullptr );
-			const auto& transform = transforms.at( pSelectedNode->GetId() ).tranformParams;
-			return
-				dx::XMMatrixRotationRollPitchYaw( transform.roll, transform.pitch, transform.yaw ) *
-				dx::XMMatrixTranslation( transform.x, transform.y, transform.z );
+			KM_CORE_ERROR( "Assimp error: {0}", message );
 		}
-		const Dcb::Buffer& GetMaterial() const noexcept
-		{
-			assert( pSelectedNode != nullptr );
-			const auto& mat = transforms.at( pSelectedNode->GetId() ).materialCbuf;
-			assert( mat );
-			return *mat;
-		}
-		bool TransformDirty() const noexcept
-		{
-			return pSelectedNode && transforms.at( pSelectedNode->GetId() ).transformParamsDirty;
-		}
-		void ResetTransformDirty() noexcept
-		{
-			transforms.at( pSelectedNode->GetId() ).transformParamsDirty = false;
-		}
-		bool MaterialDirty() const noexcept
-		{
-			return pSelectedNode && transforms.at( pSelectedNode->GetId() ).materialCbufDirty;
-		}
-		void ResetMaterialDirty() noexcept
-		{
-			transforms.at( pSelectedNode->GetId() ).materialCbufDirty = false;
-		}
-		bool IsDirty() const noexcept
-		{
-			return TransformDirty() || MaterialDirty();
-		}
-	private:
-		Node* pSelectedNode;
-		struct TransformParameters
-		{
-			float roll = 0.0f;
-			float pitch = 0.0f;
-			float yaw = 0.0f;
-			float x = 0.0f;
-			float y = 0.0f;
-			float z = 0.0f;
-		};
-		struct NodeData
-		{
-			TransformParameters tranformParams;
-			bool transformParamsDirty;
-			std::optional<Dcb::Buffer> materialCbuf;
-			bool materialCbufDirty;
-		};
-		std::unordered_map<int, NodeData> transforms;
 	};
 
-	Model::Model( Graphics* gfx, const std::string& pathString, bool isForward, const float scale )
-		:
-		pWindow( std::make_unique<ModelWindow>() )
+	Mesh::Mesh( const std::string& filename )
+		: m_FilePath( filename )
 	{
-		// TODO: USE RELEASE ASSIMP
-		Assimp::Importer imp;
-		const auto pScene = imp.ReadFile( pathString.c_str(),
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			aiProcess_ConvertToLeftHanded |
-			aiProcess_GenNormals |
-			aiProcess_CalcTangentSpace
-		);
+		LogStream::Initialize();
 
-		if (pScene == nullptr)
+		KM_CORE_INFO( "Loading mesh: {0}", filename.c_str() );
+
+		Assimp::Importer importer;
+
+		const aiScene* scene = importer.ReadFile( filename, ImportFlags );
+		if (!scene || !scene->HasMeshes())
+			KM_CORE_ERROR( "Failed to load mesh file: {0}", filename );
+
+		aiMesh* mesh = scene->mMeshes[0];
+
+		KM_CORE_ASSERT( mesh->HasPositions(), "Meshes require positions." );
+		KM_CORE_ASSERT( mesh->HasNormals(), "Meshes require normals." );
+
+		m_Vertices.reserve( mesh->mNumVertices );
+
+		// Extract vertices from model
+		for (size_t i = 0; i < m_Vertices.capacity(); i++)
 		{
-			throw std::exception();
+			Vertex vertex;
+			vertex.Position = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
+			vertex.Normal = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+
+			if (mesh->HasTangentsAndBitangents())
+			{
+				vertex.Tangent = { mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z };
+				vertex.Binormal = { mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z };
+			}
+
+			if (mesh->HasTextureCoords( 0 ))
+				vertex.Texcoord = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+			m_Vertices.push_back( vertex );
 		}
 
-		for (size_t i = 0; i < pScene->mNumMeshes; i++)
+		m_VertexBuffer.reset( Bind::VertexBuffer::Create() );
+		m_VertexBuffer->SetData( m_Vertices.data(), m_Vertices.size() * sizeof( Vertex ) );
+
+		// Extract indices from model
+		m_Indices.reserve( mesh->mNumFaces );
+		for (size_t i = 0; i < m_Indices.capacity(); i++)
 		{
-			meshPtrs.push_back( ParseMesh( gfx, *pScene->mMeshes[i], pScene->mMaterials, pathString, isForward, scale ) );
+			KM_CORE_ASSERT( mesh->mFaces[i].mNumIndices == 3, "Must have 3 indices." );
+			m_Indices.push_back( { mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2] } );
 		}
 
-		int nextId = 0;
-		pRoot = ParseNode( nextId, *pScene->mRootNode );
+		m_IndexBuffer.reset( IndexBuffer::Create() );
+		m_IndexBuffer->SetData( m_Indices.data(), m_Indices.size() * sizeof( Index ) );
 	}
 
-	void Model::Draw( Graphics* gfx, bool isDepthPass ) const noexcept
+	Mesh::~Mesh()
 	{
-		// I'm still not happy about updating parameters (i.e. mutating a bindable GPU state
-		// which is part of a mesh which is part of a node which is part of the model that is
-		// const in this call) Can probably do this elsewhere
-		pWindow->ApplyParameters();
-		pRoot->Draw( gfx, dx::XMMatrixIdentity(), isDepthPass );
 	}
 
-	void Model::ShowWindow( Graphics* gfx, const char* windowName ) noexcept
+	void Mesh::Render()
 	{
-		pWindow->Show( gfx, windowName, *pRoot );
-	}
+		// TODO: Sort this out
+		m_VertexBuffer->Bind();
+		m_IndexBuffer->Bind();
+		KM_RENDER_S( {
+			glEnableVertexAttribArray( 0 );
+			glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Position ) );
 
-	void Model::SetRootTransform( DirectX::FXMMATRIX tf ) noexcept
-	{
-		pRoot->SetAppliedTransform( tf );
-	}
+			glEnableVertexAttribArray( 1 );
+			glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Normal ) );
 
-	Model::~Model() noexcept
-	{}
+			glEnableVertexAttribArray( 2 );
+			glVertexAttribPointer( 2, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Tangent ) );
 
-	std::unique_ptr<Mesh> Model::ParseMesh( Graphics* gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path, bool isForward, float scale )
-	{
-		using namespace std::string_literals;
-		using Dvtx::VertexLayout;
-		using namespace Bind;
+			glEnableVertexAttribArray( 3 );
+			glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Binormal ) );
 
-		const auto rootPath = path.parent_path().string() + "\\";
-
-		std::vector<std::shared_ptr<Bindable>> bindablePtrs;
-
-		bool hasSpecularMap = false;
-		bool hasAlphaGloss = false;
-		bool hasAlphaDiffuse = false;
-		bool hasNormalMap = false;
-		bool hasDiffuseMap = false;
-		float shininess = 2.0f;
-		dx::XMFLOAT4 specularColor = { 0.18f,0.18f,0.18f,1.0f };
-		dx::XMFLOAT4 diffuseColor = { 0.45f,0.45f,0.85f,1.0f };
-		if (mesh.mMaterialIndex >= 0)
-		{
-			auto& material = *pMaterials[mesh.mMaterialIndex];
-
-			aiString texFileName;
-
-			if (material.GetTexture( aiTextureType_DIFFUSE, 0, &texFileName ) == aiReturn_SUCCESS)
-			{
-				auto tex = Texture::Resolve( gfx, rootPath + texFileName.C_Str() );
-				hasAlphaDiffuse = tex->HasAlpha();
-				bindablePtrs.push_back( std::move( tex ) );
-				hasDiffuseMap = true;
-			}
-			else
-			{
-				material.Get( AI_MATKEY_COLOR_DIFFUSE, reinterpret_cast<aiColor3D&>(diffuseColor) );
-			}
-
-			if (material.GetTexture( aiTextureType_SPECULAR, 0, &texFileName ) == aiReturn_SUCCESS)
-			{
-				auto tex = Texture::Resolve( gfx, rootPath + texFileName.C_Str(), 1 );
-				hasAlphaGloss = tex->HasAlpha();
-				bindablePtrs.push_back( std::move( tex ) );
-				hasSpecularMap = true;
-			}
-			else
-			{
-				material.Get( AI_MATKEY_COLOR_SPECULAR, reinterpret_cast<aiColor3D&>(specularColor) );
-			}
-			if (!hasAlphaGloss)
-			{
-				material.Get( AI_MATKEY_SHININESS, shininess );
-			}
-
-			if (material.GetTexture( aiTextureType_NORMALS, 0, &texFileName ) == aiReturn_SUCCESS)
-			{
-				auto tex = Texture::Resolve( gfx, rootPath + texFileName.C_Str(), 2 );
-				hasAlphaGloss = tex->HasAlpha();
-				bindablePtrs.push_back( std::move( tex ) );
-				hasNormalMap = true;
-			}
-
-			if (hasDiffuseMap || hasSpecularMap || hasNormalMap)
-			{
-				bindablePtrs.push_back( Bind::Sampler::Resolve( gfx ) );
-			}
-		}
-
-		const auto meshTag = path.string() + "%" + mesh.mName.C_Str();
-
-		if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
-		{
-			Dvtx::VertexBuffer vbuf( std::move(
-				VertexLayout{}
-				.Append( VertexLayout::Position3D )
-				.Append( VertexLayout::Normal )
-				.Append( VertexLayout::Tangent )
-				.Append( VertexLayout::Bitangent )
-				.Append( VertexLayout::Texture2D )
-			) );
-
-			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
-			{
-				vbuf.EmplaceBack(
-					dx::XMFLOAT3( mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale ),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mBitangents[i]),
-					*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
-				);
-			}
-
-			std::vector<unsigned short> indices;
-			indices.reserve( mesh.mNumFaces * 3 );
-			for (unsigned int i = 0; i < mesh.mNumFaces; i++)
-			{
-				const auto& face = mesh.mFaces[i];
-				assert( face.mNumIndices == 3 );
-				indices.push_back( face.mIndices[0] );
-				indices.push_back( face.mIndices[1] );
-				indices.push_back( face.mIndices[2] );
-			}
-
-			bindablePtrs.push_back( VertexBuffer::Resolve( gfx, meshTag, vbuf ) );
-
-			bindablePtrs.push_back( IndexBuffer::Resolve( gfx, meshTag, indices ) );
-
-			if (isForward)
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/F_PhongVSNormalMap.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx,
-					hasAlphaDiffuse ? "./Shaders/Bin/F_PhongPSSpecNormMask.cso" : "./Shaders/Bin/F_PhongPSSpecNormalMap.cso"
-				) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-			else
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/D_PhongVSNormalMap.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx,
-					hasAlphaDiffuse ? "./Shaders/Bin/D_PhongPSSpecNormMask.cso" : "./Shaders/Bin/D_PhongPSSpecNormalMap.cso"
-				) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-
-			}
-
-			Dcb::RawLayout lay;
-			lay.Add<Dcb::Bool>( "normalMapEnabled" );
-			lay.Add<Dcb::Bool>( "specularMapEnabled" );
-			lay.Add<Dcb::Bool>( "hasGlossMap" );
-			lay.Add<Dcb::Float>( "specularPower" );
-			lay.Add<Dcb::Float3>( "specularColor" );
-			lay.Add<Dcb::Float>( "specularMapWeight" );
-
-			auto buf = Dcb::Buffer( std::move( lay ) );
-			buf["normalMapEnabled"] = true;
-			buf["specularMapEnabled"] = true;
-			buf["hasGlossMap"] = hasAlphaGloss;
-			buf["specularPower"] = shininess;
-			buf["specularColor"] = dx::XMFLOAT3{ 0.75f,0.75f,0.75f };
-			buf["specularMapWeight"] = 0.671f;
-
-			bindablePtrs.push_back( std::make_shared<CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
-		}
-		else if (hasDiffuseMap && hasNormalMap)
-		{
-			Dvtx::VertexBuffer vbuf( std::move(
-				VertexLayout{}
-				.Append( VertexLayout::Position3D )
-				.Append( VertexLayout::Normal )
-				.Append( VertexLayout::Tangent )
-				.Append( VertexLayout::Bitangent )
-				.Append( VertexLayout::Texture2D )
-			) );
-
-			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
-			{
-				vbuf.EmplaceBack(
-					dx::XMFLOAT3( mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale ),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mBitangents[i]),
-					*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
-				);
-			}
-
-			std::vector<unsigned short> indices;
-			indices.reserve( mesh.mNumFaces * 3 );
-			for (unsigned int i = 0; i < mesh.mNumFaces; i++)
-			{
-				const auto& face = mesh.mFaces[i];
-				assert( face.mNumIndices == 3 );
-				indices.push_back( face.mIndices[0] );
-				indices.push_back( face.mIndices[1] );
-				indices.push_back( face.mIndices[2] );
-			}
-
-			bindablePtrs.push_back( VertexBuffer::Resolve( gfx, meshTag, vbuf ) );
-
-			bindablePtrs.push_back( IndexBuffer::Resolve( gfx, meshTag, indices ) );
-
-			if (isForward)
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/F_PhongVSNormalMap.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/F_PhongPSNormalMap.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-			else
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/D_PhongVSNormalMap.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/D_PhongPSNormalMap.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-
-			Dcb::RawLayout layout;
-			layout.Add<Dcb::Float>( "specularIntensity" );
-			layout.Add<Dcb::Float>( "specularPower" );
-			layout.Add<Dcb::Bool>( "normalMapEnabled" );
-
-			auto cbuf = Dcb::Buffer( std::move( layout ) );
-			cbuf["specularIntensity"] = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
-			cbuf["specularPower"] = shininess;
-			cbuf["normalMapEnabled"] = true;
-
-			bindablePtrs.push_back( std::make_shared<CachingPixelConstantBufferEX>( gfx, cbuf, 1u ) );
-		}
-		else if (hasDiffuseMap && !hasNormalMap && hasSpecularMap)
-		{
-			Dvtx::VertexBuffer vbuf( std::move(
-				VertexLayout{}
-				.Append( VertexLayout::Position3D )
-				.Append( VertexLayout::Normal )
-				.Append( VertexLayout::Texture2D )
-			) );
-
-			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
-			{
-				vbuf.EmplaceBack(
-					dx::XMFLOAT3( mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale ),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
-					*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
-				);
-			}
-
-			std::vector<unsigned short> indices;
-			indices.reserve( mesh.mNumFaces * 3 );
-			for (unsigned int i = 0; i < mesh.mNumFaces; i++)
-			{
-				const auto& face = mesh.mFaces[i];
-				assert( face.mNumIndices == 3 );
-				indices.push_back( face.mIndices[0] );
-				indices.push_back( face.mIndices[1] );
-				indices.push_back( face.mIndices[2] );
-			}
-
-			bindablePtrs.push_back( VertexBuffer::Resolve( gfx, meshTag, vbuf ) );
-
-			bindablePtrs.push_back( IndexBuffer::Resolve( gfx, meshTag, indices ) );
-
-			if (isForward)
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/F_PhongVS.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/F_PhongPSSpec.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-			else
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/D_PhongVS.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/D_PhongPSSpec.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-
-			Dcb::RawLayout lay;
-			lay.Add<Dcb::Float>( "specularPower" );
-			lay.Add<Dcb::Bool>( "hasGloss" );
-			lay.Add<Dcb::Float>( "specularMapWeight" );
-
-			auto buf = Dcb::Buffer( std::move( lay ) );
-			buf["specularPower"] = shininess;
-			buf["hasGloss"] = hasAlphaGloss;
-			buf["specularMapWeight"] = 1.0f;
-
-			bindablePtrs.push_back( std::make_unique<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
-		}
-		else if (hasDiffuseMap)
-		{
-			Dvtx::VertexBuffer vbuf( std::move(
-				VertexLayout{}
-				.Append( VertexLayout::Position3D )
-				.Append( VertexLayout::Normal )
-				.Append( VertexLayout::Texture2D )
-			) );
-
-			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
-			{
-				vbuf.EmplaceBack(
-					dx::XMFLOAT3( mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale ),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
-					*reinterpret_cast<dx::XMFLOAT2*>(&mesh.mTextureCoords[0][i])
-				);
-			}
-
-			std::vector<unsigned short> indices;
-			indices.reserve( mesh.mNumFaces * 3 );
-			for (unsigned int i = 0; i < mesh.mNumFaces; i++)
-			{
-				const auto& face = mesh.mFaces[i];
-				assert( face.mNumIndices == 3 );
-				indices.push_back( face.mIndices[0] );
-				indices.push_back( face.mIndices[1] );
-				indices.push_back( face.mIndices[2] );
-			}
-
-			bindablePtrs.push_back( VertexBuffer::Resolve( gfx, meshTag, vbuf ) );
-
-			bindablePtrs.push_back( IndexBuffer::Resolve( gfx, meshTag, indices ) );
-
-			if (isForward)
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/F_PhongVS.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/F_PhongPS.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-			else
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/D_PhongVS.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/D_PhongPS.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-
-			Dcb::RawLayout lay;
-			lay.Add<Dcb::Float>( "specularIntensity" );
-			lay.Add<Dcb::Float>( "specularPower" );
-
-			auto buf = Dcb::Buffer( std::move( lay ) );
-			buf["specularIntensity"] = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
-			buf["specularPower"] = shininess;
-			//buf["specularMapWeight"] = 1.0f;
-
-			bindablePtrs.push_back( std::make_unique<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
-		}
-		else if (!hasDiffuseMap && !hasNormalMap && !hasSpecularMap)
-		{
-			Dvtx::VertexBuffer vbuf( std::move(
-				VertexLayout{}
-				.Append( VertexLayout::Position3D )
-				.Append( VertexLayout::Normal )
-			) );
-
-			for (unsigned int i = 0; i < mesh.mNumVertices; i++)
-			{
-				vbuf.EmplaceBack(
-					dx::XMFLOAT3( mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale ),
-					*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i])
-				);
-			}
-
-			std::vector<unsigned short> indices;
-			indices.reserve( mesh.mNumFaces * 3 );
-			for (unsigned int i = 0; i < mesh.mNumFaces; i++)
-			{
-				const auto& face = mesh.mFaces[i];
-				assert( face.mNumIndices == 3 );
-				indices.push_back( face.mIndices[0] );
-				indices.push_back( face.mIndices[1] );
-				indices.push_back( face.mIndices[2] );
-			}
-
-			bindablePtrs.push_back( VertexBuffer::Resolve( gfx, meshTag, vbuf ) );
-
-			bindablePtrs.push_back( IndexBuffer::Resolve( gfx, meshTag, indices ) );
-
-			if (isForward)
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/F_PhongVSNotex.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/F_PhongPSNotex.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-			else
-			{
-				auto pvs = VertexShader::Resolve( gfx, "./Shaders/Bin/D_PhongVSNotex.cso" );
-				auto pvsbc = pvs->GetBytecode();
-				bindablePtrs.push_back( std::move( pvs ) );
-				bindablePtrs.push_back( PixelShader::Resolve( gfx, "./Shaders/Bin/D_PhongPSNotex.cso" ) );
-				bindablePtrs.push_back( InputLayout::Resolve( gfx, vbuf.GetLayout(), pvsbc ) );
-			}
-
-			Dcb::RawLayout lay;
-			lay.Add<Dcb::Float4>( "materialColor" );
-			lay.Add<Dcb::Float4>( "specularColor" );
-			lay.Add<Dcb::Float>( "specularPower" );
-
-			auto buf = Dcb::Buffer( std::move( lay ) );
-			buf["specularPower"] = shininess;
-			buf["specularColor"] = specularColor;
-			buf["materialColor"] = diffuseColor;
-
-			bindablePtrs.push_back( Bind::Sampler::Resolve( gfx ) );
-
-			bindablePtrs.push_back( std::make_unique<Bind::CachingPixelConstantBufferEX>( gfx, buf, 1u ) );
-		}
-		else
-		{
-			throw std::runtime_error( "terrible combination of textures in material smh" );
-		}
-
-		// anything with alpha diffuse is 2-sided IN SPONZA, need a better way
-		// of signalling 2-sidedness to be more general in the future
-		bindablePtrs.push_back( Rasterizer::Resolve( gfx, hasAlphaDiffuse ) );
-
-		//bindablePtrs.push_back( Blender::Resolve( gfx, false ) );
-		return std::make_unique<Mesh>( gfx, hasAlphaDiffuse, std::move( bindablePtrs ) );
-	}
-
-	std::unique_ptr<Node> Model::ParseNode( int& nextId, const aiNode& node ) noexcept
-	{
-		namespace dx = DirectX;
-		const auto transform = dx::XMMatrixTranspose( dx::XMLoadFloat4x4(
-			reinterpret_cast<const dx::XMFLOAT4X4*>(&node.mTransformation)
-		) );
-
-		std::vector<Mesh*> curMeshPtrs;
-		std::vector<Mesh*> curMeshAlphaPtrs;
-		curMeshPtrs.reserve( node.mNumMeshes );
-		for (size_t i = 0; i < node.mNumMeshes; i++)
-		{
-			const auto meshIdx = node.mMeshes[i];
-			Mesh* pMesh = meshPtrs.at( meshIdx ).get();
-			if (!pMesh->HasAlpha())
-				curMeshPtrs.push_back( pMesh );
-			else
-				curMeshAlphaPtrs.push_back( pMesh );
-		}
-
-		auto pNode = std::make_unique<Node>( nextId++, node.mName.C_Str(), std::move( curMeshPtrs ), std::move( curMeshAlphaPtrs ), transform );
-		for (size_t i = 0; i < node.mNumChildren; i++)
-		{
-			pNode->AddChild( ParseNode( nextId, *node.mChildren[i] ) );
-		}
-
-		return pNode;
+			glEnableVertexAttribArray( 4 );
+			glVertexAttribPointer( 4, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Texcoord ) );
+			} );
+		Renderer::DrawIndexed( m_IndexBuffer->GetCount() );
 	}
 
 }

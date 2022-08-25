@@ -17,6 +17,8 @@
 #include "../Bindables/PixelShader.h"
 #include "../Bindables/InputLayout.h"
 
+#include "../Graphics/Mesh.h"
+
 namespace Katame 
 {
 
@@ -41,7 +43,7 @@ namespace Katame
 		bool m_Running = true, m_Minimized = false;
 		bool xr_running = false;
 
-		
+		Model* m_Model = nullptr;
 
 		std::vector<XrPosef> app_cubes;
 

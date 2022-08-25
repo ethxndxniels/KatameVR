@@ -7,28 +7,20 @@ namespace Katame
 {
 	namespace Bind
 	{
-
-		class IndexBuffer : public Bind::Bindable
+		class IndexBuffer
 		{
 		public:
-			IndexBuffer( Graphics* gfx, const std::vector<unsigned short>& indices );
-			IndexBuffer( Graphics* gfx, std::string tag, const std::vector<unsigned short>& indices );
-			void Bind( Graphics* gfx ) noexcept override;
-			UINT GetCount() const noexcept;
-			static std::shared_ptr<IndexBuffer> Resolve( Graphics* gfx, const std::string& tag,
-				const std::vector<unsigned short>& indices );
-			template<typename...Ignore>
-			static std::string GenerateUID( const std::string& tag, Ignore&&...ignore )
-			{
-				return GenerateUID_( tag );
-			}
-			std::string GetUID() const noexcept override;
+			IndexBuffer( unsigned int size );
+			virtual ~IndexBuffer();
+
+			void SetData( void* buffer, unsigned int size, unsigned int offset = 0 );
+			void Bind() const;
+
+			uint32_t GetCount() const { return m_Size / sizeof( uint32_t ); }
+
+			unsigned int GetSize() const { return m_Size; }
 		private:
-			static std::string GenerateUID_( const std::string& tag );
-		protected:
-			std::string m_sTag;
-			UINT m_iCount;
-			ID3D11Buffer* m_pIndexBuffer;
+			unsigned int m_Size;
 		};
 	}
 }

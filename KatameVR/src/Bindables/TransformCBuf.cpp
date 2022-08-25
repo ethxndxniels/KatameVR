@@ -30,16 +30,15 @@ namespace Katame
 		{
 			return {};
 			//// TODO: double check xrmatrix
-			//const auto modelView = m_DrawableParent.GetTransformXM() * gfx->GetXRProjection();
+			const auto modelView = m_DrawableParent.GetTransformXM();
 
-			//return {
-			//	DirectX::XMMatrixTranspose( m_DrawableParent.GetTransformXM() ),
-			//	DirectX::XMMatrixTranspose( modelView ),
-			//	DirectX::XMMatrixTranspose(
-			//		modelView *
-			//		gdi.GetProjMatrix()
-			//	)
-			//};
+			return {
+				DirectX::XMMatrixTranspose( m_DrawableParent.GetTransformXM() ),
+				DirectX::XMMatrixTranspose( modelView ),
+				DirectX::XMMatrixTranspose(
+					modelView 
+				)
+			};
 		}
 
 		std::unique_ptr<VertexConstantBuffer<TransformCbuf::Transforms>> TransformCbuf::m_pVcbuf;
