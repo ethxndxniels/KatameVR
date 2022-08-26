@@ -2,6 +2,7 @@
 #include "Log.h"
 
 #include "../Geometry/Cube.h"
+#include "../Bindables/Sampler.h"
 
 namespace Katame
 {
@@ -17,7 +18,7 @@ namespace Katame
 		cube.Transform( DirectX::XMMatrixScaling( 5.0f, 5.0f, 5.0f ) );
 		cube.SetNormalsIndependentFlat();
 
-		m_Model = new Model( gfx(), "Models\\petty_imp\\untitled.fbx", 1.0f / 20.0f );
+		m_Model = new Mesh( "Models\\petty_imp\\untitled.fbx", gfx() );
 
 
 		app_vertex_buffer = new Bind::VertexBuffer( gfx(), cube.vertices );
@@ -29,6 +30,8 @@ namespace Katame
 		CD3D11_BUFFER_DESC     const_buff_desc( sizeof( app_transform_buffer_t ), D3D11_BIND_CONSTANT_BUFFER );
 		gfx()->m_Device->CreateBuffer(&const_buff_desc, nullptr, &app_constant_buffer);
 		
+		phongVS = new Bind::VertexShader( gfx(), "./Shaders/Bin/PhongVS.cso" );
+		phongPS = new Bind::PixelShader( gfx(), "./Shaders/Bin/PhongPS.cso" );
 	}
 
 	Application::~Application()
@@ -99,8 +102,11 @@ namespace Katame
 			gfx()->m_Context->UpdateSubresource( app_constant_buffer, 0, nullptr, &transform_buffer, 0, 0 );
 			gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		}
+
+		//phongVS->Bind( gfx() );
+		//phongPS->Bind( gfx() );
 		//m_Model->SetRootTransform( DirectX::XMMatrixTranslation( openxrManager->GetHandPos( 0 ).position.x, openxrManager->GetHandPos( 0 ).position.y, openxrManager->GetHandPos( 0 ).position.z ) );
-		m_Model->Draw( gfx(), false );
+		//m_Model->Render( gfx() );
 
 	}
 

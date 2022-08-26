@@ -27,18 +27,18 @@ namespace Katame {
 		};
 		static_assert(sizeof( Index ) == 3 * sizeof( uint32_t ));
 
-		Mesh( const std::string& filename );
+		Mesh( const std::string& filename, Graphics* gfx );
 		~Mesh();
 
-		void Render();
+		void Render( Graphics* gfx );
 
 		inline const std::string& GetFilePath() const { return m_FilePath; }
 	private:
 		std::vector<Vertex> m_Vertices;
 		std::vector<Index> m_Indices;
 
-		std::unique_ptr<Bind::VertexBuffer> m_VertexBuffer;
-		std::unique_ptr<Bind::IndexBuffer> m_IndexBuffer;
+		Katame::Bind::VertexBuffer* m_VertexBuffer;
+		Katame::Bind::IndexBuffer* m_IndexBuffer;
 
 		std::string m_FilePath;
 	};

@@ -43,7 +43,7 @@ namespace Katame
 		bool m_Running = true, m_Minimized = false;
 		bool xr_running = false;
 
-		Model* m_Model = nullptr;
+		Mesh* m_Model = nullptr;
 
 		std::vector<XrPosef> app_cubes;
 
@@ -60,6 +60,8 @@ namespace Katame
 		//ID3D11Buffer* app_vertex_buffer = nullptr;
 		//ID3D11Buffer* app_index_buffer = nullptr;
 
+		Bind::VertexShader* phongVS = nullptr;
+		Bind::PixelShader* phongPS = nullptr;
 	};
 
 }

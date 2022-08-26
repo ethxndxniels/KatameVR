@@ -6,8 +6,15 @@ namespace Katame
 
 	namespace Bind
 	{
-		VertexBuffer::VertexBuffer( unsigned int size )
-			:  m_Size( size )
+
+		VertexBuffer::VertexBuffer( Graphics* gfx, const Dvtx::VertexBuffer& vbuf )
+			:
+			VertexBuffer( gfx, "?", vbuf )
+		{}
+		VertexBuffer::VertexBuffer( Graphics* gfx, const std::string& tag, const Dvtx::VertexBuffer& vbuf )
+			:
+			m_iStride( (UINT)vbuf.GetLayout().Size() ),
+			m_sTag( tag )
 		{
 			D3D11_BUFFER_DESC bd = {};
 			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -18,43 +25,28 @@ namespace Katame
 			bd.StructureByteStride = m_iStride;
 			D3D11_SUBRESOURCE_DATA sd = {};
 			sd.pSysMem = vbuf.GetData();
-			ID3D11Buffer test = gfx->m_Device->CreateBuffer( &bd, &sd, &m_pVertexBuffer );
-
-			//KM_RENDER_S( {
-			//	glGenBuffers( 1, &self->m_RendererID );
-			//	} );
+			gfx->m_Device->CreateBuffer( &bd, &sd, &m_pVertexBuffer );
 		}
-
-		VertexBuffer::~VertexBuffer()
+		void VertexBuffer::Bind( Graphics* gfx ) noexcept
 		{
-			//KM_RENDER_S( {
-			//	glDeleteBuffers( 1, &self->m_RendererID );
-			//	} );
+			const UINT offset = 0u;
+			gfx->m_Context->IASetVertexBuffers( 0u, 1u, &m_pVertexBuffer, &m_iStride, &offset );
 		}
-
-		void VertexBuffer::SetData( void* buffer, unsigned int size, unsigned int offset )
+		std::shared_ptr<VertexBuffer> VertexBuffer::Resolve( Graphics* gfx, const std::string& tag,
+			const Dvtx::VertexBuffer& vbuf )
 		{
-			m_Size = size;
-			//KM_RENDER_S3( buffer, size, offset, {
-			//	glBindBuffer( GL_ARRAY_BUFFER, self->m_RendererID );
-			//	glBufferData( GL_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW );
-			//	} );
+			assert( tag != "?" );
+			return Codex::Resolve<VertexBuffer>( gfx, tag, vbuf );
 		}
-
-		void VertexBuffer::Bind() const
+		std::string VertexBuffer::GenerateUID_( const std::string& tag )
 		{
-			//KM_RENDER_S( {
-			//	glBindBuffer( GL_ARRAY_BUFFER, self->m_RendererID );
-
-			// TODO: Extremely temp, by default provide positions and texcoord attributes
-			//glEnableVertexAttribArray( 0 );
-			//glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( float ) * 5, 0 );
-
-			//glEnableVertexAttribArray( 1 );
-			//glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof( float ) * 5, (const void*)(3 * sizeof( float )) );
-			//	} );
+			using namespace std::string_literals;
+			return typeid(VertexBuffer).name() + "#"s + tag;
 		}
-
+		std::string VertexBuffer::GetUID() const noexcept
+		{
+			return GenerateUID( m_sTag );
+		}
 
 	}
 

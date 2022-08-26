@@ -41,7 +41,7 @@ namespace Katame {
 		}
 	};
 
-	Mesh::Mesh( const std::string& filename )
+	Mesh::Mesh( const std::string& filename, Graphics* gfx )
 		: m_FilePath( filename )
 	{
 		LogStream::Initialize();
@@ -79,8 +79,16 @@ namespace Katame {
 			m_Vertices.push_back( vertex );
 		}
 
-		m_VertexBuffer.reset( Bind::VertexBuffer::Create() );
-		m_VertexBuffer->SetData( m_Vertices.data(), m_Vertices.size() * sizeof( Vertex ) );
+		Dvtx::VertexBuffer vbuf( std::move(
+			Dvtx::VertexLayout{}
+			.Append( Dvtx::VertexLayout::Position3D )
+			.Append( Dvtx::VertexLayout::Normal )
+			.Append( Dvtx::VertexLayout::Tangent )
+			.Append( Dvtx::VertexLayout::Bitangent )
+			.Append( Dvtx::VertexLayout::Texture2D )
+		) );
+
+		m_VertexBuffer = new Bind::VertexBuffer( gfx, "test", vbuf );
 
 		// Extract indices from model
 		m_Indices.reserve( mesh->mNumFaces );
@@ -90,36 +98,19 @@ namespace Katame {
 			m_Indices.push_back( { mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2] } );
 		}
 
-		m_IndexBuffer.reset( IndexBuffer::Create() );
-		m_IndexBuffer->SetData( m_Indices.data(), m_Indices.size() * sizeof( Index ) );
+		m_IndexBuffer = new Bind::IndexBuffer( gfx, m_Indices.data(), m_Indices.size() * sizeof( Index ) );
 	}
 
 	Mesh::~Mesh()
 	{
 	}
 
-	void Mesh::Render()
+	void Mesh::Render( Graphics* gfx )
 	{
 		// TODO: Sort this out
-		m_VertexBuffer->Bind();
-		m_IndexBuffer->Bind();
-		KM_RENDER_S( {
-			glEnableVertexAttribArray( 0 );
-			glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Position ) );
-
-			glEnableVertexAttribArray( 1 );
-			glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Normal ) );
-
-			glEnableVertexAttribArray( 2 );
-			glVertexAttribPointer( 2, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Tangent ) );
-
-			glEnableVertexAttribArray( 3 );
-			glVertexAttribPointer( 3, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Binormal ) );
-
-			glEnableVertexAttribArray( 4 );
-			glVertexAttribPointer( 4, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (const void*)offsetof( Vertex, Texcoord ) );
-			} );
-		Renderer::DrawIndexed( m_IndexBuffer->GetCount() );
+		m_VertexBuffer->Bind( gfx );
+		m_IndexBuffer->Bind( gfx );
+		gfx->DrawIndexed( m_IndexBuffer->GetCount() );
 	}
 
 }

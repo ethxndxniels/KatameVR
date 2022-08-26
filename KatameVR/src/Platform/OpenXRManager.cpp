@@ -509,7 +509,7 @@ namespace Katame
 			views[i].subImage.imageRect.extent = { xr_swapchains[i].width, xr_swapchains[i].height };
 
 			// Call the rendering callback with our view and swapchain info
-			gfx->RenderLayer( views[i].subImage.imageRect.offset.x, views[i].subImage.imageRect.offset.y, views[i].subImage.imageRect.extent.width, views[i].subImage.imageRect.extent.width, xr_swapchains[i].surface_data[img_id] );
+			gfx->RenderLayer( (float)views[i].subImage.imageRect.offset.x, (float)views[i].subImage.imageRect.offset.y, (float)views[i].subImage.imageRect.extent.width, (float)views[i].subImage.imageRect.extent.width, xr_swapchains[i].surface_data[img_id] );
 			app->Draw( views[i] );
 
 			// And tell OpenXR we're done with rendering to this one!

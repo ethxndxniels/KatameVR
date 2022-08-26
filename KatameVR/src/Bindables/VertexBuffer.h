@@ -9,21 +9,27 @@ namespace Katame
 	namespace Bind
 	{
 
-		class VertexBuffer
+		class VertexBuffer : public Bindable
 		{
 		public:
-			VertexBuffer( unsigned int size );
-			~VertexBuffer() {}
-
-			void SetData( void* buffer, unsigned int size, unsigned int offset = 0 );
-			void Bind() const ;
-
-			unsigned int GetSize() const;
-
-			static VertexBuffer* Create( unsigned int size = 0 );
+			VertexBuffer( Graphics* gfx, const std::string& tag, const Dvtx::VertexBuffer& vbuf );
+			VertexBuffer( Graphics* gfx, const Dvtx::VertexBuffer& vbuf );
+			void Bind( Graphics* gfx ) noexcept override;
+			static std::shared_ptr<VertexBuffer> Resolve( Graphics* gfx, const std::string& tag,
+				const Dvtx::VertexBuffer& vbuf );
+			template<typename...Ignore>
+			static std::string GenerateUID( const std::string& tag, Ignore&&...ignore )
+			{
+				return GenerateUID_( tag );
+			}
+			std::string GetUID() const noexcept override;
 		private:
-			unsigned int m_Size;
+			static std::string GenerateUID_( const std::string& tag );
+		protected:
+			std::string m_sTag;
+			UINT m_iStride;
+			ID3D11Buffer* m_pVertexBuffer;
 		};
-	
+
 	}
 }

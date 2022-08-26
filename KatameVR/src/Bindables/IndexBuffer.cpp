@@ -1,10 +1,23 @@
 #include "IndexBuffer.h"
+#include "../Graphics/Mesh.h"
 
 namespace Katame
 {
 	namespace Bind
 	{
-
+		IndexBuffer::IndexBuffer( Graphics* gfx, void* buffer, unsigned int size )
+		{
+			D3D11_BUFFER_DESC ibd = {};
+			ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			ibd.Usage = D3D11_USAGE_DEFAULT;
+			ibd.CPUAccessFlags = 0u;
+			ibd.MiscFlags = 0u;
+			ibd.ByteWidth = size;
+			ibd.StructureByteStride = sizeof( Mesh::Index );
+			D3D11_SUBRESOURCE_DATA isd = {};
+			isd.pSysMem = buffer;
+			gfx->m_Device->CreateBuffer( &ibd, &isd, &m_pIndexBuffer );
+		}
 		IndexBuffer::IndexBuffer( Graphics* gfx, const std::vector<unsigned short>& indices )
 			:
 			IndexBuffer( gfx, "?", indices )

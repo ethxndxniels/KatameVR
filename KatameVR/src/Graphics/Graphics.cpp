@@ -44,6 +44,7 @@ namespace Katame
 
 	void Graphics::DrawIndexed( int count ) noexcept
 	{
+		m_Context->DrawIndexed( count, 0u, 0u );
 	}
 
 	void Graphics::RenderLayer( float offset_x, float offset_y, float extent_width, float extent_height, swapchain_surfdata_t& surface )
