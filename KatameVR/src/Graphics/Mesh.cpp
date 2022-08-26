@@ -41,7 +41,7 @@ namespace Katame {
 		}
 	};
 
-	Mesh::Mesh( const std::string& filename, Graphics* gfx )
+	Mesh::Mesh( const std::string& filename, Graphics* gfx, Bind::VertexShader* vs )
 		: m_FilePath( filename )
 	{
 		LogStream::Initialize();
@@ -79,16 +79,15 @@ namespace Katame {
 			m_Vertices.push_back( vertex );
 		}
 
-		Dvtx::VertexBuffer vbuf( std::move(
-			Dvtx::VertexLayout{}
-			.Append( Dvtx::VertexLayout::Position3D )
-			.Append( Dvtx::VertexLayout::Normal )
-			.Append( Dvtx::VertexLayout::Tangent )
-			.Append( Dvtx::VertexLayout::Bitangent )
-			.Append( Dvtx::VertexLayout::Texture2D )
-		) );
+		Dvtx::VertexLayout vl;
+		vl.Append( Dvtx::VertexLayout::Position3D );
+		vl.Append( Dvtx::VertexLayout::Normal );
+		vl.Append( Dvtx::VertexLayout::Tangent );
+		vl.Append( Dvtx::VertexLayout::Bitangent );
+		vl.Append( Dvtx::VertexLayout::Texture2D );
 
-		m_VertexBuffer = new Bind::VertexBuffer( gfx, "test", vbuf );
+		m_VertexBuffer = new Bind::VertexBuffer( gfx, m_Vertices.data(), m_Vertices.size() * sizeof( Vertex ) );
+		m_InputLayout = new Bind::InputLayout( gfx, vl, vs->GetBytecode() );
 
 		// Extract indices from model
 		m_Indices.reserve( mesh->mNumFaces );
@@ -110,6 +109,7 @@ namespace Katame {
 		// TODO: Sort this out
 		m_VertexBuffer->Bind( gfx );
 		m_IndexBuffer->Bind( gfx );
+		m_InputLayout->Bind( gfx );
 		gfx->DrawIndexed( m_IndexBuffer->GetCount() );
 	}
 

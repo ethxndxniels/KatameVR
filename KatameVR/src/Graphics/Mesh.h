@@ -4,6 +4,8 @@
 
 #include "../Bindables/VertexBuffer.h"
 #include "../Bindables/IndexBuffer.h"
+#include "../Bindables/InputLayout.h"
+#include "../Bindables/VertexShader.h"
 
 namespace Katame {
 
@@ -27,7 +29,7 @@ namespace Katame {
 		};
 		static_assert(sizeof( Index ) == 3 * sizeof( uint32_t ));
 
-		Mesh( const std::string& filename, Graphics* gfx );
+		Mesh( const std::string& filename, Graphics* gfx, Bind::VertexShader* vs );
 		~Mesh();
 
 		void Render( Graphics* gfx );
@@ -37,8 +39,9 @@ namespace Katame {
 		std::vector<Vertex> m_Vertices;
 		std::vector<Index> m_Indices;
 
-		Katame::Bind::VertexBuffer* m_VertexBuffer;
-		Katame::Bind::IndexBuffer* m_IndexBuffer;
+		Bind::VertexBuffer* m_VertexBuffer;
+		Bind::IndexBuffer* m_IndexBuffer;
+		Bind::InputLayout* m_InputLayout;
 
 		std::string m_FilePath;
 	};

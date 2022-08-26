@@ -35,14 +35,12 @@ namespace Katame
 		void RenderLayer( float offset_x, float offset_y, float extent_width, float extent_height, swapchain_surfdata_t& surface );
 		swapchain_surfdata_t MakeSurfaceData( ID3D11Texture2D* texture );
 		DirectX::XMMATRIX GetXRProjection( float angleLeft, float angleRight, float angleUp, float angleDown, float clip_near, float clip_far );
-		DirectX::XMMATRIX GetViewMatrix() noexcept;
 	private:
 		IDXGIAdapter1* GetAdapter( LUID& adapter_luid );
 	public:
 		ID3D11Device* m_Device = nullptr;
 		ID3D11DeviceContext* m_Context = nullptr;
 		int64_t              m_Swapchain_fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
-		DirectX::XMMATRIX m_ViewMatrix;
 	};
 
 }

@@ -1,12 +1,27 @@
 #include "VertexBuffer.h"
 #include "BindableCodex.h"
 
+#include "../Graphics/Mesh.h"
+
 namespace Katame
 {
 
 	namespace Bind
 	{
 
+		VertexBuffer::VertexBuffer( Graphics* gfx, void* buffer, unsigned int size )
+		{
+			D3D11_BUFFER_DESC bd = {};
+			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			bd.Usage = D3D11_USAGE_DEFAULT;
+			bd.CPUAccessFlags = 0u;
+			bd.MiscFlags = 0u;
+			bd.ByteWidth = size;
+			bd.StructureByteStride = sizeof( Mesh::Vertex );
+			D3D11_SUBRESOURCE_DATA sd = {};
+			sd.pSysMem = buffer;
+			gfx->m_Device->CreateBuffer( &bd, &sd, &m_pVertexBuffer );
+		}
 		VertexBuffer::VertexBuffer( Graphics* gfx, const Dvtx::VertexBuffer& vbuf )
 			:
 			VertexBuffer( gfx, "?", vbuf )

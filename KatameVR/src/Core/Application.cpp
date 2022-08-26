@@ -18,9 +18,6 @@ namespace Katame
 		cube.Transform( DirectX::XMMatrixScaling( 5.0f, 5.0f, 5.0f ) );
 		cube.SetNormalsIndependentFlat();
 
-		m_Model = new Mesh( "Models\\petty_imp\\untitled.fbx", gfx() );
-
-
 		app_vertex_buffer = new Bind::VertexBuffer( gfx(), cube.vertices );
 		app_index_buffer = new Bind::IndexBuffer( gfx(), cube.indices );
 		app_vshader = new Bind::VertexShader( gfx(), "./Shaders/Bin/VertexShader.cso" );
@@ -32,6 +29,7 @@ namespace Katame
 		
 		phongVS = new Bind::VertexShader( gfx(), "./Shaders/Bin/PhongVS.cso" );
 		phongPS = new Bind::PixelShader( gfx(), "./Shaders/Bin/PhongPS.cso" );
+		m_Model = new Mesh( "Models\\petty_imp\\untitled.fbx", gfx(), phongVS );
 	}
 
 	Application::~Application()
@@ -103,11 +101,9 @@ namespace Katame
 			gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		}
 
-		//phongVS->Bind( gfx() );
-		//phongPS->Bind( gfx() );
-		//m_Model->SetRootTransform( DirectX::XMMatrixTranslation( openxrManager->GetHandPos( 0 ).position.x, openxrManager->GetHandPos( 0 ).position.y, openxrManager->GetHandPos( 0 ).position.z ) );
-		//m_Model->Render( gfx() );
-
+		phongVS->Bind( gfx() );
+		phongPS->Bind( gfx() );
+		m_Model->Render( gfx() );
 	}
 
 	void Application::Update()

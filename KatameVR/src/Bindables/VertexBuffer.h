@@ -12,6 +12,7 @@ namespace Katame
 		class VertexBuffer : public Bindable
 		{
 		public:
+			VertexBuffer( Graphics* gfx, void* buffer, unsigned int size );
 			VertexBuffer( Graphics* gfx, const std::string& tag, const Dvtx::VertexBuffer& vbuf );
 			VertexBuffer( Graphics* gfx, const Dvtx::VertexBuffer& vbuf );
 			void Bind( Graphics* gfx ) noexcept override;

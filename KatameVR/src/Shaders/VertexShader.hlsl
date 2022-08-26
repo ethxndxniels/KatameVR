@@ -3,8 +3,8 @@ cbuffer TransformBuffer : register(b0) {
 	float4x4 viewproj;
 };
 struct vsIn {
-	float4 pos  : SV_POSITION;
-	float3 norm : NORMAL;
+	float4 pos  : Position;
+	float3 norm : Normal;
 };
 struct psIn {
 	float4 pos   : SV_POSITION;

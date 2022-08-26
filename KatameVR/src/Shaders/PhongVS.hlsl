@@ -6,11 +6,11 @@ cbuffer TransformBuffer : register(b0)
 
 struct vsIn 
 {
-	float3 a_Position  : SV_POSITION;
-	float3 a_Normal : NORMAL;
-	float3 a_Tangent  : TANGENT;
-	float3 a_Bitangent : BITANGENT;
-	float2 a_TexCoord  : TEXCOORD;
+	float3 a_Position  : Position;
+	float3 a_Normal : Normal;
+	float3 a_Tangent  : Tangent;
+	float3 a_Bitangent : Bitangent;
+	float2 a_TexCoord  : Texcoord;
 };
 
 struct psIn 

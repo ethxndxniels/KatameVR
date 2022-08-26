@@ -452,7 +452,7 @@ namespace Katame
 		// Execute any code that's dependant on the predicted time, such as updating the location of
 		// controller models.
 		openxr_poll_predicted( frame_state.predictedDisplayTime );
-		//app_update_predicted();
+		app->Update_Predicted();
 
 		// If the session is active, lets render our layer in the compositor!
 		XrCompositionLayerBaseHeader* layer = nullptr;

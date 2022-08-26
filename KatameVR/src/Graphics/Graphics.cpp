@@ -110,11 +110,6 @@ namespace Katame
 		return DirectX::XMMatrixPerspectiveOffCenterRH( left, right, down, up, clip_near, clip_far );
 	}
 
-	DirectX::XMMATRIX Graphics::GetViewMatrix() noexcept
-	{
-		return m_ViewMatrix;
-	}
-
 	IDXGIAdapter1* Graphics::GetAdapter( LUID& adapter_luid )
 	{
 		// Turn the LUID into a specific graphics device adapter
