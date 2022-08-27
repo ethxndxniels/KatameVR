@@ -3,12 +3,12 @@ cbuffer TransformBuffer : register(b0) {
 	float4x4 viewproj;
 };
 struct vsIn {
-	float4 pos  : Position;
+	float3 pos  : Position;
 	float3 norm : Normal;
 };
 struct psIn {
-	float4 pos   : SV_POSITION;
-	float3 color : COLOR0;
+	float4 pos   : Position;
+	float3 color : Color;
 };
 psIn main( vsIn input ) {
 	psIn output;

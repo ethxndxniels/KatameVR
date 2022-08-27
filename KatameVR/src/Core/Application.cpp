@@ -101,9 +101,9 @@ namespace Katame
 			gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		}
 
-		phongVS->Bind( gfx() );
-		phongPS->Bind( gfx() );
-		m_Model->Render( gfx() );
+		//phongVS->Bind( gfx() );
+		//phongPS->Bind( gfx() );
+		//m_Model->Render( gfx() );
 	}
 
 	void Application::Update()
