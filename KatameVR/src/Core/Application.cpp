@@ -23,7 +23,7 @@ namespace Katame
 		app_vshader = new Bind::VertexShader( gfx(), "./Shaders/Bin/VertexShader.cso" );
 		app_pshader = new Bind::PixelShader( gfx(), "./Shaders/Bin/PixelShader.cso" );
 		app_shader_layout = new Bind::InputLayout( gfx(), cube.vertices.GetLayout(), app_vshader->GetBytecode());
-
+		app_topology = new Bind::Topology( gfx(), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 		CD3D11_BUFFER_DESC     const_buff_desc( sizeof( app_transform_buffer_t ), D3D11_BIND_CONSTANT_BUFFER );
 		gfx()->m_Device->CreateBuffer(&const_buff_desc, nullptr, &app_constant_buffer);
 		
@@ -71,14 +71,10 @@ namespace Katame
 		app_pshader->Bind( gfx() );
 
 		// Set up the cube mesh's information
-		UINT strides[] = { sizeof( float ) * 6 };
-		UINT offsets[] = { 0 };
 		app_vertex_buffer->Bind( gfx() );
 		app_index_buffer->Bind( gfx() );
-		gfx()->m_Context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		app_topology->Bind( gfx() );
 		app_shader_layout->Bind( gfx() );
-
-
 
 		// Put camera matrices into the shader's constant buffer
 		app_transform_buffer_t transform_buffer;
@@ -101,9 +97,9 @@ namespace Katame
 			gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		}
 
-		//phongVS->Bind( gfx() );
-		//phongPS->Bind( gfx() );
-		//m_Model->Render( gfx() );
+		phongVS->Bind( gfx() );
+		phongPS->Bind( gfx() );
+		m_Model->Render( gfx() );
 	}
 
 	void Application::Update()

@@ -459,7 +459,8 @@ namespace Katame
 		XrCompositionLayerProjection             layer_proj = { XR_TYPE_COMPOSITION_LAYER_PROJECTION };
 		std::vector<XrCompositionLayerProjectionView> views;
 		bool session_active = xr_session_state == XR_SESSION_STATE_VISIBLE || xr_session_state == XR_SESSION_STATE_FOCUSED;
-		if (session_active && openxr_render_layer( frame_state.predictedDisplayTime, views, layer_proj, app )) {
+		if (session_active && openxr_render_layer( frame_state.predictedDisplayTime, views, layer_proj, app )) 
+		{
 			layer = (XrCompositionLayerBaseHeader*)&layer_proj;
 		}
 

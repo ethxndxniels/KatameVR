@@ -89,7 +89,7 @@ namespace Katame
 			throw std::exception();
 		}
 
-		//CoUninitialize();
+		CoUninitialize();
 		
 		if (scratch.GetImage( 0, 0, 0 )->format != format)
 		{

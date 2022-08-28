@@ -10,19 +10,18 @@ namespace Katame
 	{
 
 		VertexBuffer::VertexBuffer( Graphics* gfx, void* buffer, unsigned int size )
+			: m_iStride( sizeof( Mesh::Vertex ) )
 		{
-			D3D11_SUBRESOURCE_DATA vert_buff_data = { buffer };
-			CD3D11_BUFFER_DESC     vert_buff_desc( size, D3D11_BIND_VERTEX_BUFFER );
-			/*D3D11_BUFFER_DESC bd = {};
+			D3D11_BUFFER_DESC bd = {};
 			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 			bd.Usage = D3D11_USAGE_DEFAULT;
 			bd.CPUAccessFlags = 0u;
 			bd.MiscFlags = 0u;
 			bd.ByteWidth = size;
-			bd.StructureByteStride = sizeof( Mesh::Vertex );*/
+			bd.StructureByteStride = m_iStride;
 			D3D11_SUBRESOURCE_DATA sd = {};
 			sd.pSysMem = buffer;
-			gfx->m_Device->CreateBuffer( &vert_buff_desc, &vert_buff_data, &m_pVertexBuffer );
+			gfx->m_Device->CreateBuffer( &bd, &sd, &m_pVertexBuffer );
 		}
 		VertexBuffer::VertexBuffer( Graphics* gfx, const Dvtx::VertexBuffer& vbuf )
 			:

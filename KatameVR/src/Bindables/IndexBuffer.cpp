@@ -27,18 +27,16 @@ namespace Katame
 			m_sTag( tag ),
 			m_iCount( (UINT)indices.size() )
 		{
-			D3D11_SUBRESOURCE_DATA ind_buff_data = { indices.data() };
-			CD3D11_BUFFER_DESC     ind_buff_desc( sizeof( indices ), D3D11_BIND_INDEX_BUFFER );
-			//D3D11_BUFFER_DESC ibd = {};
-			//ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-			//ibd.Usage = D3D11_USAGE_DEFAULT;
-			//ibd.CPUAccessFlags = 0u;
-			//ibd.MiscFlags = 0u;
-			//ibd.ByteWidth = UINT( m_iCount * sizeof( unsigned short ) );
-			//ibd.StructureByteStride = sizeof( unsigned short );
+			D3D11_BUFFER_DESC ibd = {};
+			ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			ibd.Usage = D3D11_USAGE_DEFAULT;
+			ibd.CPUAccessFlags = 0u;
+			ibd.MiscFlags = 0u;
+			ibd.ByteWidth = UINT( m_iCount * sizeof( unsigned short ) );
+			ibd.StructureByteStride = sizeof( unsigned short );
 			D3D11_SUBRESOURCE_DATA isd = {};
 			isd.pSysMem = indices.data();
-			gfx->m_Device->CreateBuffer( &ind_buff_desc, &ind_buff_data, &m_pIndexBuffer );
+			gfx->m_Device->CreateBuffer( &ibd, &isd, &m_pIndexBuffer );
 		}
 		void IndexBuffer::Bind( Graphics* gfx ) noexcept
 		{
