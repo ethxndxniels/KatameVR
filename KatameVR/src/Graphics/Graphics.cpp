@@ -54,7 +54,7 @@ namespace Katame
 		m_Context->RSSetViewports( 1, &viewport );
 
 		// Wipe our swapchain color and depth target clean, and then set them up for rendering!
-		float clear[] = { 0, 0, 0, 1 };
+		float clear[] = { 20.0f / 255.0f, 2.0f / 255.0f, 30.0f / 255.0f, 1 };
 		m_Context->ClearRenderTargetView( surface.target_view, clear );
 		m_Context->ClearDepthStencilView( surface.depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
 		m_Context->OMSetRenderTargets( 1, &surface.target_view, surface.depth_view );

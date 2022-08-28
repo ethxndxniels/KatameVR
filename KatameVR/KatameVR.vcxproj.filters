@@ -102,6 +102,9 @@
     <ClCompile Include="src\Graphics\LayoutCodex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utilities\FrameTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -857,6 +860,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vendor\dxtex\include\dxtex\scoped.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utilities\FrameTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

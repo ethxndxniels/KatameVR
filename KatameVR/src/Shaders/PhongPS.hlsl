@@ -1,3 +1,8 @@
+cbuffer DirectionalLight : register(b1)
+{
+	float4 lightDir;
+};
+
 Texture2D tex;
 SamplerState splr;
 
@@ -10,5 +15,5 @@ struct psIn
 
 float4 main( psIn input ) : SV_Target
 {
-	return float4(dot( input.a_Normal, float3(0,1,0) ).xxx, 1.0f);
+	return float4(dot( input.a_Normal, lightDir.xyz ).xxx, 1.0f);
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "Bindable.h"
 #include "BindableCodex.h"
+#include "../Core/Log.h"
 
 namespace Katame
 {
@@ -36,7 +37,8 @@ namespace Katame
 
 				D3D11_SUBRESOURCE_DATA csd = {};
 				csd.pSysMem = &consts;
-				gfx->m_Device->CreateBuffer( &cbd, &csd, &m_pConstantBuffer );
+				HRESULT hr = gfx->m_Device->CreateBuffer( &cbd, &csd, &m_pConstantBuffer );
+				KM_CORE_ASSERT( sizeof(C) % 4 == 0, "Constant buffer needs to be a multiple of 4." );
 			}
 			ConstantBuffer( Graphics* gfx, UINT slot = 0u )
 				:

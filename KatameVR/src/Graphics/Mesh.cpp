@@ -7,8 +7,6 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 
-#define KM_CORE_ASSERT(x, ...) { if(!(x)) { KM_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-
 namespace Katame {
 
 	namespace {

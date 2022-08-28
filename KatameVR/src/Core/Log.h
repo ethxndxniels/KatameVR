@@ -31,3 +31,5 @@ namespace Katame
 #define KM_WARN(...)			::Katame::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define KM_ERROR(...)			::Katame::Log::GetClientLogger()->error(__VA_ARGS__)
 #define KM_CRITICAL(...)		::Katame::Log::GetClientLogger()->critical(__VA_ARGS__)
+
+#define KM_CORE_ASSERT(x, ...) { if(!(x)) { KM_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }

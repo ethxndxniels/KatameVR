@@ -83,7 +83,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;vendor\assimp\include;vendor\glm;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -92,7 +92,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>KatameVR\vendor\assimp\bin\win64\assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -124,6 +124,7 @@
     <ClCompile Include="src\Bindables\VertexShader.cpp" />
     <ClCompile Include="src\Graphics\Vertex.cpp" />
     <ClCompile Include="src\Bindables\VertexBuffer.cpp" />
+    <ClCompile Include="src\Utilities\FrameTimer.cpp" />
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -267,6 +268,7 @@
     <ClInclude Include="src\Libraries\spdlog\stopwatch.h" />
     <ClInclude Include="src\Libraries\spdlog\tweakme.h" />
     <ClInclude Include="src\Libraries\spdlog\version.h" />
+    <ClInclude Include="src\Utilities\FrameTimer.h" />
     <ClInclude Include="src\Utilities\KatameUtils.h" />
     <ClInclude Include="src\Utilities\KatameXM.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\BC.h" />

@@ -17,11 +17,6 @@ namespace Katame
 		ID3D11RenderTargetView* target_view;
 	};
 
-	struct app_transform_buffer_t {
-		DirectX::XMFLOAT4X4 world;
-		DirectX::XMFLOAT4X4 viewproj;
-	};
-
 	class Graphics
 	{
 	public:
