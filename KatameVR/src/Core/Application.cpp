@@ -59,7 +59,7 @@ namespace Katame
 	void Application::Draw( XrCompositionLayerProjectionView& view ) 
 	{
 		// Set up camera matrices based on OpenXR's predicted viewpoint information
-		DirectX::XMMATRIX mat_projection = gfx()->GetXRProjection(view.fov.angleLeft, view.fov.angleRight, view.fov.angleUp, view.fov.angleDown, 0.05f, 100.0f);
+		DirectX::XMMATRIX mat_projection = gfx()->GetXRProjection(view.fov.angleLeft, view.fov.angleRight, view.fov.angleUp, view.fov.angleDown, 0.05f, 500.0f);
 		DirectX::XMMATRIX mat_view = XMMatrixInverse( nullptr, XMMatrixAffineTransformation(
 			DirectX::g_XMOne, DirectX::g_XMZero,
 			DirectX::XMLoadFloat4( (DirectX::XMFLOAT4*)&view.pose.orientation ),
@@ -97,6 +97,9 @@ namespace Katame
 			gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		}
 
+		XMStoreFloat4x4( &transform_buffer.world, DirectX::XMMatrixTranspose( DirectX::XMMatrixIdentity() ) );
+		gfx()->m_Context->UpdateSubresource( app_constant_buffer, 0, nullptr, &transform_buffer, 0, 0 );
+		gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		phongVS->Bind( gfx() );
 		phongPS->Bind( gfx() );
 		m_Model->Render( gfx() );
