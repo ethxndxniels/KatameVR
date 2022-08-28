@@ -15,7 +15,7 @@ struct vsIn
 
 struct psIn 
 {
-	float4 a_Position  : Position;
+	float4 a_Position  : SV_POSITION;
 	float3 a_Normal : Normal;
 	float2 a_TexCoord : Texcoord;
 };

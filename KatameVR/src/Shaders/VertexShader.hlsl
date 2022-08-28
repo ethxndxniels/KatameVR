@@ -7,7 +7,7 @@ struct vsIn {
 	float3 norm : Normal;
 };
 struct psIn {
-	float4 pos   : Position;
+	float4 pos   : SV_POSITION;
 	float3 color : Color;
 };
 psIn main( vsIn input ) {
