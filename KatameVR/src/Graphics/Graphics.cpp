@@ -3,16 +3,9 @@
 
 namespace Katame
 {
-
-	Graphics::Graphics( int width, int height )
-	{
-	}
-
-	Graphics::~Graphics()
-	{
-		if (m_Context) { m_Context->Release(); m_Context = nullptr; }
-		if (m_Device) { m_Device->Release();  m_Device = nullptr; }
-	}
+	ID3D11Device* Graphics::m_Device = nullptr;
+	ID3D11DeviceContext* Graphics::m_Context = nullptr;
+	int64_t Graphics::m_Swapchain_fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	bool Graphics::Init( LUID& adapter_luid )
 	{

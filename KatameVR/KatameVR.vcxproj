@@ -113,7 +113,7 @@
     <ClCompile Include="src\Graphics\LayoutCodex.cpp" />
     <ClCompile Include="src\Graphics\Mesh.cpp" />
     <ClCompile Include="src\Graphics\Surface.cpp" />
-    <ClCompile Include="src\Platform\OpenXRManager.cpp" />
+    <ClCompile Include="src\Platform\XRManager.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Bindables\IndexBuffer.cpp" />
     <ClCompile Include="src\Bindables\InputLayout.cpp" />
@@ -126,6 +126,10 @@
     <ClCompile Include="src\Bindables\VertexBuffer.cpp" />
     <ClCompile Include="src\Utilities\FrameTimer.cpp" />
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
+    <ClCompile Include="src\Platform\XRInput.cpp" />
+    <ClCompile Include="src\Platform\XRCore.cpp" />
+    <ClCompile Include="src\Platform\XREventHandler.cpp" />
+    <ClCompile Include="src\Platform\XRGraphics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -158,7 +162,7 @@
     <ClInclude Include="src\Graphics\LayoutCodex.h" />
     <ClInclude Include="src\Graphics\Mesh.h" />
     <ClInclude Include="src\Graphics\Surface.h" />
-    <ClInclude Include="src\Platform\OpenXRManager.h" />
+    <ClInclude Include="src\Platform\XRManager.h" />
     <ClInclude Include="src\Graphics\Graphics.h" />
     <ClInclude Include="src\Geometry\Cube.h" />
     <ClInclude Include="src\Bindables\IndexBuffer.h" />
@@ -385,6 +389,10 @@
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
     <ClInclude Include="src\Graphics\Vertex.h" />
     <ClInclude Include="src\Bindables\VertexBuffer.h" />
+    <ClInclude Include="src\Platform\XRInput.h" />
+    <ClInclude Include="src\Platform\XRCore.h" />
+    <ClInclude Include="src\Platform\XREventHandler.h" />
+    <ClInclude Include="src\Platform\XRGraphics.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\PhongPS.hlsl">

@@ -117,7 +117,7 @@ namespace Katame
 		gfx()->m_Context->DrawIndexed( (UINT)_countof( app_inds ), 0, 0 );
 		phongVS->Bind( gfx() );
 		phongPS->Bind( gfx() );
-		m_Model->Render( gfx() );
+		//m_Model->Render( gfx() );
 	}
 
 	bool flag = true;
@@ -141,8 +141,8 @@ namespace Katame
 			}
 		}
 
-		if (openxrManager->HandSelect( 0 ))
-			modelPosition.y += dt;
+	//	if (openxrManager->GetInput().rightTriggerPress)
+	//		modelPosition.y += dt;
 	}
 
 	void Application::Update_Predicted()

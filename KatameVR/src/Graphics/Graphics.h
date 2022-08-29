@@ -20,22 +20,19 @@ namespace Katame
 	class Graphics
 	{
 	public:
-		Graphics( int width, int height );
-		~Graphics();
-	public:
-		bool Init( LUID& adapter_luid );
-		void BeginFrame( float red, float green, float blue ) noexcept;
-		void EndFrame();
-		void DrawIndexed( int count )  noexcept;
-		void RenderLayer( float offset_x, float offset_y, float extent_width, float extent_height, swapchain_surfdata_t& surface );
-		swapchain_surfdata_t MakeSurfaceData( ID3D11Texture2D* texture );
-		DirectX::XMMATRIX GetXRProjection( float angleLeft, float angleRight, float angleUp, float angleDown, float clip_near, float clip_far );
+		static bool Init( LUID& adapter_luid );
+		static void BeginFrame( float red, float green, float blue ) noexcept;
+		static void EndFrame();
+		static void DrawIndexed( int count )  noexcept;
+		static void RenderLayer( float offset_x, float offset_y, float extent_width, float extent_height, swapchain_surfdata_t& surface );
+		static swapchain_surfdata_t MakeSurfaceData( ID3D11Texture2D* texture );
+		static DirectX::XMMATRIX GetXRProjection( float angleLeft, float angleRight, float angleUp, float angleDown, float clip_near, float clip_far );
 	private:
-		IDXGIAdapter1* GetAdapter( LUID& adapter_luid );
+		static IDXGIAdapter1* GetAdapter( LUID& adapter_luid );
 	public:
-		ID3D11Device* m_Device = nullptr;
-		ID3D11DeviceContext* m_Context = nullptr;
-		int64_t              m_Swapchain_fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
+		static ID3D11Device* m_Device;
+		static ID3D11DeviceContext* m_Context;
+		static int64_t m_Swapchain_fmt;
 	};
 
 }
