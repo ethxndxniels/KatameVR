@@ -11,13 +11,17 @@
 #include <vector>
 
 #include "XREventHandler.h"
+#include "XRGraphics.h"
 
 namespace Katame
 {
 	class XRCore
 	{
+	public:
 		static bool Init( int64_t swapchain_format );
 		static XrInstance* GetInstance();
+		static XrSession* GetSession();
+		static XrSpace* GetSpace();
 	private:
 		static void OpenXRInit();
 		static void EnableInstanceExtensions();
@@ -26,6 +30,8 @@ namespace Katame
 	private:
 		static XrInstance* m_Instance;
 		static XrSession* m_Session;
+		static XrSpace* m_Space;
+	private:
 		static std::vector<const char*> m_AppEnabledExtensions;
 		static std::vector<void*> m_AppRequestedExtensions;
 	private:
@@ -38,7 +44,6 @@ namespace Katame
 		static XrSystemId m_SystemId;
 		static XrSystemProperties m_SystemProperties;
 		static XrReferenceSpaceType m_ReferenceSpaceType;
-		static XrSpace m_Space;
 
 	};
 }

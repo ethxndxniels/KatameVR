@@ -2,8 +2,6 @@
 
 #include "../Core/Log.h"
 
-#include "XRGraphicsAPI.h"
-
 namespace Katame
 {
 	XrInstance* XRCore::m_Instance = nullptr;
@@ -21,7 +19,7 @@ namespace Katame
 	XrSystemId XRCore::m_SystemId = XR_NULL_SYSTEM_ID;
 	XrSystemProperties XRCore::m_SystemProperties = {XR_TYPE_SYSTEM_PROPERTIES};
 	XrReferenceSpaceType XRCore::m_ReferenceSpaceType = { XR_REFERENCE_SPACE_TYPE_STAGE };
-	XrSpace XRCore::m_Space = XR_NULL_HANDLE;
+	XrSpace* XRCore::m_Space = XR_NULL_HANDLE;
 
 	bool XRCore::Init( int64_t swapchain_format )
 	{
@@ -32,6 +30,8 @@ namespace Katame
 		// Initialize OpenXR
 		OpenXRInit();
 
+		KM_CORE_INFO( "Initializing World.." );;
+
 		// Setup world
 		WorldInit();
 	}
@@ -39,6 +39,16 @@ namespace Katame
 	XrInstance* XRCore::GetInstance()
 	{
 		return m_Instance;
+	}
+
+	XrSession* XRCore::GetSession()
+	{
+		return m_Session;
+	}
+
+	XrSpace* XRCore::GetSpace()
+	{
+		return m_Space;
 	}
 
 	void XRCore::OpenXRInit()
@@ -162,7 +172,7 @@ namespace Katame
 		if (m_Instance == XR_NULL_HANDLE)
 		{
 			std::string eMessage = "No OpenXR Instance found. Make sure to call Init first";
-			KM_CORE_INFO( "{}. Error ({})", eMessage, std::to_string( m_LastCallResult ) );
+			KM_CORE_ERROR( "{}. Error ({})", eMessage, std::to_string( m_LastCallResult ) );
 			throw std::runtime_error( eMessage );
 		}
 
@@ -183,7 +193,7 @@ namespace Katame
 
 	void XRCore::WorldInit()
 	{
-		XRGraphicsAPI::Init( m_Instance, &m_SystemId, m_Session, &m_LastCallResult );
+		XRGraphics::Init( m_Instance, &m_SystemId, m_Session, &m_LastCallResult );
 
 		if (m_LastCallResult != XR_SUCCESS)
 			KM_CORE_ERROR( "{} ({})", "Failed creating OpenXR Session with Error ", std::to_string( m_LastCallResult ) );
@@ -198,7 +208,7 @@ namespace Katame
 		xrReferenceSpaceCreateInfo.poseInReferenceSpace = xrPose;
 		xrReferenceSpaceCreateInfo.referenceSpaceType = m_ReferenceSpaceType;
 
-		m_LastCallResult = xrCreateReferenceSpace( *m_Session, &xrReferenceSpaceCreateInfo, &m_Space );
+		m_LastCallResult = xrCreateReferenceSpace( *m_Session, &xrReferenceSpaceCreateInfo, m_Space );
 		KM_CORE_INFO( "XR Reference Space for this app successfully created (Handle {})", (uint64_t)m_Space );
 
 		//for	each (void* xrExtension in GetXREnabledExtensions())

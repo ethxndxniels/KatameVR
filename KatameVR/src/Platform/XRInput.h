@@ -1,6 +1,7 @@
 #pragma once
 
-#include "OpenXRManager.h"
+#include "XRCore.h"
+
 #include <map>
 #include <memory>
 
@@ -9,8 +10,8 @@ namespace Katame
 	class XRInput
 	{
 	public:
-		static std::vector< XrActionSet > ActionSets();
-		static std::vector< XrActiveActionSet > ActiveActionSets();
+		static std::vector<XrActionSet> ActionSets();
+		static std::vector<XrActiveActionSet> ActiveActionSets();
 		static XrActionSet CreateActionSet( const char* pName, const char* pLocalizedName, uint32_t nPriority );
 		static XrAction CreateAction( XrActionSet xrActionSet, const char* pName, const char* pLocalizedName, XrActionType xrActionType, uint32_t nFilterCount, XrPath* xrFilters );
 		static XrResult StringToXrPath( const char* sString, XrPath* xrPath );
@@ -33,9 +34,9 @@ namespace Katame
 		);
 	private:
 		static XrResult m_LastCallResult;
-		static std::vector< XrActionSet > m_vActionSets;
-		static std::vector< XrActiveActionSet > m_vActiveActionSets;
-		static std::vector< XrAction > m_vActions;
-		static std::map< XrAction, XrSpace > m_mapActionSpace;
+		static std::vector<XrActionSet> m_ActionSets;
+		static std::vector<XrActiveActionSet> m_ActiveActionSets;
+		static std::vector<XrAction> m_Actions;
+		static std::map<XrAction, XrSpace> m_ActionSpace;
 	};
 }

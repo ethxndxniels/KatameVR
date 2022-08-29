@@ -19,11 +19,11 @@ namespace Katame
 	{
 	public:
 		static void Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession, XrResult* xrResult );
-		static XrResult GenerateSwapchainImages( const XrSwapchain& xrSwapChain, const uint32_t nEye );
+		static XrResult GenerateSwapchainImages( const XrSwapchain& xrSwapChain, const uint32_t nEye, const bool bIsDepth );
 		static void* GetGraphicsBinding();
 		static uint32_t GetSwapchainImageCount( const EXREye eEye, const bool bIsDepth = false );
 		static std::string GetTextureFormatName( int64_t nTextureFormat );
-		static uint32_t GetTexture2D( const EXREye eEye, uint32_t nSwapchainIndex, const bool bGetDepth = false );
+		static ID3D11Texture2D* GetTexture2D( const EXREye eEye, uint32_t nSwapchainIndex, const bool bGetDepth = false );
 		static std::vector< XrSwapchainImageD3D11KHR > GetTextures2D( const EXREye eEye, const bool bGetDepth = false );
 		static bool IsDepth( int64_t nDepthFormat );
 		static int64_t GetDefaultDepthFormat();

@@ -4,12 +4,14 @@
 #include "../Geometry/Cube.h"
 #include "../Bindables/Sampler.h"
 
+#include "../Platform/XRCore.h"
+#include "../Platform/XREventHandler.h"
+#include "../Platform/XRRender.h"
+
 namespace Katame
 {
 	Application::Application()
 	{
-		openxrManager = new OpenXRManager();
-
 		auto cube = Cube::MakeIndependent( std::move(
 			Dvtx::VertexLayout{}
 			.Append( Dvtx::VertexLayout::Position3D )
@@ -45,7 +47,7 @@ namespace Katame
 		KM_CORE_INFO( "Launching Application.." );
 		while (m_Running) 
 		{
-			openxrManager->openxr_poll_events( m_Running, xr_running );
+			/*openxrManager->openxr_poll_events( m_Running, xr_running );
 			const auto dt = timer.Mark() * speed_factor;
 			if (xr_running) {
 				openxrManager->openxr_poll_actions();
@@ -55,10 +57,10 @@ namespace Katame
 					openxrManager->get_session_state() != XR_SESSION_STATE_FOCUSED) {
 					std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
 				}
-			}
+			}*/
 		}
-		openxrManager->openxr_shutdown();
-		delete openxrManager;
+		/*openxrManager->openxr_shutdown();
+		delete openxrManager;*/
 	}
 
 	void Application::Draw( XrCompositionLayerProjectionView& view ) 
@@ -133,13 +135,13 @@ namespace Katame
 			flag = false;
 		}
 
-		// If the user presses the select action, lets add a cube at that location!
-		for (uint32_t i = 0; i < 2; i++) {
-			if (openxrManager->HandSelect(i)) {
-				app_cubes.push_back( openxrManager->GetHandPos( i ) );
-				KM_CORE_INFO( "Placing block at x:{}, y:{}, z:{}", openxrManager->GetHandPos( i ).position.x, openxrManager->GetHandPos( i ).position.y, openxrManager->GetHandPos( i ).position.z );
-			}
-		}
+		//// If the user presses the select action, lets add a cube at that location!
+		//for (uint32_t i = 0; i < 2; i++) {
+		//	if (openxrManager->HandSelect(i)) {
+		//		app_cubes.push_back( openxrManager->GetHandPos( i ) );
+		//		KM_CORE_INFO( "Placing block at x:{}, y:{}, z:{}", openxrManager->GetHandPos( i ).position.x, openxrManager->GetHandPos( i ).position.y, openxrManager->GetHandPos( i ).position.z );
+		//	}
+		//}
 
 	//	if (openxrManager->GetInput().rightTriggerPress)
 	//		modelPosition.y += dt;
@@ -147,13 +149,13 @@ namespace Katame
 
 	void Application::Update_Predicted()
 	{
-		// Update the location of the hand cubes. This is done after the inputs have been updated to 
-		// use the predicted location, but during the render code, so we have the most up-to-date location.
-		if (app_cubes.size() < 2)
-			app_cubes.resize( 2, openxrManager->GetPoseIdentity() );
-		for (uint32_t i = 0; i < 2; i++) {
-			app_cubes[i] = openxrManager->GetInput().renderHand[i] ? openxrManager->GetInput().handPose[i] : openxrManager->GetPoseIdentity();
-		}
+		//// Update the location of the hand cubes. This is done after the inputs have been updated to 
+		//// use the predicted location, but during the render code, so we have the most up-to-date location.
+		//if (app_cubes.size() < 2)
+		//	app_cubes.resize( 2, openxrManager->GetPoseIdentity() );
+		//for (uint32_t i = 0; i < 2; i++) {
+		//	app_cubes[i] = openxrManager->GetInput().renderHand[i] ? openxrManager->GetInput().handPose[i] : openxrManager->GetPoseIdentity();
+		//}
 	}
 
 }

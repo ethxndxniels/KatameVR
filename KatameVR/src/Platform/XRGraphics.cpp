@@ -50,9 +50,153 @@ namespace Katame
 		return;
 	}
 
+	XrResult XRGraphics::GenerateSwapchainImages( const XrSwapchain& xrSwapChain, const uint32_t nEye, const bool bIsDepth )
+	{
+		// Check how many images are in this swapchain from the runtime
+		uint32_t nNumOfSwapchainImages;
+		XrResult xrResult = xrEnumerateSwapchainImages( xrSwapChain, 0, &nNumOfSwapchainImages, nullptr );
+		if (xrResult != XR_SUCCESS)
+			return xrResult;
+
+		// Generate swapchain image holders based on retrieved count from the runtime
+		std::vector<XrSwapchainImageD3D11KHR> xrSwapchainImages;
+		xrSwapchainImages.resize( nNumOfSwapchainImages );
+
+		for (uint32_t i = 0; i < nNumOfSwapchainImages; i++)
+		{
+			xrSwapchainImages[i] = { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR };
+		}
+
+		// Retrieve swapchain images from the runtime
+		xrResult = xrEnumerateSwapchainImages(
+			xrSwapChain, nNumOfSwapchainImages, &nNumOfSwapchainImages, reinterpret_cast<XrSwapchainImageBaseHeader*>(xrSwapchainImages.data()) );
+		if (xrResult != XR_SUCCESS)
+			return xrResult;
+
+		// Add the images to our swapchain image cache for drawing to later
+		for (uint32_t i = 0; i < (uint32_t)nNumOfSwapchainImages; i++)
+		{
+			if (nEye == 0)
+			{
+				if (bIsDepth)
+					m_SwapchainImages_Depth_L.push_back( xrSwapchainImages[i] );
+				else
+					m_SwapchainImages_Color_L.push_back( xrSwapchainImages[i] );
+			}
+			else
+			{
+				if (bIsDepth)
+					m_SwapchainImages_Depth_R.push_back( xrSwapchainImages[i] );
+				else
+					m_SwapchainImages_Color_R.push_back( xrSwapchainImages[i] );
+			}
+		}
+
+		return XR_SUCCESS;
+	}
+
 	void* XRGraphics::GetGraphicsBinding()
 	{
 		return m_GraphicsBinding;
+	}
+
+	uint32_t XRGraphics::GetSwapchainImageCount( const EXREye eEye, const bool bIsDepth )
+	{
+		switch (eEye)
+		{
+		case EXREye::EYE_LEFT:
+			if (bIsDepth)
+				return (uint32_t)m_SwapchainImages_Depth_L.size();
+			return (uint32_t)m_SwapchainImages_Color_L.size();
+			break;
+
+		case EXREye::EYE_RIGHT:
+			if (bIsDepth)
+				return (uint32_t)m_SwapchainImages_Depth_R.size();
+			return (uint32_t)m_SwapchainImages_Color_R.size();
+			break;
+		}
+
+		return 0;
+	}
+
+	std::string XRGraphics::GetTextureFormatName( int64_t nTextureFormat )
+	{
+		switch (nTextureFormat)
+		{
+		/*case GL_RGBA16:
+			return "GL_RGBA16";
+
+		case GL_RGBA16F:
+			return "GL_RGBA16F";
+
+		case GL_RGB16F:
+			return "GL_RGB16F";
+
+		case GL_SRGB8:
+			return "GL_SRGB8";
+
+		case GL_SRGB8_ALPHA8:
+			return "GL_SRGB8_ALPHA8";
+
+		case GL_DEPTH_COMPONENT16:
+			return "GL_DEPTH_COMPONENT16";
+
+		case GL_DEPTH_COMPONENT24:
+			return "GL_DEPTH_COMPONENT24";*/
+
+		case DXGI_FORMAT_D32_FLOAT:
+			return "DXGI_FORMAT_D32_FLOAT";
+
+		default:
+			return std::to_string( nTextureFormat );
+		}
+
+		return std::to_string( nTextureFormat );
+	}
+
+	ID3D11Texture2D* XRGraphics::GetTexture2D( const EXREye eEye, uint32_t nSwapchainIndex, const bool bGetDepth )
+	{
+		return GetTextures2D( eEye, bGetDepth )[nSwapchainIndex].texture;
+	}
+
+	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::GetTextures2D( const EXREye eEye, const bool bGetDepth )
+	{
+		switch (eEye)
+		{
+		case EXREye::EYE_LEFT:
+			if (bGetDepth)
+				return m_SwapchainImages_Depth_L;
+			return m_SwapchainImages_Color_L;
+			break;
+
+		case EXREye::EYE_RIGHT:
+			if (bGetDepth)
+				return m_SwapchainImages_Depth_R;
+			return m_SwapchainImages_Color_R;
+			break;
+		}
+
+		return m_SwapchainImages_Color_L;
+	}
+
+	bool XRGraphics::IsDepth( int64_t nDepthFormat )
+	{
+		/*switch (nDepthFormat)
+		{
+		case GL_DEPTH_COMPONENT16:
+		case GL_DEPTH_COMPONENT24:
+		case GL_DEPTH_COMPONENT32:
+			return true;
+		}*/
+		return true;
+
+		//return false;
+	}
+
+	int64_t XRGraphics::GetDefaultDepthFormat()
+	{
+		return DXGI_FORMAT_D32_FLOAT;
 	}
 
 	IDXGIAdapter1* XRGraphics::GetAdapter( LUID& adapter_luid )

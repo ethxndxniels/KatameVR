@@ -8,6 +8,20 @@
 namespace Katame
 {
 	XrResult XRInput::m_LastCallResult = XR_SUCCESS;
+	std::vector<XrActionSet> XRInput::m_ActionSets;
+	std::vector<XrActiveActionSet> XRInput::m_ActiveActionSets;
+	std::vector<XrAction> XRInput::m_Actions;
+	std::map<XrAction, XrSpace> XRInput::m_ActionSpace;
+
+	std::vector<XrActionSet> XRInput::ActionSets()
+	{
+		return std::vector<XrActionSet>();
+	}
+
+	std::vector<XrActiveActionSet> XRInput::ActiveActionSets()
+	{
+		return std::vector<XrActiveActionSet>();
+	}
 
 	XrActionSet XRInput::CreateActionSet( const char* pName, const char* pLocalizedName, uint32_t nPriority )
 	{
@@ -17,10 +31,10 @@ namespace Katame
 		xrActionSetCreateInfo.priority = nPriority;
 
 		XrActionSet xrActionSet;
-		m_LastCallResult = xrCreateActionSet( m_pXRCore->GetXRInstance(), &xrActionSetCreateInfo, &xrActionSet );
+		m_LastCallResult = xrCreateActionSet( *XRCore::GetInstance(), &xrActionSetCreateInfo, &xrActionSet);
 
 		if (m_LastCallResult == XR_SUCCESS)
-			m_vActionSets.push_back( xrActionSet );
+			m_ActionSets.push_back( xrActionSet );
 		else
 			KM_CORE_ERROR( "Unable to create action set {}. Runtime returned {}. Action set names should only contain lower ASCII characters, numbers, dash, period or forward slash",
 				pName, m_LastCallResult );
@@ -31,7 +45,7 @@ namespace Katame
 	XrAction XRInput::CreateAction( XrActionSet xrActionSet, const char* pName, const char* pLocalizedName,
 		XrActionType xrActionType, uint32_t nFilterCount, XrPath* xrFilters )
 	{
-		//assert( xrActionSet != 0 && m_pXRCore->GetXRSession() != XR_NULL_HANDLE );
+		assert( xrActionSet != 0 && XRCore::GetSession() != XR_NULL_HANDLE );
 
 		// Create action
 		XrActionCreateInfo xrActionCreateInfo{ XR_TYPE_ACTION_CREATE_INFO };
@@ -44,10 +58,10 @@ namespace Katame
 		XrAction xrAction;
 		m_LastCallResult = xrCreateAction( xrActionSet, &xrActionCreateInfo, &xrAction );
 
-		if (m_xrLastCallResult == XR_SUCCESS)
+		if (m_LastCallResult == XR_SUCCESS)
 		{
 			// Add action to array of created actions for this session
-			m_vActions.push_back( xrAction );
+			m_Actions.push_back( xrAction );
 
 			// If this is a pose action, create a corresponding action space
 			if (xrActionType == XR_ACTION_TYPE_POSE_INPUT)
@@ -61,16 +75,16 @@ namespace Katame
 				xrActionSpaceCreateInfo.subactionPath = nFilterCount > 0 ? xrFilters[0] : XR_NULL_PATH;
 
 				XrSpace xrSpace;
-				m_xrLastCallResult = xrCreateActionSpace( m_pXRCore->GetXRSession(), &xrActionSpaceCreateInfo, &xrSpace );
+				m_LastCallResult = xrCreateActionSpace( *XRCore::GetSession(), &xrActionSpaceCreateInfo, &xrSpace);
 
-				if (m_xrLastCallResult == XR_SUCCESS)
+				if (m_LastCallResult == XR_SUCCESS)
 				{
-					m_mapActionSpace.insert( std::pair< XrAction, XrSpace >( xrAction, xrSpace ) );
-					m_pXRLogger->info( "Action {} created with reference space handle ({})", pName, (uint64_t)xrSpace );
+					m_ActionSpace.insert( std::pair< XrAction, XrSpace >( xrAction, xrSpace ) );
+					KM_CORE_INFO( "Action {} created with reference space handle ({})", pName, (uint64_t)xrSpace );
 				}
 				else
 				{
-					m_pXRLogger->error( "Unable to create an action space for action {}. Result was {}", pName, XrEnumToString( m_xrLastCallResult ) );
+					KM_CORE_ERROR( "Unable to create an action space for action {}. Result was {}", pName, m_LastCallResult );
 				}
 
 				return xrAction;
@@ -78,28 +92,28 @@ namespace Katame
 		}
 		else
 		{
-			m_pXRLogger->error( "Unable to create action {}. Runtime returned {}. Action names should only contain lower ASCII characters, numbers, dash, period or forward slash",
-				pName, XrEnumToString( m_xrLastCallResult ) );
+			KM_CORE_ERROR( "Unable to create action {}. Runtime returned {}. Action names should only contain lower ASCII characters, numbers, dash, period or forward slash",
+				pName, m_LastCallResult );
 
 			return xrAction;
 		}
 
-		m_pXRLogger->info( "Action {} created", pName );
+		KM_CORE_INFO( "Action {} created", pName );
 		return xrAction;
 	}
 
 	XrResult XRInput::StringToXrPath( const char* sString, XrPath* xrPath )
 	{
-		assert( sString && m_pXRCore && m_pXRCore->GetXRInstance() != XR_NULL_HANDLE );
+		assert( sString && XRCore::GetInstance() != XR_NULL_HANDLE);
 
-		m_xrLastCallResult = XR_CALL_SILENT( xrStringToPath( m_pXRCore->GetXRInstance(), sString, xrPath ), m_pXRLogger );
+		m_LastCallResult = xrStringToPath( *XRCore::GetInstance(), sString, xrPath );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	XrResult XRInput::CreateInputPath( const char* sControllerPath, const char* sComponentPath, XrPath* xrPath )
 	{
-		assert( m_pXRCore && m_pXRCore->GetXRInstance() != XR_NULL_HANDLE );
+		assert( XRCore::GetInstance() != XR_NULL_HANDLE );
 		assert( sControllerPath && sComponentPath && xrPath );
 
 		char sFullPath[XR_MAX_PATH_LENGTH];
@@ -136,19 +150,18 @@ namespace Katame
 	{
 		assert
 		(
-			m_pXRCore &&
-			m_pXRCore->GetXRInstance() != XR_NULL_HANDLE &&
-			m_pXRCore->GetXRSession() != XR_NULL_HANDLE
+			XRCore::GetInstance() != XR_NULL_HANDLE &&
+			XRCore::GetSession() != XR_NULL_HANDLE
 		);
 
 		XrPath xrPath;
-		xrStringToPath( m_pXRCore->GetXRInstance(), sInteractionProfilePath, &xrPath );
+		xrStringToPath( *XRCore::GetInstance(), sInteractionProfilePath, &xrPath );
 
-		m_xrLastCallResult = XR_ERROR_VALIDATION_FAILURE;
+		m_LastCallResult = XR_ERROR_VALIDATION_FAILURE;
 		if (vActionBindings->size() < 1)
 		{
-			m_pXRLogger->error( "No action bindings found. Create action bindings prior to calling SuggestActionBindings()" );
-			return m_xrLastCallResult;
+			KM_CORE_ERROR( "No action bindings found. Create action bindings prior to calling SuggestActionBindings()" );
+			return m_LastCallResult;
 		}
 
 		XrInteractionProfileSuggestedBinding xrInteractionProfileSuggestedBinding{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
@@ -156,15 +169,15 @@ namespace Katame
 		xrInteractionProfileSuggestedBinding.suggestedBindings = vActionBindings->data();
 		xrInteractionProfileSuggestedBinding.countSuggestedBindings = (uint32_t)vActionBindings->size();
 
-		m_xrLastCallResult = XR_CALL_SILENT( xrSuggestInteractionProfileBindings(
-			m_pXRCore->GetXRInstance(), &xrInteractionProfileSuggestedBinding ), m_pXRLogger );
+		m_LastCallResult = xrSuggestInteractionProfileBindings(
+			*XRCore::GetInstance(), &xrInteractionProfileSuggestedBinding );
 
-		if (m_xrLastCallResult != XR_SUCCESS)
-			return m_xrLastCallResult;
+		if (m_LastCallResult != XR_SUCCESS)
+			return m_LastCallResult;
 
-		m_pXRLogger->info( "Interaction profile suggested to runtime: {}", sInteractionProfilePath );
+		KM_CORE_INFO( "Interaction profile suggested to runtime: {}", sInteractionProfilePath );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	void XRInput::ActivateActionSet( XrActionSet xrActionSet, XrPath xrFilter /*= XR_NULL_PATH */ )
@@ -172,90 +185,90 @@ namespace Katame
 		assert( xrActionSet != XR_NULL_HANDLE );
 
 		XrActiveActionSet xrActiveActionSet{ xrActionSet, xrFilter };
-		m_vActiveActionSets.push_back( xrActiveActionSet );
+		m_ActiveActionSets.push_back( xrActiveActionSet );
 
 		XrSessionActionSetsAttachInfo xrSessionActionSetsAttachInfo{ XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO };
-		xrSessionActionSetsAttachInfo.countActionSets = (uint32_t)m_vActionSets.size();
-		xrSessionActionSetsAttachInfo.actionSets = m_vActionSets.data();
+		xrSessionActionSetsAttachInfo.countActionSets = (uint32_t)m_ActionSets.size();
+		xrSessionActionSetsAttachInfo.actionSets = m_ActionSets.data();
 
-		m_xrLastCallResult = XR_CALL_SILENT( xrAttachSessionActionSets( m_pXRCore->GetXRSession(), &xrSessionActionSetsAttachInfo ), m_pXRLogger );
+		m_LastCallResult = xrAttachSessionActionSets( *XRCore::GetSession(), &xrSessionActionSetsAttachInfo );
 
-		if (m_xrLastCallResult == XR_SUCCESS)
-			m_pXRLogger->info( "{} action sets attached to the current session ({})", xrSessionActionSetsAttachInfo.countActionSets, (uint64_t)m_pXRCore->GetXRSession() );
+		if (m_LastCallResult == XR_SUCCESS)
+			KM_CORE_INFO( "{} action sets attached to the current session ({})", xrSessionActionSetsAttachInfo.countActionSets, (uint64_t)XRCore::GetSession() );
 
 	}
 
 	XrResult XRInput::SyncActiveActionSetsData()
 	{
-		assert( m_pXRCore && m_pXRCore->GetXRSession() );
+		assert( XRCore::GetSession() );
 
-		if (m_vActiveActionSets.size() < 1)
+		if (m_ActiveActionSets.size() < 1)
 			return XR_SUCCESS;
 
 		XrActionsSyncInfo xrActionSyncInfo{ XR_TYPE_ACTIONS_SYNC_INFO };
-		xrActionSyncInfo.countActiveActionSets = (uint32_t)m_vActiveActionSets.size();
-		xrActionSyncInfo.activeActionSets = m_vActiveActionSets.data();
+		xrActionSyncInfo.countActiveActionSets = (uint32_t)m_ActiveActionSets.size();
+		xrActionSyncInfo.activeActionSets = m_ActiveActionSets.data();
 
-		m_xrLastCallResult = XR_CALL_SILENT( xrSyncActions( m_pXRCore->GetXRSession(), &xrActionSyncInfo ), m_pXRLogger );
+		m_LastCallResult = xrSyncActions( *XRCore::GetSession(), &xrActionSyncInfo );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	XrResult XRInput::GetActionPose( XrAction xrAction, XrTime xrTime, XrSpaceLocation* xrLocation )
 	{
 		// Find the action space for the action
-		std::map< XrAction, XrSpace >::iterator const iter = m_mapActionSpace.find( xrAction );
-		if (iter != m_mapActionSpace.end())
-			m_xrLastCallResult = xrLocateSpace( iter->second, m_pXRCore->GetXRSpace(), xrTime, xrLocation );
+		std::map< XrAction, XrSpace >::iterator const iter = m_ActionSpace.find( xrAction );
+		if (iter != m_ActionSpace.end())
+			m_LastCallResult = xrLocateSpace( iter->second, *XRCore::GetSpace(), xrTime, xrLocation);
 		else
 			return XR_ERROR_VALIDATION_FAILURE;
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	XrResult XRInput::GetActionStateBoolean( XrAction xrAction, XrActionStateBoolean* xrActionState )
 	{
-		assert( xrAction != XR_NULL_HANDLE && xrActionState && m_pXRCore && m_pXRCore->GetXRSession() );
+		assert( xrAction != XR_NULL_HANDLE && xrActionState && XRCore::GetSession() );
 
 		XrActionStateGetInfo xrActionStateGetInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 		xrActionStateGetInfo.action = xrAction;
-		m_xrLastCallResult = XR_CALL_SILENT( xrGetActionStateBoolean(
-			m_pXRCore->GetXRSession(), &xrActionStateGetInfo, xrActionState ), m_pXRLogger );
+		m_LastCallResult = xrGetActionStateBoolean(
+			*XRCore::GetSession(), &xrActionStateGetInfo, xrActionState );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	XrResult XRInput::GetActionStateFloat( XrAction xrAction, XrActionStateFloat* xrActionState )
 	{
-		assert( xrAction != XR_NULL_HANDLE && xrActionState && m_pXRCore && m_pXRCore->GetXRSession() );
+		assert( xrAction != XR_NULL_HANDLE && xrActionState && XRCore::GetSession() );
 
 		XrActionStateGetInfo xrActionStateGetInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 		xrActionStateGetInfo.action = xrAction;
-		m_xrLastCallResult = XR_CALL_SILENT( xrGetActionStateFloat( m_pXRCore->GetXRSession(), &xrActionStateGetInfo, xrActionState ), m_pXRLogger );
+		m_LastCallResult = xrGetActionStateFloat( *XRCore::GetSession(), &xrActionStateGetInfo, xrActionState );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	XrResult XRInput::GetActionStateVector2f( XrAction xrAction, XrActionStateVector2f* xrActionState )
 	{
-		assert( xrAction != XR_NULL_HANDLE && xrActionState && m_pXRCore && m_pXRCore->GetXRSession() );
+		assert( xrAction != XR_NULL_HANDLE && xrActionState && *XRCore::GetSession() );
 
 		XrActionStateGetInfo xrActionStateGetInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 		xrActionStateGetInfo.action = xrAction;
-		m_xrLastCallResult = XR_CALL_SILENT( xrGetActionStateVector2f( m_pXRCore->GetXRSession(), &xrActionStateGetInfo, xrActionState ), m_pXRLogger );
+		m_LastCallResult = xrGetActionStateVector2f( *XRCore::GetSession(), &xrActionStateGetInfo, xrActionState );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	XrResult XRInput::GetActionStatePose( XrAction xrAction, XrActionStatePose* xrActionState )
 	{
-		assert( xrAction != XR_NULL_HANDLE && xrActionState && m_pXRCore && m_pXRCore->GetXRSession() );
+		assert( xrAction != XR_NULL_HANDLE && xrActionState && XRCore::GetSession() );
 
 		XrActionStateGetInfo xrActionStateGetInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 		xrActionStateGetInfo.action = xrAction;
-		m_xrLastCallResult = XR_CALL_SILENT( xrGetActionStatePose( m_pXRCore->GetXRSession(), &xrActionStateGetInfo, xrActionState ), m_pXRLogger );
+		m_LastCallResult = xrGetActionStatePose( *XRCore::GetSession(), &xrActionStateGetInfo, xrActionState );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 	XrResult XRInput::GenerateHaptic(
@@ -264,7 +277,7 @@ namespace Katame
 		float fAmplitude /*= 0.5f*/,
 		float fFrequency /*= XR_FREQUENCY_UNSPECIFIED*/ )
 	{
-		assert( xrAction != XR_NULL_HANDLE && m_pXRCore && m_pXRCore->GetXRSession() );
+		assert( xrAction != XR_NULL_HANDLE && XRCore::GetSession() );
 
 		XrHapticVibration xrHapticVibration{ XR_TYPE_HAPTIC_VIBRATION };
 		xrHapticVibration.duration = nDuration;
@@ -274,10 +287,10 @@ namespace Katame
 		XrHapticActionInfo xrHapticActionInfo{ XR_TYPE_HAPTIC_ACTION_INFO };
 		xrHapticActionInfo.action = xrAction;
 
-		m_xrLastCallResult = XR_CALL_SILENT(
-			xrApplyHapticFeedback( m_pXRCore->GetXRSession(), &xrHapticActionInfo, (const XrHapticBaseHeader*)&xrHapticVibration ), m_pXRLogger );
+		m_LastCallResult =
+			xrApplyHapticFeedback( *XRCore::GetSession(), &xrHapticActionInfo, (const XrHapticBaseHeader*)&xrHapticVibration );
 
-		return m_xrLastCallResult;
+		return m_LastCallResult;
 	}
 
 }

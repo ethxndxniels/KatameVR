@@ -113,8 +113,6 @@
     <ClCompile Include="src\Graphics\LayoutCodex.cpp" />
     <ClCompile Include="src\Graphics\Mesh.cpp" />
     <ClCompile Include="src\Graphics\Surface.cpp" />
-    <ClCompile Include="src\Platform\XRManager.cpp" />
-    <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Bindables\IndexBuffer.cpp" />
     <ClCompile Include="src\Bindables\InputLayout.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
@@ -130,6 +128,7 @@
     <ClCompile Include="src\Platform\XRCore.cpp" />
     <ClCompile Include="src\Platform\XREventHandler.cpp" />
     <ClCompile Include="src\Platform\XRGraphics.cpp" />
+    <ClCompile Include="src\Platform\XRRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -162,8 +161,6 @@
     <ClInclude Include="src\Graphics\LayoutCodex.h" />
     <ClInclude Include="src\Graphics\Mesh.h" />
     <ClInclude Include="src\Graphics\Surface.h" />
-    <ClInclude Include="src\Platform\XRManager.h" />
-    <ClInclude Include="src\Graphics\Graphics.h" />
     <ClInclude Include="src\Geometry\Cube.h" />
     <ClInclude Include="src\Bindables\IndexBuffer.h" />
     <ClInclude Include="src\Graphics\Color.h" />
@@ -393,6 +390,7 @@
     <ClInclude Include="src\Platform\XRCore.h" />
     <ClInclude Include="src\Platform\XREventHandler.h" />
     <ClInclude Include="src\Platform\XRGraphics.h" />
+    <ClInclude Include="src\Platform\XRRender.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\PhongPS.hlsl">
