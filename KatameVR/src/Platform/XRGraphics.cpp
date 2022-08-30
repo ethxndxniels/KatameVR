@@ -26,9 +26,9 @@ namespace Katame
 		PFN_xrGetD3D11GraphicsRequirementsKHR xrGetD3D11GraphicsRequirementsKHR = nullptr;
 		xrGetInstanceProcAddr( *xrInstance, "xrGetD3D11GraphicsRequirementsKHR", (PFN_xrVoidFunction*)&xrGetD3D11GraphicsRequirementsKHR );
 
+		xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
 		IDXGIAdapter1* adapter = GetAdapter( xrRequirements.adapterLuid );
 		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
-
 		if (adapter == nullptr)
 			KM_CORE_ERROR( "Failed to get adapter, make sure headset is connected." );
 

@@ -6,11 +6,13 @@
 
 namespace Katame
 {
-	XrInstance* XRCore::m_Instance = nullptr;
-	XrSession* XRCore::m_Session = XR_NULL_HANDLE;
+	XrInstance* XRCore::m_Instance = new XrInstance{};
+	XrSession* XRCore::m_Session = new XrSession{ XR_NULL_HANDLE };
+	XrSpace* XRCore::m_Space = new XrSpace{ XR_NULL_HANDLE };
+	XrSystemId XRCore::m_SystemId = XR_NULL_SYSTEM_ID;
 
 	std::vector<const char*> XRCore::m_AppEnabledExtensions = {};
-	std::vector<void*> XRCore::m_AppRequestedExtensions;
+	std::vector<XrExtensionProperties*> XRCore::m_AppRequestedExtensions;
 
 	char* XRCore::s_EngineName = (char*)"KatameVR";
 	float XRCore::f_EngineVersion = 0.0;
@@ -18,13 +20,11 @@ namespace Katame
 	float XRCore::f_AppVersion = 0.0;
 	XrResult XRCore::m_LastCallResult = XR_SUCCESS;
 	char* XRCore::s_GraphicsExtensionName = (char*)XR_KHR_D3D11_ENABLE_EXTENSION_NAME;
-	XrSystemId XRCore::m_SystemId = XR_NULL_SYSTEM_ID;
 	XrSystemProperties XRCore::m_SystemProperties = {XR_TYPE_SYSTEM_PROPERTIES};
 	XrReferenceSpaceType XRCore::m_ReferenceSpaceType = { XR_REFERENCE_SPACE_TYPE_STAGE };
-	XrSpace* XRCore::m_Space = XR_NULL_HANDLE;
 	bool XRCore::b_IsDepthSupported = true;
 
-	bool XRCore::Init( int64_t swapchain_format )
+	bool XRCore::Init()
 	{
 		KM_CORE_INFO( "Initializing OpenXR.." );;
 
@@ -94,6 +94,8 @@ namespace Katame
 		}
 
 		m_LastCallResult = xrCreateInstance( &xrInstanceCreateInfo, m_Instance );;
+		if (m_LastCallResult != XR_SUCCESS)
+			KM_CORE_ERROR( "Failed to create instance!" );
 
 		KM_CORE_INFO( "..." );
 		KM_CORE_INFO( "XR Instance created: Handle {} with {} extension(s) enabled", (uint64_t)m_Instance, nNumEnxtesions );
@@ -134,18 +136,24 @@ namespace Katame
 			{
 				// Add graphics api to the list of extensions that would be enabled when we create the openxr instance
 				m_AppEnabledExtensions.push_back( XR_KHR_D3D11_ENABLE_EXTENSION_NAME );
-				KM_CORE_INFO( "*{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
+				KM_CORE_TRACE( "*{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
 
 				bEnable = true;
 			}
+			else if (strcmp( XR_EXT_DEBUG_UTILS_EXTENSION_NAME, &vExtensions[i].extensionName[0] ) == 0)
+			{
+				// Add depth handling to the list of extensions that would be enabled when we create the openxr instance
+				m_AppEnabledExtensions.push_back( XR_EXT_DEBUG_UTILS_EXTENSION_NAME );
+				KM_CORE_TRACE( "*{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
 
-			// Check for depth extension
+				bEnable = true;
+			}
 			else if (
 				strcmp( XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME, &vExtensions[i].extensionName[0] ) == 0)
 			{
 				// Add depth handling to the list of extensions that would be enabled when we create the openxr instance
 				m_AppEnabledExtensions.push_back( XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME );
-				KM_CORE_INFO( "*{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
+				KM_CORE_TRACE( "*{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
 
 				bEnable = true;
 			}
@@ -154,28 +162,24 @@ namespace Katame
 				// Otherwise, check if this extension was requested by the app
 				for (size_t j = 0; j < m_AppRequestedExtensions.size(); j++)
 				{
-					//XRBaseExt* xrRequestedExtension = static_cast<XRBaseExt*>(m_vAppRequestedExtensions[j]);
+					KM_CORE_INFO( "Processing extension: {} is equal to {}", m_AppRequestedExtensions[j]->extensionName, &vExtensions[i].extensionName[0] );
 
-					//KM_CORE_INFO( "Processing extension: {} is equal to {}", xrRequestedExtension->GetExtensionName(), &vExtensions[i].extensionName[0] );
+					if (strcmp( m_AppRequestedExtensions[j]->extensionName, &vExtensions[i].extensionName[0] ) == 0)
+					{
+						// Add to the list of extensions that would be enabled when we create the openxr instance
+						m_AppEnabledExtensions.push_back( m_AppRequestedExtensions[j]->extensionName );
+						m_AppEnabledExtensions.push_back( (char*)m_AppRequestedExtensions[j] );
 
-					//if (strcmp( xrRequestedExtension->GetExtensionName(), &vExtensions[i].extensionName[0] ) == 0)
-					//{
-					//	// Add to the list of extensions that would be enabled when we create the openxr instance
-					//	m_AppEnabledExtensions.push_back( xrRequestedExtension->GetExtensionName() );
+						KM_CORE_INFO( "*{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
 
-					//	xrRequestedExtension->IsActive( true );
-					//	m_AppEnabledExtensions.push_back( (char*)m_AppRequestedExtensions[j] );
-
-					//	KM_CORE_INFO( "*{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
-
-					//	bEnable = true;
-					//	break;
-					//}
+						bEnable = true;
+						break;
+					}
 				}
 			}
 
 			if (!bEnable)
-				KM_CORE_INFO( "{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
+				KM_CORE_TRACE( "{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
 			bEnable = false;
 		}
 	}
@@ -224,21 +228,14 @@ namespace Katame
 		m_LastCallResult = xrCreateReferenceSpace( *m_Session, &xrReferenceSpaceCreateInfo, m_Space );
 		KM_CORE_INFO( "XR Reference Space for this app successfully created (Handle {})", (uint64_t)m_Space );
 
-		//for	each (void* xrExtension in GetXREnabledExtensions())
-		//{
-		//	XRBaseExt* xrInstanceExtension = static_cast<XRBaseExt*>(xrExtension);
-
-		//	// Hand tracking
-		//	if (strcmp( xrInstanceExtension->GetExtensionName(), XR_EXT_HAND_TRACKING_EXTENSION_NAME ) == 0)
-		//	{
-		//		// Set the extension member
-		//		m_pXRHandTracking = static_cast<XRExtHandTracking*>(xrExtension);
-
-		//		// Initialize extension
-		//		m_pXRHandTracking->Init( GetXRInstance(), GetXRSession() );
-		//		break;
-		//	}
-		//}
+		for (size_t j = 0; j < m_AppEnabledExtensions.size(); j++) {
+			// Hand tracking
+			if (strcmp( m_AppEnabledExtensions[j], XR_EXT_HAND_TRACKING_EXTENSION_NAME) == 0)
+			{
+				XRHandTracking::Init();
+				break;
+			}
+		}
 	}
 
 }

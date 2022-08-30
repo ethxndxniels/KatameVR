@@ -48,6 +48,9 @@
     <ClCompile Include="src\Platform\XRMirror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\XRHandTracking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -728,6 +731,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\XRCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\XRHandTracking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,13 +3,14 @@
 #include "XRCommon.h"
 #include "XREventHandler.h"
 #include "XRGraphics.h"
+#include "XRHandTracking.h"
 
 namespace Katame
 {
 	class XRCore
 	{
 	public:
-		static bool Init( int64_t swapchain_format );
+		static bool Init();
 		static XrInstance* GetInstance();
 		static XrSession* GetSession();
 		static XrSpace* GetSpace();
@@ -28,7 +29,7 @@ namespace Katame
 		static XrSystemId m_SystemId;
 	private:
 		static std::vector<const char*> m_AppEnabledExtensions;
-		static std::vector<void*> m_AppRequestedExtensions;
+		static std::vector<XrExtensionProperties*> m_AppRequestedExtensions;
 	private:
 		static char* s_EngineName;
 		static float f_EngineVersion;

@@ -107,6 +107,7 @@
     <ClCompile Include="src\Platform\XRGraphics.cpp" />
     <ClCompile Include="src\Platform\XRRender.cpp" />
     <ClCompile Include="src\Platform\XRMirror.cpp" />
+    <ClCompile Include="src\Platform\XRHandTracking.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -340,6 +341,7 @@
     <ClInclude Include="src\Platform\XRGraphics.h" />
     <ClInclude Include="src\Platform\XRRender.h" />
     <ClInclude Include="src\Platform\XRMirror.h" />
+    <ClInclude Include="src\Platform\XRHandTracking.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\PhongPS.hlsl">
