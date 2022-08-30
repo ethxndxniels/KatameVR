@@ -1,24 +1,17 @@
 #pragma once
 
-#include "XRCore.h"
-
-#include <vector>
-#include <string>
+#include "XRCommon.h"
 
 #include <d3d11.h>
 
 namespace Katame
 {
-	enum EXREye
-	{
-		EYE_LEFT = 0,
-		EYE_RIGHT = 1
-	};
-
 	class XRGraphics
 	{
 	public:
 		static void Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession, XrResult* xrResult );
+		static ID3D11Device* GetDevice();
+		static ID3D11DeviceContext* GetContext();
 		static XrResult GenerateSwapchainImages( const XrSwapchain& xrSwapChain, const uint32_t nEye, const bool bIsDepth );
 		static void* GetGraphicsBinding();
 		static uint32_t GetSwapchainImageCount( const EXREye eEye, const bool bIsDepth = false );

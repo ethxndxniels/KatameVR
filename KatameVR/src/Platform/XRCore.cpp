@@ -2,6 +2,8 @@
 
 #include "../Core/Log.h"
 
+#include "XRGraphics.h"
+
 namespace Katame
 {
 	XrInstance* XRCore::m_Instance = nullptr;
@@ -20,12 +22,11 @@ namespace Katame
 	XrSystemProperties XRCore::m_SystemProperties = {XR_TYPE_SYSTEM_PROPERTIES};
 	XrReferenceSpaceType XRCore::m_ReferenceSpaceType = { XR_REFERENCE_SPACE_TYPE_STAGE };
 	XrSpace* XRCore::m_Space = XR_NULL_HANDLE;
+	bool XRCore::b_IsDepthSupported = true;
 
 	bool XRCore::Init( int64_t swapchain_format )
 	{
 		KM_CORE_INFO( "Initializing OpenXR.." );;
-
-		//event handler init?
 
 		// Initialize OpenXR
 		OpenXRInit();
@@ -51,6 +52,16 @@ namespace Katame
 		return m_Space;
 	}
 
+	XrSystemId XRCore::GetSystemID()
+	{
+		return m_SystemId;
+	}
+
+	bool XRCore::GetIsDepthSupported()
+	{
+		return b_IsDepthSupported;
+	}
+
 	void XRCore::OpenXRInit()
 	{
 		XrInstanceCreateInfo xrInstanceCreateInfo = { XR_TYPE_INSTANCE_CREATE_INFO };
@@ -67,8 +78,8 @@ namespace Katame
 			nEngineNameSize = XR_MAX_ENGINE_NAME_SIZE;
 		strncpy_s( xrInstanceCreateInfo.applicationInfo.engineName, s_EngineName, nEngineNameSize );
 
-		xrInstanceCreateInfo.applicationInfo.applicationVersion = f_AppVersion;
-		xrInstanceCreateInfo.applicationInfo.engineVersion = f_EngineVersion;
+		xrInstanceCreateInfo.applicationInfo.applicationVersion = (uint32_t)f_AppVersion;
+		xrInstanceCreateInfo.applicationInfo.engineVersion = (uint32_t)f_EngineVersion;
 		xrInstanceCreateInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
 
 		EnableInstanceExtensions();

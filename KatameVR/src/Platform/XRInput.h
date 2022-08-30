@@ -1,9 +1,6 @@
 #pragma once
 
-#include "XRCore.h"
-
-#include <map>
-#include <memory>
+#include "XRCommon.h"
 
 namespace Katame
 {
@@ -14,12 +11,14 @@ namespace Katame
 		static std::vector<XrActiveActionSet> ActiveActionSets();
 		static XrActionSet CreateActionSet( const char* pName, const char* pLocalizedName, uint32_t nPriority );
 		static XrAction CreateAction( XrActionSet xrActionSet, const char* pName, const char* pLocalizedName, XrActionType xrActionType, uint32_t nFilterCount, XrPath* xrFilters );
+	public:
 		static XrResult StringToXrPath( const char* sString, XrPath* xrPath );
 		static XrResult CreateInputPath( const char* sControllerPath, const char* sComponentPath, XrPath* xrPath );
 		static XrActionSuggestedBinding CreateActionBinding( XrAction xrAction, const char* sControllerPath, const char* sComponentPath, std::vector< XrActionSuggestedBinding >* vActionBindings );
 		static XrResult SuggestActionBindings( std::vector< XrActionSuggestedBinding >* vActionBindings, const char* sInteractionProfilePath );
 		static void ActivateActionSet( XrActionSet xrActionSet, XrPath xrFilter = XR_NULL_PATH );
 		static XrResult SyncActiveActionSetsData();
+	public:
 		static XrResult GetActionPose( XrAction xrAction, XrTime xrTime, XrSpaceLocation* xrLocation );
 		static XrResult GetActionStateBoolean( XrAction xrAction, XrActionStateBoolean* xrActionState );
 		static XrResult GetActionStateFloat( XrAction xrAction, XrActionStateFloat* xrActionState );

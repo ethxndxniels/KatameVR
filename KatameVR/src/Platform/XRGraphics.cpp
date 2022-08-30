@@ -14,8 +14,8 @@ namespace Katame
 		KM_CORE_INFO( "Initializing Graphics.." );
 
 		XrGraphicsRequirementsD3D11KHR xrRequirements = { XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR };
-		PFN_xrGetD3D11GraphicsRequirementsKHR xrGetOpenGLGraphicsRequirementsKHR = nullptr;
-		xrGetInstanceProcAddr( *xrInstance, "xrGetOpenGLGraphicsRequirementsKHR", (PFN_xrVoidFunction*)&xrGetOpenGLGraphicsRequirementsKHR );
+		PFN_xrGetD3D11GraphicsRequirementsKHR xrGetD3D11GraphicsRequirementsKHR = nullptr;
+		xrGetInstanceProcAddr( *xrInstance, "xrGetD3D11GraphicsRequirementsKHR", (PFN_xrVoidFunction*)&xrGetD3D11GraphicsRequirementsKHR );
 
 		IDXGIAdapter1* adapter = GetAdapter( xrRequirements.adapterLuid );
 		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
@@ -31,7 +31,7 @@ namespace Katame
 		XrGraphicsBindingD3D11KHR xrGraphicsBinding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
 		xrGraphicsBinding.device = m_Device;
 
-		*xrResult = xrGetOpenGLGraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
+		*xrResult = xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
 
 		if (*xrResult != XR_SUCCESS)
 			return; // Not throwing a runtime error here as we want to report why the create session failed.
@@ -48,6 +48,16 @@ namespace Katame
 
 		m_GraphicsBinding = &xrGraphicsBinding;
 		return;
+	}
+
+	ID3D11Device* XRGraphics::GetDevice()
+	{
+		return m_Device;
+	}
+
+	ID3D11DeviceContext* XRGraphics::GetContext()
+	{
+		return m_Context;
 	}
 
 	XrResult XRGraphics::GenerateSwapchainImages( const XrSwapchain& xrSwapChain, const uint32_t nEye, const bool bIsDepth )

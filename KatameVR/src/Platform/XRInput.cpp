@@ -1,26 +1,26 @@
-#pragma once
-
 #include "XRInput.h"
+
 #include "../Core/Log.h"
+#include "XRCore.h"
 
 #include <cassert>
 
 namespace Katame
 {
 	XrResult XRInput::m_LastCallResult = XR_SUCCESS;
-	std::vector<XrActionSet> XRInput::m_ActionSets;
-	std::vector<XrActiveActionSet> XRInput::m_ActiveActionSets;
-	std::vector<XrAction> XRInput::m_Actions;
-	std::map<XrAction, XrSpace> XRInput::m_ActionSpace;
+	std::vector<XrActionSet> XRInput::m_ActionSets = {};
+	std::vector<XrActiveActionSet> XRInput::m_ActiveActionSets = {};
+	std::vector<XrAction> XRInput::m_Actions = {};
+	std::map<XrAction, XrSpace> XRInput::m_ActionSpace = {};
 
 	std::vector<XrActionSet> XRInput::ActionSets()
 	{
-		return std::vector<XrActionSet>();
+		return m_ActionSets;
 	}
 
 	std::vector<XrActiveActionSet> XRInput::ActiveActionSets()
 	{
-		return std::vector<XrActiveActionSet>();
+		return m_ActiveActionSets;
 	}
 
 	XrActionSet XRInput::CreateActionSet( const char* pName, const char* pLocalizedName, uint32_t nPriority )

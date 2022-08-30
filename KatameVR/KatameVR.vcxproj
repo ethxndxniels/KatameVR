@@ -49,13 +49,13 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>KatameVR</TargetName>
     <LibraryPath>$(ProjectDir)vendor\dxtex\bin\$(Configuration);$(ProjectDir)vendor\assimp\bin\win64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(ProjectDir)vendor\GLFW\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>KatameVR</TargetName>
     <LibraryPath>$(ProjectDir)vendor\dxtex\bin\$(Configuration);$(ProjectDir)vendor\assimp\bin\win64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(ProjectDir)vendor\GLFW\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -64,7 +64,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;vendor\GLFW\include;vendor\glm;vendor\stb\include;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -83,7 +83,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;vendor\GLFW\include;vendor\glm;vendor\stb\include;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -96,32 +96,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Bindables\Blender.cpp" />
-    <ClCompile Include="src\Bindables\DynamicConstant.cpp" />
-    <ClCompile Include="src\Bindables\Rasterizer.cpp" />
-    <ClCompile Include="src\Bindables\Sampler.cpp" />
-    <ClCompile Include="src\Bindables\Texture.cpp" />
-    <ClCompile Include="src\Bindables\Topology.cpp" />
-    <ClCompile Include="src\Bindables\TransformCBuf.cpp" />
-    <ClCompile Include="src\Drawable\Cube.cpp" />
-    <ClCompile Include="src\Drawable\DirectionalLight.cpp" />
-    <ClCompile Include="src\Drawable\Drawable.cpp" />
-    <ClCompile Include="src\Drawable\PointLight.cpp" />
-    <ClCompile Include="src\Drawable\SolidCone.cpp" />
-    <ClCompile Include="src\Drawable\SolidSphere.cpp" />
-    <ClCompile Include="src\Drawable\SpotLight.cpp" />
-    <ClCompile Include="src\Graphics\LayoutCodex.cpp" />
-    <ClCompile Include="src\Graphics\Mesh.cpp" />
-    <ClCompile Include="src\Graphics\Surface.cpp" />
-    <ClCompile Include="src\Bindables\IndexBuffer.cpp" />
-    <ClCompile Include="src\Bindables\InputLayout.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
-    <ClCompile Include="src\Bindables\PixelShader.cpp" />
-    <ClCompile Include="src\Bindables\VertexShader.cpp" />
-    <ClCompile Include="src\Graphics\Vertex.cpp" />
-    <ClCompile Include="src\Bindables\VertexBuffer.cpp" />
     <ClCompile Include="src\Utilities\FrameTimer.cpp" />
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
     <ClCompile Include="src\Platform\XRInput.cpp" />
@@ -129,6 +106,7 @@
     <ClCompile Include="src\Platform\XREventHandler.cpp" />
     <ClCompile Include="src\Platform\XRGraphics.cpp" />
     <ClCompile Include="src\Platform\XRRender.cpp" />
+    <ClCompile Include="src\Platform\XRMirror.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -139,37 +117,8 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Bindables\Bindable.h" />
-    <ClInclude Include="src\Bindables\BindableCodex.h" />
-    <ClInclude Include="src\Bindables\BindableCommon.h" />
-    <ClInclude Include="src\Bindables\Blender.h" />
-    <ClInclude Include="src\Bindables\ConstantBuffers.h" />
-    <ClInclude Include="src\Bindables\ConstantBuffersEx.h" />
-    <ClInclude Include="src\Bindables\DynamicConstant.h" />
-    <ClInclude Include="src\Bindables\Rasterizer.h" />
-    <ClInclude Include="src\Bindables\Sampler.h" />
-    <ClInclude Include="src\Bindables\Texture.h" />
-    <ClInclude Include="src\Bindables\Topology.h" />
-    <ClInclude Include="src\Bindables\TransformCBuf.h" />
-    <ClInclude Include="src\Drawable\Cube.h" />
-    <ClInclude Include="src\Drawable\DirectionalLight.h" />
-    <ClInclude Include="src\Drawable\Drawable.h" />
-    <ClInclude Include="src\Drawable\PointLight.h" />
-    <ClInclude Include="src\Drawable\SolidCone.h" />
-    <ClInclude Include="src\Drawable\SolidSphere.h" />
-    <ClInclude Include="src\Drawable\SpotLight.h" />
-    <ClInclude Include="src\Graphics\LayoutCodex.h" />
-    <ClInclude Include="src\Graphics\Mesh.h" />
-    <ClInclude Include="src\Graphics\Surface.h" />
-    <ClInclude Include="src\Geometry\Cube.h" />
-    <ClInclude Include="src\Bindables\IndexBuffer.h" />
-    <ClInclude Include="src\Graphics\Color.h" />
-    <ClInclude Include="src\Graphics\IndexedTriangleList.h" />
-    <ClInclude Include="src\Bindables\InputLayout.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Log.h" />
-    <ClInclude Include="src\Bindables\PixelShader.h" />
-    <ClInclude Include="src\Bindables\VertexShader.h" />
     <ClInclude Include="src\Libraries\spdlog\async.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger-inl.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger.h" />
@@ -269,6 +218,7 @@
     <ClInclude Include="src\Libraries\spdlog\stopwatch.h" />
     <ClInclude Include="src\Libraries\spdlog\tweakme.h" />
     <ClInclude Include="src\Libraries\spdlog\version.h" />
+    <ClInclude Include="src\Platform\XRCommon.h" />
     <ClInclude Include="src\Utilities\FrameTimer.h" />
     <ClInclude Include="src\Utilities\KatameUtils.h" />
     <ClInclude Include="src\Utilities\KatameXM.h" />
@@ -384,13 +334,12 @@
     <ClInclude Include="vendor\spdlog\tests\includes.h" />
     <ClInclude Include="vendor\spdlog\tests\test_sink.h" />
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
-    <ClInclude Include="src\Graphics\Vertex.h" />
-    <ClInclude Include="src\Bindables\VertexBuffer.h" />
     <ClInclude Include="src\Platform\XRInput.h" />
     <ClInclude Include="src\Platform\XRCore.h" />
     <ClInclude Include="src\Platform\XREventHandler.h" />
     <ClInclude Include="src\Platform\XRGraphics.h" />
     <ClInclude Include="src\Platform\XRRender.h" />
+    <ClInclude Include="src\Platform\XRMirror.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\PhongPS.hlsl">

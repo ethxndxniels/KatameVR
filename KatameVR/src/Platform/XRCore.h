@@ -1,17 +1,6 @@
 #pragma once
 
-// Tell OpenXR what platform code we'll be using
-#define XR_USE_PLATFORM_WIN32
-#define XR_USE_GRAPHICS_API_D3D11
-
-#include <openxr/openxr.h>
-#include <openxr/openxr_platform.h>
-
-#include <cstdint>
-#include <vector>
-
-#include "XREventHandler.h"
-#include "XRGraphics.h"
+#include "XRCommon.h"
 
 namespace Katame
 {
@@ -22,6 +11,9 @@ namespace Katame
 		static XrInstance* GetInstance();
 		static XrSession* GetSession();
 		static XrSpace* GetSpace();
+		static XrSystemId GetSystemID();
+	public:
+		static bool GetIsDepthSupported();
 	private:
 		static void OpenXRInit();
 		static void EnableInstanceExtensions();
@@ -31,6 +23,7 @@ namespace Katame
 		static XrInstance* m_Instance;
 		static XrSession* m_Session;
 		static XrSpace* m_Space;
+		static XrSystemId m_SystemId;
 	private:
 		static std::vector<const char*> m_AppEnabledExtensions;
 		static std::vector<void*> m_AppRequestedExtensions;
@@ -41,9 +34,8 @@ namespace Katame
 		static float f_AppVersion;
 		static XrResult m_LastCallResult;
 		static char* s_GraphicsExtensionName;
-		static XrSystemId m_SystemId;
 		static XrSystemProperties m_SystemProperties;
 		static XrReferenceSpaceType m_ReferenceSpaceType;
-
+		static bool b_IsDepthSupported;
 	};
 }
