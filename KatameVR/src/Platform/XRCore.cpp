@@ -35,6 +35,8 @@ namespace Katame
 
 		// Setup world
 		WorldInit();
+
+		return true;
 	}
 
 	XrInstance* XRCore::GetInstance()
@@ -204,7 +206,7 @@ namespace Katame
 
 	void XRCore::WorldInit()
 	{
-		XRGraphics::Init( m_Instance, &m_SystemId, m_Session, &m_LastCallResult );
+		XRGraphics::Init( m_Instance, &m_SystemId, m_Session );
 
 		if (m_LastCallResult != XR_SUCCESS)
 			KM_CORE_ERROR( "{} ({})", "Failed creating OpenXR Session with Error ", std::to_string( m_LastCallResult ) );

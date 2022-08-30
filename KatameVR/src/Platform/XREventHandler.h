@@ -1,17 +1,9 @@
 #pragma once
 
-#include <openxr/openxr_platform.h>
-#include <vector>
+#include "XRCommon.h"
 
 namespace Katame
 {
-	typedef void (*Callback_XREvent)(XrEventDataBuffer);
-	struct XRCallback
-	{
-		XrStructureType type;
-		Callback_XREvent callback;
-	};
-
 	class XREventHandler
 	{
 	public:

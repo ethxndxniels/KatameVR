@@ -1,5 +1,6 @@
 #pragma once
 
+#include "XRCore.h"
 #include "XRCommon.h"
 
 namespace Katame

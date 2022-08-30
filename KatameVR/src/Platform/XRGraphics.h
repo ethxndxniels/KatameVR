@@ -2,14 +2,12 @@
 
 #include "XRCommon.h"
 
-#include <d3d11.h>
-
 namespace Katame
 {
 	class XRGraphics
 	{
 	public:
-		static void Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession, XrResult* xrResult );
+		static void Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession );
 		static ID3D11Device* GetDevice();
 		static ID3D11DeviceContext* GetContext();
 		static XrResult GenerateSwapchainImages( const XrSwapchain& xrSwapChain, const uint32_t nEye, const bool bIsDepth );
@@ -27,8 +25,8 @@ namespace Katame
 		static ID3D11DeviceContext* m_Context;
 		static int64_t m_Swapchain_fmt;
 		static void* m_GraphicsBinding;
+		static XrResult m_LastCallResult;
 	private:
-		XrSession* m_xrSession = XR_NULL_HANDLE;
 		static std::vector<XrSwapchainImageD3D11KHR> m_SwapchainImages_Color_L;
 		static std::vector<XrSwapchainImageD3D11KHR> m_SwapchainImages_Color_R;
 		static std::vector<XrSwapchainImageD3D11KHR> m_SwapchainImages_Depth_L;

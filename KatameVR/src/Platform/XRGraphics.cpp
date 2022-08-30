@@ -2,14 +2,23 @@
 
 #include "../Core/Log.h"
 
+#pragma comment(lib,"d3d11.lib")
+#pragma comment(lib, "dxgi.lib")
+
 namespace Katame
 {
 	ID3D11Device* XRGraphics::m_Device = nullptr;
 	ID3D11DeviceContext* XRGraphics::m_Context = nullptr;
 	int64_t XRGraphics::m_Swapchain_fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
 	void* XRGraphics::m_GraphicsBinding = nullptr;
+	XrResult XRGraphics::m_LastCallResult = XR_SUCCESS;
 
-	void XRGraphics::Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession, XrResult* xrResult )
+	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Color_L = {};
+	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Color_R = {};
+	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Depth_L = {};
+	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Depth_R = {};
+
+	void XRGraphics::Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession )
 	{
 		KM_CORE_INFO( "Initializing Graphics.." );
 
@@ -31,23 +40,22 @@ namespace Katame
 		XrGraphicsBindingD3D11KHR xrGraphicsBinding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
 		xrGraphicsBinding.device = m_Device;
 
-		*xrResult = xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
+		m_LastCallResult = xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
 
-		if (*xrResult != XR_SUCCESS)
-			return; // Not throwing a runtime error here as we want to report why the create session failed.
+		if (m_LastCallResult != XR_SUCCESS)
+			KM_CORE_ERROR( "Session failed to create." );
 
 		// Create Session
 		XrSessionCreateInfo xrSessionCreateInfo = { XR_TYPE_SESSION_CREATE_INFO };
 		xrSessionCreateInfo.next = &xrGraphicsBinding;
 		xrSessionCreateInfo.systemId = *xrSystemId;
 
-		*xrResult = xrCreateSession( *xrInstance, &xrSessionCreateInfo, xrSession );
+		m_LastCallResult = xrCreateSession( *xrInstance, &xrSessionCreateInfo, xrSession );
 
-		if (*xrResult != XR_SUCCESS)
-			return; // Not throwing a runtime error here as we want to report why the create session failed.
+		if (m_LastCallResult != XR_SUCCESS)
+			KM_CORE_ERROR( "Session failed to create." );
 
 		m_GraphicsBinding = &xrGraphicsBinding;
-		return;
 	}
 
 	ID3D11Device* XRGraphics::GetDevice()
@@ -65,7 +73,7 @@ namespace Katame
 		// Check how many images are in this swapchain from the runtime
 		uint32_t nNumOfSwapchainImages;
 		XrResult xrResult = xrEnumerateSwapchainImages( xrSwapChain, 0, &nNumOfSwapchainImages, nullptr );
-		if (xrResult != XR_SUCCESS)
+		if (m_LastCallResult != XR_SUCCESS)
 			return xrResult;
 
 		// Generate swapchain image holders based on retrieved count from the runtime
@@ -78,7 +86,7 @@ namespace Katame
 		}
 
 		// Retrieve swapchain images from the runtime
-		xrResult = xrEnumerateSwapchainImages(
+		m_LastCallResult = xrEnumerateSwapchainImages(
 			xrSwapChain, nNumOfSwapchainImages, &nNumOfSwapchainImages, reinterpret_cast<XrSwapchainImageBaseHeader*>(xrSwapchainImages.data()) );
 		if (xrResult != XR_SUCCESS)
 			return xrResult;

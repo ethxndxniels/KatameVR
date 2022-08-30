@@ -1,8 +1,5 @@
 #include "XRRender.h"
 
-#include "XRCore.h"
-#include "XRGraphics.h"
-
 #include "../Core/Log.h"
 
 namespace Katame
@@ -20,10 +17,10 @@ namespace Katame
 	int64_t XRRender::i_TextureFormat = 0;
 	int64_t XRRender::i_DepthFormat = 0;
 
-	std::vector<XrSwapchain> m_SwapChainsColor = {};
-	std::vector<XrSwapchain> m_SwapChainsDepth = {};
-	std::vector<XrView> m_Views = {};
-	std::vector<XrViewConfigurationView> m_ViewConfigs = {};
+	std::vector<XrSwapchain> XRRender::m_SwapChainsColor = {};
+	std::vector<XrSwapchain> XRRender::m_SwapChainsDepth = {};
+	std::vector<XrView> XRRender::m_Views = {};
+	std::vector<XrViewConfigurationView> XRRender::m_ViewConfigs = {};
 
 	const float XRRender::k_fMedianIPD = 0.063f;
 	const float XRRender::k_fMinIPD = 0.04f;
