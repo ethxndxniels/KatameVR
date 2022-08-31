@@ -10,6 +10,7 @@ namespace Katame
 	XrSession* XRCore::m_Session = new XrSession{ XR_NULL_HANDLE };
 	XrSpace* XRCore::m_Space = new XrSpace{ XR_NULL_HANDLE };
 	XrSystemId XRCore::m_SystemId = XR_NULL_SYSTEM_ID;
+	XrSessionState XRCore::m_State = { XR_SESSION_STATE_UNKNOWN };
 
 	std::vector<const char*> XRCore::m_AppEnabledExtensions = {};
 	std::vector<XrExtensionProperties*> XRCore::m_AppRequestedExtensions;
@@ -23,6 +24,7 @@ namespace Katame
 	XrSystemProperties XRCore::m_SystemProperties = {XR_TYPE_SYSTEM_PROPERTIES};
 	XrReferenceSpaceType XRCore::m_ReferenceSpaceType = { XR_REFERENCE_SPACE_TYPE_STAGE };
 	bool XRCore::b_IsDepthSupported = true;
+	bool XRCore::b_Running = true;
 
 	bool XRCore::Init()
 	{
@@ -37,6 +39,43 @@ namespace Katame
 		WorldInit();
 
 		return true;
+	}
+
+	bool XRCore::PollEvents()
+	{
+		XrEventDataBuffer event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
+
+		while (xrPollEvent( *m_Instance, &event_buffer ) == XR_SUCCESS) {
+			switch (event_buffer.type)
+			{
+			case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+			{
+				XrEventDataSessionStateChanged* changed = (XrEventDataSessionStateChanged*)&event_buffer;
+				m_State = changed->state;
+
+				// Session state change is where we can begin and end sessions, as well as find quit messages!
+				switch (m_State)
+				{
+				case XR_SESSION_STATE_READY: {
+					XrSessionBeginInfo begin_info = { XR_TYPE_SESSION_BEGIN_INFO };
+					begin_info.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
+					xrBeginSession( *m_Session, &begin_info );
+					b_Running = true;
+				} break;
+				case XR_SESSION_STATE_STOPPING: {
+					b_Running = false;
+					xrEndSession( *m_Session );
+				} break;
+				case XR_SESSION_STATE_EXITING:      return false;              break;
+				case XR_SESSION_STATE_LOSS_PENDING: return false;              break;
+				}
+			}
+			break;
+			case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: return false; return true;
+			}
+			event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
+			return true;
+		}
 	}
 
 	XrInstance* XRCore::GetInstance()
@@ -235,6 +274,15 @@ namespace Katame
 				XRHandTracking::Init();
 				break;
 			}
+		}
+	}
+
+	void XRCore::ExecuteCallbacks( XrEventDataBuffer xrEvent )
+	{
+		for ( XRCallback* xrCallback : XREventHandler::GetCallbacks() )
+		{
+			if (xrCallback->type == xrEvent.type || xrCallback->type == XR_TYPE_EVENT_DATA_BUFFER)
+				xrCallback->callback( xrEvent );
 		}
 	}
 

@@ -11,6 +11,7 @@ namespace Katame
 	{
 	public:
 		static bool Init();
+		static bool PollEvents();
 		static XrInstance* GetInstance();
 		static XrSession* GetSession();
 		static XrSpace* GetSpace();
@@ -22,11 +23,13 @@ namespace Katame
 		static void EnableInstanceExtensions();
 		static XrResult LoadXRSystem();
 		static void WorldInit();
+		static void ExecuteCallbacks( XrEventDataBuffer xrEvent );
 	private:
 		static XrInstance* m_Instance;
 		static XrSession* m_Session;
 		static XrSpace* m_Space;
 		static XrSystemId m_SystemId;
+		static XrSessionState m_State;
 	private:
 		static std::vector<const char*> m_AppEnabledExtensions;
 		static std::vector<XrExtensionProperties*> m_AppRequestedExtensions;
@@ -40,5 +43,6 @@ namespace Katame
 		static XrSystemProperties m_SystemProperties;
 		static XrReferenceSpaceType m_ReferenceSpaceType;
 		static bool b_IsDepthSupported;
+		static bool b_Running;
 	};
 }

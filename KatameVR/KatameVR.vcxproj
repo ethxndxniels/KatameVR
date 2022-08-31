@@ -119,6 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Core\Events\Event.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Libraries\spdlog\async.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger-inl.h" />
@@ -220,6 +221,7 @@
     <ClInclude Include="src\Libraries\spdlog\tweakme.h" />
     <ClInclude Include="src\Libraries\spdlog\version.h" />
     <ClInclude Include="src\Platform\XRCommon.h" />
+    <ClInclude Include="src\Platform\XROculusTouchDefines.h" />
     <ClInclude Include="src\Utilities\FrameTimer.h" />
     <ClInclude Include="src\Utilities\KatameUtils.h" />
     <ClInclude Include="src\Utilities\KatameXM.h" />

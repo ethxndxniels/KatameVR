@@ -16,7 +16,7 @@ namespace Katame
 		m_Callbacks.shrink_to_fit();
 	}
 
-	std::vector<XRCallback*> XREventHandler::GetXRCallbacks()
+	std::vector<XRCallback*> XREventHandler::GetCallbacks()
 	{
 		return m_Callbacks;
 	}
