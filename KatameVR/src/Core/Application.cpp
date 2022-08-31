@@ -7,7 +7,7 @@ namespace Katame
 	{
 		XRCore::Init();
 
-		// Create actions
+		// Action Set
 		XRInput::CreateActionSet( "main", "main", 0 );
 		m_ActionState_PoseLeft.type = XR_TYPE_ACTION_STATE_POSE;
 		m_Action_PoseLeft = XRInput::CreateAction( XRInput::ActionSets()[0], "pose_left", "Pose (Left)", XR_ACTION_TYPE_POSE_INPUT, 0, NULL );
@@ -16,19 +16,13 @@ namespace Katame
 		m_ActionState_SwitchScene.type = XR_TYPE_ACTION_STATE_BOOLEAN;
 		m_Action_SwitchScene = XRInput::CreateAction( XRInput::ActionSets()[0], "switch_scene", "Switch Scenes", XR_ACTION_TYPE_BOOLEAN_INPUT, 0, NULL );
 		m_Action_Haptic = XRInput::CreateAction( XRInput::ActionSets()[0], "haptic", "Haptic Feedback", XR_ACTION_TYPE_VIBRATION_OUTPUT, 0, NULL );
-
-		// Create action bindings
 		XRInput::CreateActionBinding( m_Action_PoseLeft, Hand_Left, Pose_Grip, &m_SuggestedBindings );
 		XRInput::CreateActionBinding( m_Action_PoseRight, Hand_Right, Pose_Grip, &m_SuggestedBindings );
 		XRInput::CreateActionBinding( m_Action_SwitchScene, Hand_Left, Button_Trigger_Click, &m_SuggestedBindings );
 		XRInput::CreateActionBinding( m_Action_SwitchScene, Hand_Right, Button_Trigger_Click, &m_SuggestedBindings );
 		XRInput::CreateActionBinding( m_Action_Haptic, Hand_Left, Output_Haptic, &m_SuggestedBindings );
 		XRInput::CreateActionBinding( m_Action_Haptic, Hand_Right, Output_Haptic, &m_SuggestedBindings );
-
-		// Suggest action bindings
 		XRInput::SuggestActionBindings( &m_SuggestedBindings, "/interaction_profiles/oculus/touch_controller" );
-
-		// Activate action set
 		XRInput::ActivateActionSet( XRInput::ActionSets()[0] );
 
 		// Hand Tracking?
@@ -46,8 +40,9 @@ namespace Katame
 		//pXRCallback->callback = Callback_XR_Event;
 		//pXRProvider->Core()->GetXREventHandler()->RegisterCallback( pXRCallback );
 
-		// TODO: Visibility Mask
-		//XRRender::GetVisibilityMask( Katame::EYE_LEFT, Katame::MASK_HIDDEN, vMaskVertices_L, vMaskIndices_L );
+		// TODO: Sort Vis Mask Out
+		//XRRender::GetVisibilityMask( Katame::EYE_LEFT, XRRender::EMaskType::MASK_HIDDEN, m_MaskVertices_L, m_MaskIndices_L );
+		//XRRender::GetVisibilityMask( Katame::EYE_RIGHT, XRRender::EMaskType::MASK_HIDDEN, m_MaskVertices_R, m_MaskIndices_R );
 
 		// TODO: Setup Graphics Resources
 	}
@@ -78,7 +73,8 @@ namespace Katame
 			// TODO: 
 			//	- auto events = XRCore::PollEvents();
 			//	- ProcessEvents( events );
-			//	- Can maybe make event based?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+			//	- Can maybe make event based?                
+			// XRCore::PollEvents();
 			float dt = timer.Mark();
 			Update( dt );
 		}

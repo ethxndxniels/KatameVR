@@ -7,6 +7,7 @@ namespace Katame
 {
 	class XRRender
 	{
+	public:
 		enum EMaskType
 		{
 			MASK_VISIBLE = 0,

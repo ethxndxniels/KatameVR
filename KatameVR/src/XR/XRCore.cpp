@@ -76,6 +76,7 @@ namespace Katame
 			event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
 			return true;
 		}
+		return false;
 	}
 
 	XrInstance* XRCore::GetInstance()

@@ -6,13 +6,13 @@
 #include <vector>
 #include <algorithm>
 
-#include "../Platform/XRCore.h"
-#include "../Platform/XRInput.h"
-#include "../Platform/XRHandTracking.h"
-#include "../Platform/XRRender.h"
-#include "../Platform/XRGraphics.h"
+#include "../XR/XRCore.h"
+#include "../XR/XRInput.h"
+#include "../XR/XRHandTracking.h"
+#include "../XR/XRRender.h"
+#include "../XR/XRGraphics.h"
 
-#include "../Platform/XROculusTouchDefines.h"
+#include "../XR/XROculusTouchDefines.h"
 
 #include "../Utilities/FrameTimer.h"
 
@@ -28,7 +28,6 @@ namespace Katame
 		void Launch();
 	public:
 		void Draw( XrCompositionLayerProjectionView& view );
-		//void OnEvent( Event* e );
 		void Update( float dt );
 		void Update_Predicted();
 	private:
@@ -44,5 +43,10 @@ namespace Katame
 		XrActionStatePose m_ActionState_PoseLeft;
 		XrActionStatePose m_ActionState_PoseRight;
 		std::vector<XrActionSuggestedBinding> m_SuggestedBindings;
+
+		std::vector<float> m_MaskVertices_L;
+		std::vector<float> m_MaskVertices_R;
+		std::vector<uint32_t> m_MaskIndices_L;
+		std::vector<uint32_t> m_MaskIndices_R;
 	};
 }

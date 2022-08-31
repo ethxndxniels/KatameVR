@@ -30,25 +30,25 @@
     <ClCompile Include="src\Utilities\FrameTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\XRInput.cpp">
+    <ClCompile Include="src\XR\XRInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\XRCore.cpp">
+    <ClCompile Include="src\XR\XRCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\XREventHandler.cpp">
+    <ClCompile Include="src\XR\XREventHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\XRGraphics.cpp">
+    <ClCompile Include="src\XR\XRGraphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\XRRender.cpp">
+    <ClCompile Include="src\XR\XRRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\XRMirror.cpp">
+    <ClCompile Include="src\XR\XRMirror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Platform\XRHandTracking.cpp">
+    <ClCompile Include="src\XR\XRHandTracking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -712,34 +712,34 @@
     <ClInclude Include="src\Utilities\FrameTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XRInput.h">
+    <ClInclude Include="src\XR\XRInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XRCore.h">
+    <ClInclude Include="src\XR\XRCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XREventHandler.h">
+    <ClInclude Include="src\XR\XREventHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XRGraphics.h">
+    <ClInclude Include="src\XR\XRGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XRRender.h">
+    <ClInclude Include="src\XR\XRRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XRMirror.h">
+    <ClInclude Include="src\XR\XRMirror.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XRCommon.h">
+    <ClInclude Include="src\XR\XRCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XRHandTracking.h">
+    <ClInclude Include="src\XR\XRHandTracking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Events\Event.h">
+    <ClInclude Include="src\XR\XROculusTouchDefines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\XROculusTouchDefines.h">
+    <ClInclude Include="src\Geometry\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
