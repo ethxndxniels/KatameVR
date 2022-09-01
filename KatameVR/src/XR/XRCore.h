@@ -11,12 +11,13 @@ namespace Katame
 	{
 	public:
 		static bool Init();
-		static bool PollEvents();
+		static void PollEvents( bool& m_Running );
 		static XrInstance* GetInstance();
 		static XrSession* GetSession();
 		static XrSpace* GetSpace();
 		static XrSystemId GetSystemID();
 	public:
+		static bool IsRunning();
 		static bool GetIsDepthSupported();
 	private:
 		static void OpenXRInit();

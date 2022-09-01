@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <cstdint>
+#include <functional>
 
 #ifndef XR_USE_PLATFORM_WIN32
 	#define XR_USE_PLATFORM_WIN32
@@ -50,12 +51,5 @@ namespace Katame
 		XREyeState RightEye;
 		bool IsPositionTracked;
 		bool IsOrientationTracked;
-	};
-
-	typedef void (*Callback_XREvent)(XrEventDataBuffer);
-	struct XRCallback
-	{
-		XrStructureType type;
-		Callback_XREvent callback;
 	};
 }

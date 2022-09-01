@@ -742,6 +742,9 @@
     <ClInclude Include="src\Geometry\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\XR\XRCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\VertexShader.hlsl" />

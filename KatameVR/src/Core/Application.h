@@ -27,7 +27,8 @@ namespace Katame
 		~Application();
 		void Launch();
 	public:
-		void Draw( XrCompositionLayerProjectionView& view );
+		void Draw();
+		void OnEvent( XrEventDataBuffer e );
 		void Update( float dt );
 		void Update_Predicted();
 	private:

@@ -220,6 +220,7 @@
     <ClInclude Include="src\Libraries\spdlog\stopwatch.h" />
     <ClInclude Include="src\Libraries\spdlog\tweakme.h" />
     <ClInclude Include="src\Libraries\spdlog\version.h" />
+    <ClInclude Include="src\XR\XRCallback.h" />
     <ClInclude Include="src\XR\XRCommon.h" />
     <ClInclude Include="src\XR\XROculusTouchDefines.h" />
     <ClInclude Include="src\Utilities\FrameTimer.h" />

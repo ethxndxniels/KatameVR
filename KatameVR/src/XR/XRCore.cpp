@@ -3,6 +3,7 @@
 #include "../Core/Log.h"
 
 #include "XRGraphics.h"
+#include "../Core/Application.h"
 
 namespace Katame
 {
@@ -41,42 +42,19 @@ namespace Katame
 		return true;
 	}
 
-	bool XRCore::PollEvents()
+	void XRCore::PollEvents( bool& m_Running )
 	{
-		XrEventDataBuffer event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
+		XrEventDataBuffer xrEvent{ XR_TYPE_EVENT_DATA_BUFFER };
+		xrEvent.next = nullptr;
 
-		while (xrPollEvent( *m_Instance, &event_buffer ) == XR_SUCCESS) {
-			switch (event_buffer.type)
-			{
-			case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
-			{
-				XrEventDataSessionStateChanged* changed = (XrEventDataSessionStateChanged*)&event_buffer;
-				m_State = changed->state;
+		m_LastCallResult = xrPollEvent( *m_Instance, &xrEvent );
 
-				// Session state change is where we can begin and end sessions, as well as find quit messages!
-				switch (m_State)
-				{
-				case XR_SESSION_STATE_READY: {
-					XrSessionBeginInfo begin_info = { XR_TYPE_SESSION_BEGIN_INFO };
-					begin_info.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
-					xrBeginSession( *m_Session, &begin_info );
-					b_Running = true;
-				} break;
-				case XR_SESSION_STATE_STOPPING: {
-					b_Running = false;
-					xrEndSession( *m_Session );
-				} break;
-				case XR_SESSION_STATE_EXITING:      return false;              break;
-				case XR_SESSION_STATE_LOSS_PENDING: return false;              break;
-				}
-			}
-			break;
-			case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: return false; return true;
-			}
-			event_buffer = { XR_TYPE_EVENT_DATA_BUFFER };
-			return true;
-		}
-		return false;
+		// Stop evaluating if there's no event returned or the call fails
+		if (xrEvent.type == XR_TYPE_EVENT_DATA_BUFFER)
+			return;
+
+		// Execute any callbacks registered for this event
+		ExecuteCallbacks( xrEvent );
 	}
 
 	XrInstance* XRCore::GetInstance()
@@ -97,6 +75,11 @@ namespace Katame
 	XrSystemId XRCore::GetSystemID()
 	{
 		return m_SystemId;
+	}
+
+	bool XRCore::IsRunning()
+	{
+		return b_Running;
 	}
 
 	bool XRCore::GetIsDepthSupported()
