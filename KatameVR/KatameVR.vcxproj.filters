@@ -36,9 +36,6 @@
     <ClCompile Include="src\XR\XRCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\XR\XREventHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\XR\XRGraphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -718,9 +715,6 @@
     <ClInclude Include="src\XR\XRCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\XR\XREventHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\XR\XRGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -737,12 +731,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\XR\XROculusTouchDefines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Geometry\Cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\XR\XRCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

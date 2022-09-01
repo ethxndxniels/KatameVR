@@ -1,7 +1,6 @@
 #pragma once
 
 #include "XRCommon.h"
-#include "XREventHandler.h"
 #include "XRGraphics.h"
 #include "XRHandTracking.h"
 
@@ -11,7 +10,7 @@ namespace Katame
 	{
 	public:
 		static bool Init();
-		static void PollEvents( bool& m_Running );
+		static void PollEvents( bool& m_Running, std::function<void( XrEventDataBuffer& )> OnEvent );
 		static XrInstance* GetInstance();
 		static XrSession* GetSession();
 		static XrSpace* GetSpace();
@@ -24,7 +23,6 @@ namespace Katame
 		static void EnableInstanceExtensions();
 		static XrResult LoadXRSystem();
 		static void WorldInit();
-		static void ExecuteCallbacks( XrEventDataBuffer xrEvent );
 	private:
 		static XrInstance* m_Instance;
 		static XrSession* m_Session;

@@ -20,6 +20,13 @@
 
 namespace Katame 
 {
+	enum Scenes
+	{
+		SCENE_SEA_OF_CUBES = 0,
+		SCENE_HAND_TRACKING = 1
+	};
+
+
 	class Application
 	{
 	public:
@@ -28,7 +35,7 @@ namespace Katame
 		void Launch();
 	public:
 		void Draw();
-		void OnEvent( XrEventDataBuffer e );
+		void OnEvent( XrEventDataBuffer& e );
 		void Update( float dt );
 		void Update_Predicted();
 	private:
@@ -36,7 +43,8 @@ namespace Katame
 		bool xr_running = false;
 		FrameTimer timer;
 		float speed_factor = 1.0f;
-		
+		uint32_t u_SwapChainCount = 0;
+
 		// Actions
 		XrAction m_Action_SwitchScene, m_Action_Haptic;
 		XrAction m_Action_PoseLeft, m_Action_PoseRight;
@@ -49,5 +57,7 @@ namespace Katame
 		std::vector<float> m_MaskVertices_R;
 		std::vector<uint32_t> m_MaskIndices_L;
 		std::vector<uint32_t> m_MaskIndices_R;
+
+		Scenes m_CurrentScene = SCENE_SEA_OF_CUBES;
 	};
 }

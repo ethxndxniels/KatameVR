@@ -103,7 +103,6 @@
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
     <ClCompile Include="src\XR\XRInput.cpp" />
     <ClCompile Include="src\XR\XRCore.cpp" />
-    <ClCompile Include="src\XR\XREventHandler.cpp" />
     <ClCompile Include="src\XR\XRGraphics.cpp" />
     <ClCompile Include="src\XR\XRRender.cpp" />
     <ClCompile Include="src\XR\XRMirror.cpp" />
@@ -120,7 +119,6 @@
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Log.h" />
-    <ClInclude Include="src\Geometry\Cube.h" />
     <ClInclude Include="src\Libraries\spdlog\async.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger-inl.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger.h" />
@@ -220,7 +218,6 @@
     <ClInclude Include="src\Libraries\spdlog\stopwatch.h" />
     <ClInclude Include="src\Libraries\spdlog\tweakme.h" />
     <ClInclude Include="src\Libraries\spdlog\version.h" />
-    <ClInclude Include="src\XR\XRCallback.h" />
     <ClInclude Include="src\XR\XRCommon.h" />
     <ClInclude Include="src\XR\XROculusTouchDefines.h" />
     <ClInclude Include="src\Utilities\FrameTimer.h" />
@@ -340,7 +337,6 @@
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
     <ClInclude Include="src\XR\XRInput.h" />
     <ClInclude Include="src\XR\XRCore.h" />
-    <ClInclude Include="src\XR\XREventHandler.h" />
     <ClInclude Include="src\XR\XRGraphics.h" />
     <ClInclude Include="src\XR\XRRender.h" />
     <ClInclude Include="src\XR\XRMirror.h" />

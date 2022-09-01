@@ -30,7 +30,7 @@ namespace Katame
 		// bDrawHandJoints = pXRHandTracking->IsActive();
 
 		// Swapchain capacity
-		uint32_t u_SwapChainCount = XRGraphics::GetSwapchainImageCount( Katame::EYE_LEFT );
+		u_SwapChainCount = XRGraphics::GetSwapchainImageCount( Katame::EYE_LEFT );
 		if (u_SwapChainCount < 1)
 			KM_CORE_ERROR( "Not enough swapchain capacity ({}) to do any rendering work", u_SwapChainCount );
 
@@ -52,26 +52,13 @@ namespace Katame
 	{
 	}
 
-
-	/*
-			openxrManager->openxr_poll_events( m_Running, xr_running );
-			const auto dt = timer.Mark() * speed_factor;
-			if (xr_running) {
-				openxrManager->openxr_poll_actions();
-				Update( dt );
-				openxrManager->openxr_render_frame( this );
-				if (openxrManager->get_session_state() != XR_SESSION_STATE_VISIBLE &&
-					openxrManager->get_session_state() != XR_SESSION_STATE_FOCUSED) {
-					std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
-				}
-			}
-	*/
+	int nSwapchainIndex = 0;
 	void Application::Launch()
 	{
 		KM_CORE_INFO( "Launching Application.." );
 		while ( m_Running ) 
 		{         
-			XRCore::PollEvents( m_Running );
+			XRCore::PollEvents( m_Running, std::bind( &Application::OnEvent, this, std::placeholders::_1  ) );
 			float dt = timer.Mark();
 			Update( dt );
 
@@ -79,7 +66,22 @@ namespace Katame
 			{
 				// Poll Actions
 				XRRender::ProcessXRFrame();
+				Draw();
+				XRInput::SyncActiveActionSetsData();
+				if (XRInput::GetActionStateBoolean( m_Action_SwitchScene, &m_ActionState_SwitchScene ) == XR_SUCCESS
+					&& m_ActionState_SwitchScene.changedSinceLastSync && m_ActionState_SwitchScene.currentState)
+				{
+					// Switch active scene
+					m_CurrentScene = m_CurrentScene == SCENE_HAND_TRACKING ? SCENE_SEA_OF_CUBES : SCENE_HAND_TRACKING;
 
+					// Apply haptic
+					XRInput::GenerateHaptic( m_Action_Haptic, XR_MIN_HAPTIC_DURATION, 0.5f, XR_FREQUENCY_UNSPECIFIED );
+					KM_INFO( "Input Detected: Action Switch Scene ({}) last changed on ({}) nanoseconds",
+						(bool)m_ActionState_SwitchScene.currentState, (uint64_t)m_ActionState_SwitchScene.lastChangeTime );
+				}
+				// ProcessInputStates
+				// Blit (copy) texture to XR Mirror
+				//BlitToWindow();
 			}
 		}
 
@@ -89,13 +91,14 @@ namespace Katame
 	{
 	}
 
-	void Application::OnEvent( XrEventDataBuffer e )
+	void Application::OnEvent( XrEventDataBuffer& e )
 	{
+		KM_INFO( "OI" );
 	}
 
 	void Application::Update( float dt )
 	{
-		//KM_CORE_TRACE( "Time Elapsed: {}", dt );
+		//KM_TRACE( "Time Elapsed: {}", dt );
 	}
 
 	void Application::Update_Predicted()

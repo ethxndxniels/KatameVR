@@ -42,7 +42,7 @@ namespace Katame
 		return true;
 	}
 
-	void XRCore::PollEvents( bool& m_Running )
+	void XRCore::PollEvents( bool& m_Running, std::function<void( XrEventDataBuffer& )> OnEvent )
 	{
 		XrEventDataBuffer xrEvent{ XR_TYPE_EVENT_DATA_BUFFER };
 		xrEvent.next = nullptr;
@@ -54,7 +54,7 @@ namespace Katame
 			return;
 
 		// Execute any callbacks registered for this event
-		ExecuteCallbacks( xrEvent );
+		OnEvent( xrEvent );
 	}
 
 	XrInstance* XRCore::GetInstance()
@@ -258,15 +258,6 @@ namespace Katame
 				XRHandTracking::Init();
 				break;
 			}
-		}
-	}
-
-	void XRCore::ExecuteCallbacks( XrEventDataBuffer xrEvent )
-	{
-		for ( XRCallback* xrCallback : XREventHandler::GetCallbacks() )
-		{
-			if (xrCallback->type == xrEvent.type || xrCallback->type == XR_TYPE_EVENT_DATA_BUFFER)
-				xrCallback->callback( xrEvent );
 		}
 	}
 
