@@ -45,7 +45,18 @@ namespace Katame
 		//XRRender::GetVisibilityMask( Katame::EYE_LEFT, XRRender::EMaskType::MASK_HIDDEN, m_MaskVertices_L, m_MaskIndices_L );
 		//XRRender::GetVisibilityMask( Katame::EYE_RIGHT, XRRender::EMaskType::MASK_HIDDEN, m_MaskVertices_R, m_MaskIndices_R );
 
-		// TODO: Setup Graphics Resources
+		// Graphics Resources
+		std::vector<VertexPosColor> cubeVertices = CreateCubeVertices();
+		std::vector<unsigned int> cubeIndices = CreateCubeIndices();
+		CD3D11_BUFFER_DESC cBufDesc( sizeof( TransformBuffer ), D3D11_BIND_CONSTANT_BUFFER );
+
+		m_VB = new VertexBuffer( cubeVertices.data(), cubeVertices.size(), sizeof( VertexPosColor ) );
+		m_IB = new IndexBuffer( cubeIndices.data(), cubeIndices.size(), sizeof( unsigned int ) );
+		m_VS = new VertexShader( "./Shaders/Bin/VertexShader.cso" );
+		m_PS = new PixelShader( "./Shaders/Bin/PixelShader.cso" );
+		m_IL = new InputLayout( CreateCubeInputLayout(), *m_VS );
+		m_Top = new Topology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		m_VCBuf = new VCBuffer( cBufDesc, sizeof( cBufDesc ), 0u );
 	}
 
 	Application::~Application()
@@ -68,18 +79,14 @@ namespace Katame
 				XRRender::ProcessXRFrame();
 				Draw();
 				XRInput::SyncActiveActionSetsData();
-				if (XRInput::GetActionStateBoolean( m_Action_SwitchScene, &m_ActionState_SwitchScene ) == XR_SUCCESS
-					&& m_ActionState_SwitchScene.changedSinceLastSync && m_ActionState_SwitchScene.currentState)
-				{
-					// Switch active scene
-					m_CurrentScene = m_CurrentScene == SCENE_HAND_TRACKING ? SCENE_SEA_OF_CUBES : SCENE_HAND_TRACKING;
+				ProcessInputStates();
+				uint64_t nPredictedTime = XRRender::GetPredictedDisplayTime() + XRRender::GetPredictedDisplayPeriod();
 
-					// Apply haptic
-					XRInput::GenerateHaptic( m_Action_Haptic, XR_MIN_HAPTIC_DURATION, 0.5f, XR_FREQUENCY_UNSPECIFIED );
-					KM_INFO( "Input Detected: Action Switch Scene ({}) last changed on ({}) nanoseconds",
-						(bool)m_ActionState_SwitchScene.currentState, (uint64_t)m_ActionState_SwitchScene.lastChangeTime );
-				}
-				// ProcessInputStates
+				XRInput::GetActionPose( m_Action_PoseLeft, nPredictedTime, &m_Location_Left );
+				XRInput::GetActionPose( m_Action_PoseRight, nPredictedTime, &m_Location_Right );
+				
+				
+
 				// Blit (copy) texture to XR Mirror
 				//BlitToWindow();
 			}
@@ -89,16 +96,54 @@ namespace Katame
 
 	void Application::Draw()
 	{
+		m_VB->Bind();
+		m_IB->Bind();
+		m_VS->Bind();
+		m_PS->Bind();
+		m_IL->Bind();
+		m_Top->Bind();
+
+		TransformBuffer tBuf;
+		XMStoreFloat4x4( &tBuf.ViewProj, DirectX::XMMatrixTranspose( XRRender::GetView( 0 ) * XRRender::GetProjection( 0 ) ) );
+		DirectX::XMMATRIX model = XMMatrixAffineTransformation(
+			DirectX::g_XMOne * 0.05f, DirectX::g_XMZero,
+			DirectX::XMLoadFloat4( &cubeOrientation ),
+			DirectX::XMLoadFloat3( &cubePos ) );
+		XMStoreFloat4x4( &tBuf.World, DirectX::XMMatrixTranspose( model ) );
+		m_VCBuf->Update( &tBuf );
+		m_VCBuf->Bind();
+
+		XRGraphics::GetContext()->DrawIndexed( (UINT)CreateCubeIndices().size(), 0, 0 );
+
+		XMStoreFloat4x4( &tBuf.ViewProj, DirectX::XMMatrixTranspose( XRRender::GetView( 1 ) * XRRender::GetProjection( 1 ) ) );
+		m_VCBuf->Update( &tBuf );
+		m_VCBuf->Bind();
+
+		XRGraphics::GetContext()->DrawIndexed( (UINT)CreateCubeIndices().size(), 0, 0 );
 	}
 
 	void Application::OnEvent( XrEventDataBuffer& e )
 	{
-		KM_INFO( "OI" );
+		KM_INFO( "Processing Event: {}", e.type );
+	}
+
+	void Application::ProcessInputStates()
+	{
+		if (XRInput::GetActionStateBoolean( m_Action_SwitchScene, &m_ActionState_SwitchScene ) == XR_SUCCESS
+			&& m_ActionState_SwitchScene.changedSinceLastSync && m_ActionState_SwitchScene.currentState)
+		{
+			// Switch active scene
+			m_CurrentScene = m_CurrentScene == SCENE_HAND_TRACKING ? SCENE_SEA_OF_CUBES : SCENE_HAND_TRACKING;
+
+			// Apply haptic
+			XRInput::GenerateHaptic( m_Action_Haptic, XR_MIN_HAPTIC_DURATION, 0.5f, XR_FREQUENCY_UNSPECIFIED );
+			KM_INFO( "Input Detected: Action Switch Scene ({}) last changed on ({}) nanoseconds",
+				(bool)m_ActionState_SwitchScene.currentState, (uint64_t)m_ActionState_SwitchScene.lastChangeTime );
+		}
 	}
 
 	void Application::Update( float dt )
 	{
-		//KM_TRACE( "Time Elapsed: {}", dt );
 	}
 
 	void Application::Update_Predicted()

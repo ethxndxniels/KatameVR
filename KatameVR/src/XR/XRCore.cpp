@@ -77,6 +77,11 @@ namespace Katame
 		return m_SystemId;
 	}
 
+	XrSessionState XRCore::GetState()
+	{
+		return m_State;
+	}
+
 	bool XRCore::IsRunning()
 	{
 		return b_Running;

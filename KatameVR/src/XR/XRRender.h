@@ -3,6 +3,8 @@
 #include "XRCore.h"
 #include "XRCommon.h"
 
+#include <DirectXMath.h>
+
 namespace Katame
 {
 	class XRRender
@@ -23,7 +25,10 @@ namespace Katame
 		static void Init();
 		static void Destroy();
 		static bool ProcessXRFrame();
+		static DirectX::XMMATRIX GetView( unsigned int index );
+		static DirectX::XMMATRIX GetProjection( unsigned int index );
 	public:
+		static std::vector<XrView> GetViews();
 		static std::vector<XrViewConfigurationView> GetConfigViews();
 		static bool GetDepthHandling();
 		static float GetCurrentIPD();

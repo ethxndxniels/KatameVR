@@ -15,6 +15,7 @@ namespace Katame
 		static XrSession* GetSession();
 		static XrSpace* GetSpace();
 		static XrSystemId GetSystemID();
+		static XrSessionState GetState();
 	public:
 		static bool IsRunning();
 		static bool GetIsDepthSupported();

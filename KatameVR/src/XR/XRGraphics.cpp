@@ -2,8 +2,9 @@
 
 #include "../Core/Log.h"
 
-#pragma comment(lib,"d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib,"D3D11.lib")
+#pragma comment(lib,"D3dcompiler.lib")
+#pragma comment(lib,"Dxgi.lib") 
 
 namespace Katame
 {

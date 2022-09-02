@@ -347,6 +347,32 @@ namespace Katame
 		return true;
 	}
 
+	DirectX::XMMATRIX XRRender::GetView( unsigned int index )
+	{
+		return  XMMatrixInverse( nullptr, XMMatrixAffineTransformation(
+			DirectX::g_XMOne, DirectX::g_XMZero,
+			DirectX::XMLoadFloat4( (DirectX::XMFLOAT4*)&m_Views[index].pose.orientation ),
+			DirectX::XMLoadFloat3( (DirectX::XMFLOAT3*)&m_Views[index].pose.position ) ) );
+	}
+
+	DirectX::XMMATRIX XRRender::GetProjection( unsigned int index )
+	{
+		if ( m_Views[index].fov.angleLeft == m_Views[index].fov.angleRight )
+			return {};
+
+		const float left = 0.05f * tanf( m_Views[index].fov.angleLeft );
+		const float right = 0.05f * tanf( m_Views[index].fov.angleRight );
+		const float down = 0.05f * tanf( m_Views[index].fov.angleDown );
+		const float up = 0.05f * tanf( m_Views[index].fov.angleUp );
+
+		return DirectX::XMMatrixPerspectiveOffCenterRH( 0, 1, -1, 1, 0.05f, 200.0f );
+	}
+
+	std::vector<XrView> XRRender::GetViews()
+	{
+		return m_Views;
+	}
+
 	std::vector<XrViewConfigurationView> XRRender::GetConfigViews()
 	{
 		return m_ViewConfigs;
@@ -407,8 +433,6 @@ namespace Katame
 	{
 		return m_HMDState;
 	}
-
-
 
 	std::vector<XrSwapchain> XRRender::GetSwapchainColor()
 	{

@@ -15,6 +15,7 @@
 #ifndef XR_USE_GRAPHICS_API_D3D11
 	#define XR_USE_GRAPHICS_API_D3D11
 	#include <d3d11.h>
+	#include <d3dcompiler.h>
 #endif
 
 #include <openxr/openxr.h>

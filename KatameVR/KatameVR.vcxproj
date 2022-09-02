@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\OpenXR.Loader.1.0.10.2\build\native\OpenXR.Loader.props" Condition="Exists('..\packages\OpenXR.Loader.1.0.10.2\build\native\OpenXR.Loader.props')" />
   <Import Project="..\packages\OpenXR.Headers.1.0.10.2\build\native\OpenXR.Headers.props" Condition="Exists('..\packages\OpenXR.Headers.1.0.10.2\build\native\OpenXR.Headers.props')" />
@@ -96,6 +96,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Bindables\CBuffer.cpp" />
+    <ClCompile Include="src\Bindables\InputLayout.cpp" />
+    <ClCompile Include="src\Bindables\Buffer.cpp" />
+    <ClCompile Include="src\Bindables\PixelShader.cpp" />
+    <ClCompile Include="src\Bindables\VertexShader.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
@@ -107,6 +112,7 @@
     <ClCompile Include="src\XR\XRRender.cpp" />
     <ClCompile Include="src\XR\XRMirror.cpp" />
     <ClCompile Include="src\XR\XRHandTracking.cpp" />
+    <ClCompile Include="src\Bindables\Topology.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -117,8 +123,14 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Bindables\CBuffer.h" />
+    <ClInclude Include="src\Bindables\InputLayout.h" />
+    <ClInclude Include="src\Bindables\Buffer.h" />
+    <ClInclude Include="src\Bindables\PixelShader.h" />
+    <ClInclude Include="src\Bindables\VertexShader.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Log.h" />
+    <ClInclude Include="src\Geometry\Cube.h" />
     <ClInclude Include="src\Libraries\spdlog\async.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger-inl.h" />
     <ClInclude Include="src\Libraries\spdlog\async_logger.h" />
@@ -218,11 +230,13 @@
     <ClInclude Include="src\Libraries\spdlog\stopwatch.h" />
     <ClInclude Include="src\Libraries\spdlog\tweakme.h" />
     <ClInclude Include="src\Libraries\spdlog\version.h" />
+    <ClInclude Include="src\Renderer\Vertex.h" />
     <ClInclude Include="src\XR\XRCommon.h" />
     <ClInclude Include="src\XR\XROculusTouchDefines.h" />
     <ClInclude Include="src\Utilities\FrameTimer.h" />
     <ClInclude Include="src\Utilities\KatameUtils.h" />
     <ClInclude Include="src\Utilities\KatameXM.h" />
+    <ClInclude Include="src\Bindables\Topology.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\BC.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\BCDirectCompute.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\d3dx12.h" />
