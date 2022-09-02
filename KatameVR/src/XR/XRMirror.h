@@ -3,26 +3,25 @@
 #include <map>
 
 #include "XRRender.h"
-
 #include <stb_image.h>
+
+#include "../Utilities/WinDefines.h"
 
 namespace Katame
 {
 	class XRMirror
 	{
 	public:
-		XRMirror( int nWidth, int nHeight, const char* pTitle, const char* sLogFile );
+		XRMirror( int nWidth, int nHeight, const char* pTitle );
 		~XRMirror();
-		/*GLFWwindow* GetWindow() { return m_Mirror; }
-		unsigned int LoadTexture(
-			const wchar_t* pTextureFile,
-			GLuint nShader,
-			const char* pSamplerParam,
-			GLint nMinFilter = GL_LINEAR,
-			GLint nMagnitudeFilter = GL_NEAREST,
-			GLint nWrapS = GL_REPEAT,
-			GLint nWrapT = GL_REPEAT );*/
+	public:
+		static LRESULT CALLBACK HandleMsgSetup( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept;
+		static LRESULT WINAPI HandleMsgThunk( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept;
+		LRESULT HandleMsg( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept;
 	private:
-	//	GLFWwindow* m_Mirror;
+		HWND m_hWnd;
+		unsigned int u_Width;
+		unsigned int u_Height;
+		HINSTANCE m_hInst;
 	};
 }

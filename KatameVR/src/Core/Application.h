@@ -13,6 +13,7 @@
 #include "../XR/XRRender.h"
 #include "../XR/XRGraphics.h"
 #include "../XR/XROculusTouchDefines.h"
+#include "../XR/XRMirror.h"
 
 // Bindables
 #include "../Bindables/Buffer.h"
@@ -60,6 +61,8 @@ namespace Katame
 		FrameTimer timer;
 		float speed_factor = 1.0f;
 		uint32_t u_SwapChainCount = 0;
+
+		XRMirror* m_Mirror;
 
 		// Actions
 		XrAction m_Action_SwitchScene, m_Action_Haptic;

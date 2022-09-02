@@ -8,6 +8,8 @@ namespace Katame
 		XRCore::Init();
 		XRRender::Init();
 
+		m_Mirror = new XRMirror( XRRender::GetTextureWidth(), XRRender::GetTextureHeight(), "Untitled" );
+
 		// Action Set
 		XRInput::CreateActionSet( "main", "main", 0 );
 		m_ActionState_PoseLeft.type = XR_TYPE_ACTION_STATE_POSE;
@@ -50,8 +52,8 @@ namespace Katame
 		std::vector<unsigned int> cubeIndices = CreateCubeIndices();
 		CD3D11_BUFFER_DESC cBufDesc( sizeof( TransformBuffer ), D3D11_BIND_CONSTANT_BUFFER );
 
-		m_VB = new VertexBuffer( cubeVertices.data(), cubeVertices.size(), sizeof( VertexPosColor ) );
-		m_IB = new IndexBuffer( cubeIndices.data(), cubeIndices.size(), sizeof( unsigned int ) );
+		m_VB = new VertexBuffer( cubeVertices.data(), (unsigned int)cubeVertices.size(), sizeof( VertexPosColor ) );
+		m_IB = new IndexBuffer( cubeIndices.data(), (unsigned int)cubeIndices.size(), sizeof( unsigned int ) );
 		m_VS = new VertexShader( "./Shaders/Bin/VertexShader.cso" );
 		m_PS = new PixelShader( "./Shaders/Bin/PixelShader.cso" );
 		m_IL = new InputLayout( CreateCubeInputLayout(), *m_VS );

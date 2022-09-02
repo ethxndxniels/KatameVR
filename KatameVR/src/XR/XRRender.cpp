@@ -365,7 +365,7 @@ namespace Katame
 		const float down = 0.05f * tanf( m_Views[index].fov.angleDown );
 		const float up = 0.05f * tanf( m_Views[index].fov.angleUp );
 
-		return DirectX::XMMatrixPerspectiveOffCenterRH( 0, 1, -1, 1, 0.05f, 200.0f );
+		return DirectX::XMMatrixPerspectiveOffCenterRH( left, right, down, up, 0.05f, 200.0f );
 	}
 
 	std::vector<XrView> XRRender::GetViews()
