@@ -44,5 +44,12 @@ namespace Katame
 		static XrReferenceSpaceType m_ReferenceSpaceType;
 		static bool b_IsDepthSupported;
 		static bool b_Running;
+	private:
+		static PFN_xrGetD3D11GraphicsRequirementsKHR xrGetD3D11GraphicsRequirementsKHR;
+		static PFN_xrCreateDebugUtilsMessengerEXT    xrCreateDebugUtilsMessengerEXT;
+		static PFN_xrDestroyDebugUtilsMessengerEXT   xrDestroyDebugUtilsMessengerEXT;
+		static XrDebugUtilsMessengerEXT xr_debug;
+		static XrEnvironmentBlendMode   xr_blend;
+		static const XrPosef  xr_pose_identity;
 	};
 }

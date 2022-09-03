@@ -2,7 +2,6 @@
 
 #include "../Core/Log.h"
 
-#include "XRGraphics.h"
 #include "../Core/Application.h"
 
 namespace Katame
@@ -23,9 +22,16 @@ namespace Katame
 	XrResult XRCore::m_LastCallResult = XR_SUCCESS;
 	char* XRCore::s_GraphicsExtensionName = (char*)XR_KHR_D3D11_ENABLE_EXTENSION_NAME;
 	XrSystemProperties XRCore::m_SystemProperties = {XR_TYPE_SYSTEM_PROPERTIES};
-	XrReferenceSpaceType XRCore::m_ReferenceSpaceType = { XR_REFERENCE_SPACE_TYPE_STAGE };
+	XrReferenceSpaceType XRCore::m_ReferenceSpaceType = { XR_REFERENCE_SPACE_TYPE_LOCAL };
 	bool XRCore::b_IsDepthSupported = true;
 	bool XRCore::b_Running = true;
+
+	PFN_xrGetD3D11GraphicsRequirementsKHR XRCore::xrGetD3D11GraphicsRequirementsKHR = nullptr;
+	PFN_xrCreateDebugUtilsMessengerEXT    XRCore::xrCreateDebugUtilsMessengerEXT = nullptr;
+	PFN_xrDestroyDebugUtilsMessengerEXT   XRCore::xrDestroyDebugUtilsMessengerEXT = nullptr;
+	XrDebugUtilsMessengerEXT XRCore::xr_debug = {};
+	XrEnvironmentBlendMode  XRCore::xr_blend = {};
+	const XrPosef  XRCore::xr_pose_identity = { {0,0,0,1}, {0,0,0} };
 
 	bool XRCore::Init()
 	{
@@ -34,9 +40,7 @@ namespace Katame
 		// Initialize OpenXR
 		OpenXRInit();
 
-		KM_CORE_INFO( "Initializing World.." );;
-
-		// Setup world
+		// Initialize World
 		WorldInit();
 
 		return true;
@@ -112,7 +116,13 @@ namespace Katame
 		xrInstanceCreateInfo.applicationInfo.engineVersion = (uint32_t)f_EngineVersion;
 		xrInstanceCreateInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
 
+		m_LastCallResult = xrCreateInstance( &xrInstanceCreateInfo, m_Instance );;
+		if (m_LastCallResult != XR_SUCCESS)
+			KM_CORE_ERROR( "Failed to create instance!" );
+
 		EnableInstanceExtensions();
+
+
 		uint32_t nNumEnxtesions = m_AppEnabledExtensions.empty() ? 0 : (uint32_t)m_AppEnabledExtensions.size();
 
 		if (nNumEnxtesions > 0)
@@ -120,10 +130,6 @@ namespace Katame
 			xrInstanceCreateInfo.enabledExtensionCount = nNumEnxtesions;
 			xrInstanceCreateInfo.enabledExtensionNames = m_AppEnabledExtensions.data();
 		}
-
-		m_LastCallResult = xrCreateInstance( &xrInstanceCreateInfo, m_Instance );;
-		if (m_LastCallResult != XR_SUCCESS)
-			KM_CORE_ERROR( "Failed to create instance!" );
 
 		KM_CORE_INFO( "..." );
 		KM_CORE_INFO( "XR Instance created: Handle {} with {} extension(s) enabled", (uint64_t)m_Instance, nNumEnxtesions );
@@ -136,6 +142,22 @@ namespace Katame
 		KM_CORE_INFO( "Instance info: Engine {} version {}", s_EngineName, f_EngineVersion );
 
 		LoadXRSystem();
+
+		XrGraphicsRequirementsD3D11KHR requirement = { XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR };
+		xrGetD3D11GraphicsRequirementsKHR( *m_Instance, m_SystemId, &requirement );
+		XRGraphics::Init( m_Instance, &m_SystemId, m_Session, requirement.adapterLuid );
+
+		// Setup Graphics bindings
+		XrGraphicsBindingD3D11KHR xrGraphicsBinding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
+		xrGraphicsBinding.device = XRGraphics::GetDevice();
+		// Create Session
+		XrSessionCreateInfo xrSessionCreateInfo = { XR_TYPE_SESSION_CREATE_INFO };
+		xrSessionCreateInfo.next = &xrGraphicsBinding;
+		xrSessionCreateInfo.systemId = m_SystemId;
+		m_LastCallResult = xrCreateSession( *m_Instance, &xrSessionCreateInfo, m_Session );
+
+		if (m_LastCallResult != XR_SUCCESS)
+			KM_CORE_ERROR( "Session failed to create." );
 	}
 
 	void XRCore::EnableInstanceExtensions()
@@ -210,16 +232,40 @@ namespace Katame
 				KM_CORE_TRACE( "{}. {} version {}", i + 1, vExtensions[i].extensionName, vExtensions[i].extensionVersion );
 			bEnable = false;
 		}
+
+		xrGetInstanceProcAddr( *m_Instance, "xrCreateDebugUtilsMessengerEXT", (PFN_xrVoidFunction*)(&xrCreateDebugUtilsMessengerEXT) );
+		xrGetInstanceProcAddr( *m_Instance, "xrDestroyDebugUtilsMessengerEXT", (PFN_xrVoidFunction*)(&xrDestroyDebugUtilsMessengerEXT) );
+		xrGetInstanceProcAddr( *m_Instance, "xrGetD3D11GraphicsRequirementsKHR", (PFN_xrVoidFunction*)(&xrGetD3D11GraphicsRequirementsKHR) );
+
+		XrDebugUtilsMessengerCreateInfoEXT debug_info = { XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+		debug_info.messageTypes =
+			XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+			XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+			XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
+			XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT;
+		debug_info.messageSeverities =
+			XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+			XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+			XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+			XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		debug_info.userCallback = []( XrDebugUtilsMessageSeverityFlagsEXT severity, XrDebugUtilsMessageTypeFlagsEXT types, const XrDebugUtilsMessengerCallbackDataEXT* msg, void* user_data ) {
+
+			printf( "%s: %s\n", msg->functionName, msg->message );
+
+			char text[512];
+			sprintf_s( text, "%s: %s", msg->functionName, msg->message );
+			OutputDebugStringA( text );
+
+			return (XrBool32)XR_FALSE;
+		};
+		if (xrCreateDebugUtilsMessengerEXT)
+			xrCreateDebugUtilsMessengerEXT( *m_Instance, &debug_info, &xr_debug );
 	}
 
 	XrResult XRCore::LoadXRSystem()
 	{
-		if (m_Instance == XR_NULL_HANDLE)
-		{
-			std::string eMessage = "No OpenXR Instance found. Make sure to call Init first";
-			KM_CORE_ERROR( "{}. Error ({})", eMessage, std::to_string( m_LastCallResult ) );
-			throw std::runtime_error( eMessage );
-		}
+		uint32_t blend_count = 0;
+		xrEnumerateEnvironmentBlendModes( *m_Instance, m_SystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO, 1, &blend_count, &xr_blend );
 
 		// Get user's system info
 		XrSystemGetInfo xrSystemGetInfo = {};
@@ -238,19 +284,13 @@ namespace Katame
 
 	void XRCore::WorldInit()
 	{
-		XRGraphics::Init( m_Instance, &m_SystemId, m_Session );
-
-		if (m_LastCallResult != XR_SUCCESS)
-			KM_CORE_ERROR( "{} ({})", "Failed creating OpenXR Session with Error ", std::to_string( m_LastCallResult ) );
-		
-
 		KM_CORE_INFO( "XR Session for this app successfully created (Handle {})", (uint64_t)m_Session );
 
 		XrPosef xrPose{};
 		xrPose.orientation.w = 1.f;
 
 		XrReferenceSpaceCreateInfo xrReferenceSpaceCreateInfo{ XR_TYPE_REFERENCE_SPACE_CREATE_INFO };
-		xrReferenceSpaceCreateInfo.poseInReferenceSpace = xrPose;
+		xrReferenceSpaceCreateInfo.poseInReferenceSpace = xr_pose_identity;
 		xrReferenceSpaceCreateInfo.referenceSpaceType = m_ReferenceSpaceType;
 
 		m_LastCallResult = xrCreateReferenceSpace( *m_Session, &xrReferenceSpaceCreateInfo, m_Space );

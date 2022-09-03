@@ -199,9 +199,6 @@ namespace Katame
 	{
 		assert( XRCore::GetInstance() );
 
-		// ========================================================================
-		// (1) Wait for a new frame
-		// ========================================================================
 		XrFrameWaitInfo xrWaitFrameInfo{ XR_TYPE_FRAME_WAIT_INFO };
 		XrFrameState xrFrameState{ XR_TYPE_FRAME_STATE };
 
@@ -212,9 +209,6 @@ namespace Katame
 		m_PredictedDisplayTime = xrFrameState.predictedDisplayTime;
 		m_PredictedDisplayPeriod = xrFrameState.predictedDisplayPeriod;
 
-		// ========================================================================
-		// (2) Begin frame before doing any GPU work
-		// ========================================================================
 		XrFrameBeginInfo xrBeginFrameInfo{ XR_TYPE_FRAME_BEGIN_INFO };
 		m_LastCallResult = xrBeginFrame( *XRCore::GetSession(), &xrBeginFrameInfo );
 		if (m_LastCallResult != XR_SUCCESS)
@@ -226,10 +220,6 @@ namespace Katame
 
 		if (xrFrameState.shouldRender)
 		{
-			// ========================================================================
-			// (3) Get space and time information for this frame
-			// ========================================================================
-
 			XrViewLocateInfo xrFrameSpaceTimeInfo{ XR_TYPE_VIEW_LOCATE_INFO };
 			xrFrameSpaceTimeInfo.displayTime = xrFrameState.predictedDisplayTime;
 			xrFrameSpaceTimeInfo.space = *XRCore::GetSpace();
@@ -241,10 +231,6 @@ namespace Katame
 
 			if (m_LastCallResult != XR_SUCCESS)
 				return false;
-
-			// ========================================================================
-			// (4) Grab image from swapchain and render
-			// ========================================================================
 
 			// Update HMD State
 			m_HMDState->IsPositionTracked = xrFrameViewState.viewStateFlags & XR_VIEW_STATE_POSITION_TRACKED_BIT;
@@ -261,9 +247,6 @@ namespace Katame
 
 				for (uint32_t i = 0; i < nViewCount; i++)
 				{
-					// ----------------------------------------------------------------
-					// (a) Acquire swapchain image
-					// ----------------------------------------------------------------
 					const XrSwapchain xrSwapchain = m_SwapChainsColor[i];
 					XrSwapchainImageAcquireInfo xrAcquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
 					uint32_t nImageIndex;
@@ -272,9 +255,6 @@ namespace Katame
 					if (m_LastCallResult != XR_SUCCESS)
 						return false;
 
-					// ----------------------------------------------------------------
-					// (b) Wait for swapchain image
-					// ----------------------------------------------------------------
 					XrSwapchainImageWaitInfo xrWaitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
 					xrWaitInfo.timeout = XR_INFINITE_DURATION;
 					m_LastCallResult = xrWaitSwapchainImage( xrSwapchain, &xrWaitInfo  );
@@ -282,9 +262,6 @@ namespace Katame
 					if (m_LastCallResult != XR_SUCCESS)
 						return false;
 
-					// ----------------------------------------------------------------
-					// (c) Add projection view to swapchain image
-					// ----------------------------------------------------------------
 
 					xrFrameLayerProjectionViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
 					xrFrameLayerProjectionViews[i].pose = m_Views[i].pose;
@@ -309,9 +286,6 @@ namespace Katame
 						xrFrameLayerProjectionViews[i].next = &xrDepthInfo;
 					}
 
-					// ----------------------------------------------------------------
-					// (d) Release swapchain image
-					// ----------------------------------------------------------------
 					XrSwapchainImageReleaseInfo xrSwapChainRleaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
 					m_LastCallResult = xrReleaseSwapchainImage( xrSwapchain, &xrSwapChainRleaseInfo );
 
@@ -320,9 +294,6 @@ namespace Katame
 				}
 			}
 
-			// ----------------------------------------------------------------
-			// (e) Assemble projection layers
-			// ----------------------------------------------------------------
 			xrFrameLayerProjection.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
 			xrFrameLayerProjection.space = *XRCore::GetSpace();
 			xrFrameLayerProjection.viewCount = k_nVRViewCount;
@@ -330,9 +301,6 @@ namespace Katame
 			xrFrameLayers.push_back( reinterpret_cast<XrCompositionLayerBaseHeader*>(&xrFrameLayerProjection) );
 		}
 
-		// ========================================================================
-		// (5) End current frame
-		// ========================================================================
 		XrFrameEndInfo xrEndFrameInfo{ XR_TYPE_FRAME_END_INFO };
 		xrEndFrameInfo.displayTime = xrFrameState.predictedDisplayTime;
 		xrEndFrameInfo.environmentBlendMode =
@@ -345,6 +313,19 @@ namespace Katame
 			return false;
 
 		return true;
+	}
+
+	void XRRender::BeginFrame( float offset_x, float offset_y, float extent_width, float extent_height )
+	{
+		// Set up where on the render target we want to draw, the view has a 
+		D3D11_VIEWPORT viewport = CD3D11_VIEWPORT( offset_x, offset_y, extent_width, extent_height );
+		XRGraphics::GetContext()->RSSetViewports( 1, &viewport );
+
+		// Wipe our swapchain color and depth target clean, and then set them up for rendering!
+		float clear[] = { 20.0f / 255.0f, 2.0f / 255.0f, 30.0f / 255.0f, 1 };
+		//XRGraphics::GetContext()->ClearRenderTargetView( surface.target_view, clear );
+		//XRGraphics::GetContext()->ClearDepthStencilView( surface.depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+		//XRGraphics::GetContext()->OMSetRenderTargets( 1, &surface.target_view, surface.depth_view );
 	}
 
 	DirectX::XMMATRIX XRRender::GetView( unsigned int index )

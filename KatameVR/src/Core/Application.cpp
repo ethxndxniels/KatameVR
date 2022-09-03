@@ -8,7 +8,7 @@ namespace Katame
 		XRCore::Init();
 		XRRender::Init();
 
-		m_Mirror = new XRMirror( XRRender::GetTextureWidth(), XRRender::GetTextureHeight(), "Untitled" );
+		//m_Mirror = new XRMirror( XRRender::GetTextureWidth(), XRRender::GetTextureHeight(), "Untitled" );
 
 		// Action Set
 		XRInput::CreateActionSet( "main", "main", 0 );
@@ -28,24 +28,11 @@ namespace Katame
 		XRInput::SuggestActionBindings( &m_SuggestedBindings, "/interaction_profiles/oculus/touch_controller" );
 		XRInput::ActivateActionSet( XRInput::ActionSets()[0] );
 
-		// Hand Tracking?
-		// bDrawHandJoints = pXRHandTracking->IsActive();
-
 		// Swapchain capacity
 		u_SwapChainCount = XRGraphics::GetSwapchainImageCount( Katame::EYE_LEFT );
 		if (u_SwapChainCount < 1)
 			KM_CORE_ERROR( "Not enough swapchain capacity ({}) to do any rendering work", u_SwapChainCount );
 
-		// TODO:
-		// Event callback
-		//Katame::XRCallback xrCallback = { XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED };	// XR_TYPE_EVENT_DATA_BUFFER = Register for all events
-		//Katame::XRCallback* pXRCallback = &xrCallback;
-		//pXRCallback->callback = &Application::OnEvent;
-		//XREventHandler::RegisterCallback( pXRCallback );
-
-		// TODO: Sort Vis Mask Out
-		//XRRender::GetVisibilityMask( Katame::EYE_LEFT, XRRender::EMaskType::MASK_HIDDEN, m_MaskVertices_L, m_MaskIndices_L );
-		//XRRender::GetVisibilityMask( Katame::EYE_RIGHT, XRRender::EMaskType::MASK_HIDDEN, m_MaskVertices_R, m_MaskIndices_R );
 
 		// Graphics Resources
 		std::vector<VertexPosColor> cubeVertices = CreateCubeVertices();
@@ -65,7 +52,6 @@ namespace Katame
 	{
 	}
 
-	int nSwapchainIndex = 0;
 	void Application::Launch()
 	{
 		KM_CORE_INFO( "Launching Application.." );
@@ -77,11 +63,10 @@ namespace Katame
 
 			if ( XRCore::IsRunning() )
 			{
-				// Poll Actions
+				ProcessInputStates();
 				XRRender::ProcessXRFrame();
 				Draw();
 				XRInput::SyncActiveActionSetsData();
-				ProcessInputStates();
 				uint64_t nPredictedTime = XRRender::GetPredictedDisplayTime() + XRRender::GetPredictedDisplayPeriod();
 
 				XRInput::GetActionPose( m_Action_PoseLeft, nPredictedTime, &m_Location_Left );

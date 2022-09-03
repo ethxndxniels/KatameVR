@@ -19,16 +19,11 @@ namespace Katame
 	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Depth_L = {};
 	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Depth_R = {};
 
-	void XRGraphics::Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession )
+	void XRGraphics::Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession, LUID& adapter_luid )
 	{
 		KM_CORE_INFO( "Initializing Graphics.." );
 
-		XrGraphicsRequirementsD3D11KHR xrRequirements = { XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR };
-		PFN_xrGetD3D11GraphicsRequirementsKHR xrGetD3D11GraphicsRequirementsKHR = nullptr;
-		xrGetInstanceProcAddr( *xrInstance, "xrGetD3D11GraphicsRequirementsKHR", (PFN_xrVoidFunction*)&xrGetD3D11GraphicsRequirementsKHR );
-
-		xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
-		IDXGIAdapter1* adapter = GetAdapter( xrRequirements.adapterLuid );
+		IDXGIAdapter1* adapter = GetAdapter( adapter_luid );
 		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 		if (adapter == nullptr)
 			KM_CORE_ERROR( "Failed to get adapter, make sure headset is connected." );
@@ -36,27 +31,7 @@ namespace Katame
 		D3D11CreateDevice( adapter, D3D_DRIVER_TYPE_UNKNOWN, 0, 0, featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION, &m_Device, nullptr, &m_Context );
 
 		adapter->Release();
-
-		// Setup Graphics bindings
-		XrGraphicsBindingD3D11KHR xrGraphicsBinding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
-		xrGraphicsBinding.device = m_Device;
-
-		m_LastCallResult = xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
-
-		if (m_LastCallResult != XR_SUCCESS)
-			KM_CORE_ERROR( "Session failed to create." );
-
-		// Create Session
-		XrSessionCreateInfo xrSessionCreateInfo = { XR_TYPE_SESSION_CREATE_INFO };
-		xrSessionCreateInfo.next = &xrGraphicsBinding;
-		xrSessionCreateInfo.systemId = *xrSystemId;
-
-		m_LastCallResult = xrCreateSession( *xrInstance, &xrSessionCreateInfo, xrSession );
-
-		if (m_LastCallResult != XR_SUCCESS)
-			KM_CORE_ERROR( "Session failed to create." );
-
-		m_GraphicsBinding = &xrGraphicsBinding;
+		KM_CORE_INFO( "Initialized Graphics!" );
 	}
 
 	ID3D11Device* XRGraphics::GetDevice()
@@ -83,7 +58,7 @@ namespace Katame
 
 		for (uint32_t i = 0; i < nNumOfSwapchainImages; i++)
 		{
-			xrSwapchainImages[i] = { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR };
+			xrSwapchainImages[i] = { XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR };
 		}
 
 		// Retrieve swapchain images from the runtime

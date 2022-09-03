@@ -25,6 +25,7 @@ namespace Katame
 		static void Init();
 		static void Destroy();
 		static bool ProcessXRFrame();
+		static void BeginFrame( float offset_x, float offset_y, float extent_width, float extent_height );
 		static DirectX::XMMATRIX GetView( unsigned int index );
 		static DirectX::XMMATRIX GetProjection( unsigned int index );
 	public:

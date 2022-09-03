@@ -7,7 +7,7 @@ namespace Katame
 	class XRGraphics
 	{
 	public:
-		static void Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession );
+		static void Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession, LUID& adapter_luid );
 		static ID3D11Device* GetDevice();
 		static ID3D11DeviceContext* GetContext();
 		static XrResult GenerateSwapchainImages( const XrSwapchain& xrSwapChain, const uint32_t nEye, const bool bIsDepth );
