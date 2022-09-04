@@ -1,5 +1,7 @@
 #include "XRRender.h"
 
+#include "XRInput.h"
+
 #include "../Core/Log.h"
 
 namespace Katame
@@ -25,6 +27,12 @@ namespace Katame
 	const float XRRender::k_fMedianIPD = 0.063f;
 	const float XRRender::k_fMinIPD = 0.04f;
 	const float XRRender::k_fTau = 1.570f;
+
+	ID3D11DepthStencilView* XRRender::m_DSV = nullptr;
+	ID3D11RenderTargetView* XRRender::m_RTV = nullptr;
+
+	std::vector<XrSpace> XRRender::m_VisualizedSpaces = {};
+
 
 	void XRRender::Init()
 	{
@@ -195,137 +203,148 @@ namespace Katame
 		m_HMDState->IsOrientationTracked = false;
 	}
 
-	bool XRRender::ProcessXRFrame()
-	{
-		assert( XRCore::GetInstance() );
-
-		XrFrameWaitInfo xrWaitFrameInfo{ XR_TYPE_FRAME_WAIT_INFO };
-		XrFrameState xrFrameState{ XR_TYPE_FRAME_STATE };
-
-		m_LastCallResult =  xrWaitFrame( *XRCore::GetSession(), &xrWaitFrameInfo, &xrFrameState );
-		if (m_LastCallResult != XR_SUCCESS)
-			return false;
-
-		m_PredictedDisplayTime = xrFrameState.predictedDisplayTime;
-		m_PredictedDisplayPeriod = xrFrameState.predictedDisplayPeriod;
-
-		XrFrameBeginInfo xrBeginFrameInfo{ XR_TYPE_FRAME_BEGIN_INFO };
-		m_LastCallResult = xrBeginFrame( *XRCore::GetSession(), &xrBeginFrameInfo );
-		if (m_LastCallResult != XR_SUCCESS)
-			return false;
-
-		std::vector< XrCompositionLayerBaseHeader* > xrFrameLayers;
-		XrCompositionLayerProjectionView xrFrameLayerProjectionViews[k_nVRViewCount];
-		XrCompositionLayerProjection xrFrameLayerProjection{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
-
-		if (xrFrameState.shouldRender)
-		{
-			XrViewLocateInfo xrFrameSpaceTimeInfo{ XR_TYPE_VIEW_LOCATE_INFO };
-			xrFrameSpaceTimeInfo.displayTime = xrFrameState.predictedDisplayTime;
-			xrFrameSpaceTimeInfo.space = *XRCore::GetSpace();
-
-			XrViewState xrFrameViewState{ XR_TYPE_VIEW_STATE };
-			uint32_t nFoundViewsCount;
-			m_LastCallResult = xrLocateViews(
-				*XRCore::GetSession(), &xrFrameSpaceTimeInfo, &xrFrameViewState, (uint32_t)m_Views.size(), &nFoundViewsCount, m_Views.data() );
-
-			if (m_LastCallResult != XR_SUCCESS)
-				return false;
-
-			// Update HMD State
-			m_HMDState->IsPositionTracked = xrFrameViewState.viewStateFlags & XR_VIEW_STATE_POSITION_TRACKED_BIT;
-			m_HMDState->IsOrientationTracked = xrFrameViewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_TRACKED_BIT;
-
-			if (xrFrameViewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT && xrFrameViewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT)
-			{
-				// Update hmd state
-				SetHMDState( EXREye::EYE_LEFT, &(m_HMDState->LeftEye) );
-				SetHMDState( EXREye::EYE_RIGHT, &(m_HMDState->RightEye) );
-
-				// Grab the corresponding swapchain for each view location
-				uint32_t nViewCount = (uint32_t)m_ViewConfigs.size();
-
-				for (uint32_t i = 0; i < nViewCount; i++)
-				{
-					const XrSwapchain xrSwapchain = m_SwapChainsColor[i];
-					XrSwapchainImageAcquireInfo xrAcquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-					uint32_t nImageIndex;
-					m_LastCallResult = xrAcquireSwapchainImage( xrSwapchain, &xrAcquireInfo, &nImageIndex );
-
-					if (m_LastCallResult != XR_SUCCESS)
-						return false;
-
-					XrSwapchainImageWaitInfo xrWaitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
-					xrWaitInfo.timeout = XR_INFINITE_DURATION;
-					m_LastCallResult = xrWaitSwapchainImage( xrSwapchain, &xrWaitInfo  );
-
-					if (m_LastCallResult != XR_SUCCESS)
-						return false;
-
-
-					xrFrameLayerProjectionViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
-					xrFrameLayerProjectionViews[i].pose = m_Views[i].pose;
-					xrFrameLayerProjectionViews[i].fov = m_Views[i].fov;
-					xrFrameLayerProjectionViews[i].subImage.swapchain = xrSwapchain;
-					xrFrameLayerProjectionViews[i].subImage.imageArrayIndex = 0;
-					xrFrameLayerProjectionViews[i].subImage.imageRect.offset = { 0, 0 };
-					xrFrameLayerProjectionViews[i].subImage.imageRect.extent = { (int32_t)u_TextureWidth, (int32_t)u_TextureHeight };
-
-					if (m_bDepthHandling)
-					{
-						XrCompositionLayerDepthInfoKHR xrDepthInfo{ XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR };
-						xrDepthInfo.subImage.swapchain = m_SwapChainsDepth[i];
-						xrDepthInfo.subImage.imageArrayIndex = 0;
-						xrDepthInfo.subImage.imageRect.offset = { 0, 0 };
-						xrDepthInfo.subImage.imageRect.extent = { (int32_t)u_TextureWidth, (int32_t)u_TextureHeight };
-						xrDepthInfo.minDepth = 0.0f;
-						xrDepthInfo.maxDepth = 1.0f;
-						xrDepthInfo.nearZ = 0.1f;
-						xrDepthInfo.farZ = FLT_MAX;
-
-						xrFrameLayerProjectionViews[i].next = &xrDepthInfo;
-					}
-
-					XrSwapchainImageReleaseInfo xrSwapChainRleaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
-					m_LastCallResult = xrReleaseSwapchainImage( xrSwapchain, &xrSwapChainRleaseInfo );
-
-					if (m_LastCallResult != XR_SUCCESS)
-						return false;
-				}
-			}
-
-			xrFrameLayerProjection.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
-			xrFrameLayerProjection.space = *XRCore::GetSpace();
-			xrFrameLayerProjection.viewCount = k_nVRViewCount;
-			xrFrameLayerProjection.views = xrFrameLayerProjectionViews;
-			xrFrameLayers.push_back( reinterpret_cast<XrCompositionLayerBaseHeader*>(&xrFrameLayerProjection) );
-		}
-
-		XrFrameEndInfo xrEndFrameInfo{ XR_TYPE_FRAME_END_INFO };
-		xrEndFrameInfo.displayTime = xrFrameState.predictedDisplayTime;
-		xrEndFrameInfo.environmentBlendMode =
-			XR_ENVIRONMENT_BLEND_MODE_OPAQUE; // TODO: XR_ENVIRONMENT_BLEND_MODE_ADDITIVE / XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND (AR)
-		xrEndFrameInfo.layerCount = (uint32_t)xrFrameLayers.size();
-		xrEndFrameInfo.layers = xrFrameLayers.data();
-
-		m_LastCallResult = xrEndFrame( *XRCore::GetSession(), &xrEndFrameInfo );
-		if (m_LastCallResult != XR_SUCCESS)
-			return false;
-
-		return true;
-	}
-
-	void XRRender::BeginFrame( float offset_x, float offset_y, float extent_width, float extent_height )
+	void XRRender::BeginFrame( unsigned int index )
 	{
 		// Set up where on the render target we want to draw, the view has a 
-		D3D11_VIEWPORT viewport = CD3D11_VIEWPORT( offset_x, offset_y, extent_width, extent_height );
-		XRGraphics::GetContext()->RSSetViewports( 1, &viewport );
+		//D3D11_VIEWPORT viewport = CD3D11_VIEWPORT( m_Views[index]., offset_y, extent_width, extent_height);
+		//XRGraphics::RSSetViewports( 1, viewport );
 
 		// Wipe our swapchain color and depth target clean, and then set them up for rendering!
 		float clear[] = { 20.0f / 255.0f, 2.0f / 255.0f, 30.0f / 255.0f, 1 };
-		//XRGraphics::GetContext()->ClearRenderTargetView( surface.target_view, clear );
-		//XRGraphics::GetContext()->ClearDepthStencilView( surface.depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-		//XRGraphics::GetContext()->OMSetRenderTargets( 1, &surface.target_view, surface.depth_view );
+		XRGraphics::ClearRenderTargetView( m_RTV, clear );
+		XRGraphics::ClearDepthStencilView( m_DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+		XRGraphics::OMSetRenderTargets( 1, m_RTV, m_DSV );
+	}
+
+	void XRRender::RenderFrame()
+	{
+		XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
+		XrFrameState frameState{ XR_TYPE_FRAME_STATE };
+		xrWaitFrame( *XRCore::GetSession(), &frameWaitInfo, &frameState);
+
+		XrFrameBeginInfo frameBeginInfo{ XR_TYPE_FRAME_BEGIN_INFO };
+		xrBeginFrame( *XRCore::GetSession(), &frameBeginInfo );
+
+		std::vector<XrCompositionLayerBaseHeader*> layers;
+		XrCompositionLayerProjection layer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+		std::vector<XrCompositionLayerProjectionView> projectionLayerViews;
+		if (frameState.shouldRender == XR_TRUE) {
+			if (RenderLayer( frameState.predictedDisplayTime, projectionLayerViews, layer )) {
+				layers.push_back( reinterpret_cast<XrCompositionLayerBaseHeader*>(&layer) );
+			}
+		}
+
+		XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO };
+		frameEndInfo.displayTime = frameState.predictedDisplayTime;
+		frameEndInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND;
+		frameEndInfo.layerCount = (uint32_t)layers.size();
+		frameEndInfo.layers = layers.data();
+		xrEndFrame( *XRCore::GetSession(), &frameEndInfo );
+	}
+
+	struct Cube {
+		XrPosef Pose;
+		XrVector3f Scale;
+	};
+	bool XRRender::RenderLayer( XrTime predictedDisplayTime, std::vector<XrCompositionLayerProjectionView>& projectionLayerViews, XrCompositionLayerProjection& layer )
+	{
+		XrViewState viewState{ XR_TYPE_VIEW_STATE };
+		uint32_t viewCapacityInput = (uint32_t)m_Views.size();
+		uint32_t viewCountOutput;
+
+		XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
+		viewLocateInfo.viewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
+		viewLocateInfo.displayTime = predictedDisplayTime;
+		viewLocateInfo.space = *XRCore::GetSpace();
+
+		m_LastCallResult = xrLocateViews( *XRCore::GetSession(), &viewLocateInfo, &viewState, viewCapacityInput, &viewCountOutput, m_views.data() );
+		if ((viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT) == 0 ||
+			(viewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT) == 0) {
+			return false;  // There is no valid tracking poses for the views.
+		}
+
+		viewCountOutput == viewCapacityInput;
+		viewCountOutput == m_ViewConfigs.size();
+		viewCountOutput == m_SwapChainsColor.size();
+
+		projectionLayerViews.resize( viewCountOutput );
+
+		// For each locatable space that we want to visualize, render a 25cm cube.
+		std::vector<Cube> cubes;
+
+		for (XrSpace visualizedSpace : m_VisualizedSpaces) {
+			XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
+			m_LastCallResult = xrLocateSpace( visualizedSpace, *XRCore::GetSpace(), predictedDisplayTime, &spaceLocation);
+			if (m_LastCallResult == XR_SUCCESS) {
+				if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+					(spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) {
+					cubes.push_back( Cube{ spaceLocation.pose, {0.25f, 0.25f, 0.25f} } );
+				}
+			}
+			else {
+				KM_CORE_WARN( "Unable to locate a visualized reference space in app space: {}", m_LastCallResult );
+			}
+		}
+
+		// Render a 10cm cube scaled by grabAction for each hand. Note renderHand will only be
+		// true when the application has focus.
+		for (auto hand : { Side::LEFT, Side::RIGHT }) {
+			XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
+			m_LastCallResult = xrLocateSpace( XRInput::.handSpace[hand], m_appSpace, predictedDisplayTime, &spaceLocation );
+			if (m_LastCallResult == XR_SUCCESS) {
+				if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+					(spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) {
+					float scale = 0.1f * m_input.handScale[hand];
+					cubes.push_back( Cube{ spaceLocation.pose, {scale, scale, scale} } );
+				}
+			}
+			else {
+				// Tracking loss is expected when the hand is not active so only log a message
+				// if the hand is active.
+				if (m_input.handActive[hand] == XR_TRUE) {
+					const char* handName[] = { "left", "right" };
+					Log::Write( Log::Level::Verbose,
+						Fmt( "Unable to locate %s hand action space in app space: %d", handName[hand], res ) );
+				}
+			}
+		}
+
+		// Render view to the appropriate part of the swapchain image.
+		for (uint32_t i = 0; i < viewCountOutput; i++) {
+			// Each view has a separate swapchain which is acquired, rendered to, and released.
+			const Swapchain viewSwapchain = m_swapchains[i];
+
+			XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
+
+			uint32_t swapchainImageIndex;
+			CHECK_XRCMD( xrAcquireSwapchainImage( viewSwapchain.handle, &acquireInfo, &swapchainImageIndex ) );
+
+			XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
+			waitInfo.timeout = XR_INFINITE_DURATION;
+			CHECK_XRCMD( xrWaitSwapchainImage( viewSwapchain.handle, &waitInfo ) );
+
+			projectionLayerViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
+			projectionLayerViews[i].pose = m_views[i].pose;
+			projectionLayerViews[i].fov = m_views[i].fov;
+			projectionLayerViews[i].subImage.swapchain = viewSwapchain.handle;
+			projectionLayerViews[i].subImage.imageRect.offset = { 0, 0 };
+			projectionLayerViews[i].subImage.imageRect.extent = { viewSwapchain.width, viewSwapchain.height };
+
+			const XrSwapchainImageBaseHeader* const swapchainImage = m_swapchainImages[viewSwapchain.handle][swapchainImageIndex];
+			m_graphicsPlugin->RenderView( projectionLayerViews[i], swapchainImage, m_colorSwapchainFormat, cubes );
+
+			XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
+			CHECK_XRCMD( xrReleaseSwapchainImage( viewSwapchain.handle, &releaseInfo ) );
+		}
+
+		layer.space = m_appSpace;
+		layer.layerFlags =
+			m_options->Parsed.EnvironmentBlendMode == XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND
+			? XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT | XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT
+			: 0;
+		layer.viewCount = (uint32_t)projectionLayerViews.size();
+		layer.views = projectionLayerViews.data();
+		return true;
 	}
 
 	DirectX::XMMATRIX XRRender::GetView( unsigned int index )

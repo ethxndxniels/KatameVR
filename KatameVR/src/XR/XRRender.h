@@ -7,6 +7,10 @@
 
 namespace Katame
 {
+	// TODO: Clean Up XR Code. There is way too much that is not being used. It looks like rendering needs to be done in RenderLayer
+	// so I will need to add in Submissions to a render queue from Application. i.e. ( XRRender::Submit( m_Model ) ); or
+	// XRRender::Submit( m_Model->GetBindables() );
+
 	class XRRender
 	{
 	public:
@@ -24,8 +28,11 @@ namespace Katame
 	public:
 		static void Init();
 		static void Destroy();
-		static bool ProcessXRFrame();
-		static void BeginFrame( float offset_x, float offset_y, float extent_width, float extent_height );
+	public:
+		static void BeginFrame( unsigned int index );
+		static void RenderFrame();
+		static bool RenderLayer( XrTime predictedDisplayTime, std::vector<XrCompositionLayerProjectionView>& projectionLayerViews, XrCompositionLayerProjection& layer );
+	public:
 		static DirectX::XMMATRIX GetView( unsigned int index );
 		static DirectX::XMMATRIX GetProjection( unsigned int index );
 	public:
@@ -52,6 +59,9 @@ namespace Katame
 		static void SetHMDState( EXREye eEye, XREyeState* pEyeState );
 		static void SetSwapchainFormat( std::vector< int64_t > vAppTextureFormats, std::vector< int64_t > vAppDepthFormats );
 	private:
+		static ID3D11DepthStencilView* m_DSV;
+		static ID3D11RenderTargetView* m_RTV;
+	private:
 		static XRHMDState* m_HMDState;
 		static XrResult m_LastCallResult;
 		static XrTime m_PredictedDisplayTime;
@@ -68,5 +78,6 @@ namespace Katame
 		static std::vector<XrSwapchain> m_SwapChainsDepth;
 		static std::vector<XrView> m_Views;
 		static std::vector<XrViewConfigurationView> m_ViewConfigs;
+		static std::vector<XrSpace> m_VisualizedSpaces;
 	};
 }

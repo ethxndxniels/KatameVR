@@ -63,14 +63,18 @@ namespace Katame
 
 			if ( XRCore::IsRunning() )
 			{
-				ProcessInputStates();
 				XRRender::ProcessXRFrame();
-				Draw();
-				XRInput::SyncActiveActionSetsData();
-				uint64_t nPredictedTime = XRRender::GetPredictedDisplayTime() + XRRender::GetPredictedDisplayPeriod();
 
-				XRInput::GetActionPose( m_Action_PoseLeft, nPredictedTime, &m_Location_Left );
-				XRInput::GetActionPose( m_Action_PoseRight, nPredictedTime, &m_Location_Right );
+				ProcessInputStates();
+
+				XRRender::BeginFrame();
+				Draw();
+
+				//XRInput::SyncActiveActionSetsData();
+				//uint64_t nPredictedTime = XRRender::GetPredictedDisplayTime() + XRRender::GetPredictedDisplayPeriod();
+
+				//XRInput::GetActionPose( m_Action_PoseLeft, nPredictedTime, &m_Location_Left );
+				//XRInput::GetActionPose( m_Action_PoseRight, nPredictedTime, &m_Location_Right );
 				
 				
 

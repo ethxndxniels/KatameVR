@@ -19,11 +19,23 @@ namespace Katame
 	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Depth_L = {};
 	std::vector<XrSwapchainImageD3D11KHR> XRGraphics::m_SwapchainImages_Depth_R = {};
 
-	void XRGraphics::Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession, LUID& adapter_luid )
+	PFN_xrGetD3D11GraphicsRequirementsKHR XRGraphics::xrGetD3D11GraphicsRequirementsKHR = nullptr;
+	PFN_xrCreateDebugUtilsMessengerEXT    XRGraphics::xrCreateDebugUtilsMessengerEXT = nullptr;
+	PFN_xrDestroyDebugUtilsMessengerEXT   XRGraphics::xrDestroyDebugUtilsMessengerEXT = nullptr;
+	XrDebugUtilsMessengerEXT XRGraphics::xr_debug = {};
+	XrEnvironmentBlendMode  XRGraphics::xr_blend = {};
+	const XrPosef  XRGraphics::xr_pose_identity = { {0,0,0,1}, {0,0,0} };
+
+	void XRGraphics::Init( XrInstance* xrInstance, XrSystemId* xrSystemId, XrSession* xrSession )
 	{
 		KM_CORE_INFO( "Initializing Graphics.." );
 
-		IDXGIAdapter1* adapter = GetAdapter( adapter_luid );
+		XrGraphicsRequirementsD3D11KHR xrRequirements = { XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR };
+		PFN_xrGetD3D11GraphicsRequirementsKHR xrGetD3D11GraphicsRequirementsKHR = nullptr;
+		xrGetInstanceProcAddr( *xrInstance, "xrGetD3D11GraphicsRequirementsKHR", (PFN_xrVoidFunction*)&xrGetD3D11GraphicsRequirementsKHR );
+
+		xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
+		IDXGIAdapter1* adapter = GetAdapter( xrRequirements.adapterLuid );
 		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 		if (adapter == nullptr)
 			KM_CORE_ERROR( "Failed to get adapter, make sure headset is connected." );
@@ -31,6 +43,28 @@ namespace Katame
 		D3D11CreateDevice( adapter, D3D_DRIVER_TYPE_UNKNOWN, 0, 0, featureLevels, _countof( featureLevels ), D3D11_SDK_VERSION, &m_Device, nullptr, &m_Context );
 
 		adapter->Release();
+
+		// Setup Graphics bindings
+		XrGraphicsBindingD3D11KHR xrGraphicsBinding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
+		xrGraphicsBinding.device = m_Device;
+
+		m_LastCallResult = xrGetD3D11GraphicsRequirementsKHR( *xrInstance, *xrSystemId, &xrRequirements );
+
+		if (m_LastCallResult != XR_SUCCESS)
+			KM_CORE_ERROR( "Session failed to create." );
+
+		// Create Session
+		XrSessionCreateInfo xrSessionCreateInfo = { XR_TYPE_SESSION_CREATE_INFO };
+		xrSessionCreateInfo.next = &xrGraphicsBinding;
+		xrSessionCreateInfo.systemId = *xrSystemId;
+
+		m_LastCallResult = xrCreateSession( *xrInstance, &xrSessionCreateInfo, xrSession );
+
+		if (m_LastCallResult != XR_SUCCESS)
+			KM_CORE_ERROR( "Session failed to create." );
+
+		m_GraphicsBinding = &xrGraphicsBinding;
+
 		KM_CORE_INFO( "Initialized Graphics!" );
 	}
 
@@ -191,6 +225,26 @@ namespace Katame
 	int64_t XRGraphics::GetDefaultDepthFormat()
 	{
 		return DXGI_FORMAT_D32_FLOAT;
+	}
+
+	void XRGraphics::ClearRenderTargetView( ID3D11RenderTargetView* rtv, float clear[] )
+	{
+		m_Context->ClearRenderTargetView( rtv, clear );
+	}
+
+	void XRGraphics::RSSetViewports( UINT numViews, D3D11_VIEWPORT& viewport )
+	{
+		m_Context->RSSetViewports( numViews, &viewport );
+	}
+
+	void XRGraphics::ClearDepthStencilView( ID3D11DepthStencilView* dsv, UINT clearFlags, float depth, UINT stencil)
+	{
+		m_Context->ClearDepthStencilView( dsv, clearFlags, depth, stencil );
+	}
+
+	void XRGraphics::OMSetRenderTargets( UINT numViews, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv )
+	{
+		m_Context->OMSetRenderTargets( numViews, &rtv, dsv );
 	}
 
 	IDXGIAdapter1* XRGraphics::GetAdapter( LUID& adapter_luid )

@@ -26,13 +26,6 @@ namespace Katame
 	bool XRCore::b_IsDepthSupported = true;
 	bool XRCore::b_Running = true;
 
-	PFN_xrGetD3D11GraphicsRequirementsKHR XRCore::xrGetD3D11GraphicsRequirementsKHR = nullptr;
-	PFN_xrCreateDebugUtilsMessengerEXT    XRCore::xrCreateDebugUtilsMessengerEXT = nullptr;
-	PFN_xrDestroyDebugUtilsMessengerEXT   XRCore::xrDestroyDebugUtilsMessengerEXT = nullptr;
-	XrDebugUtilsMessengerEXT XRCore::xr_debug = {};
-	XrEnvironmentBlendMode  XRCore::xr_blend = {};
-	const XrPosef  XRCore::xr_pose_identity = { {0,0,0,1}, {0,0,0} };
-
 	bool XRCore::Init()
 	{
 		KM_CORE_INFO( "Initializing OpenXR.." );;
