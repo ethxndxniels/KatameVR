@@ -10,6 +10,14 @@
 
 #include <vector>
 
+// Tell OpenXR what platform code we'll be using
+#define XR_USE_PLATFORM_WIN32
+#define XR_USE_GRAPHICS_API_D3D11
+#include <openxr/openxr.h>
+#include <openxr/openxr_platform.h>
+
+#include <map>
+
 namespace Katame
 {
 	struct swapchain_surfdata_t {
@@ -20,22 +28,31 @@ namespace Katame
 	class Graphics
 	{
 	public:
-		Graphics( int width, int height );
+		Graphics( XrInstance instance, XrSystemId systemId );
 		~Graphics();
 	public:
-		bool Init( LUID& adapter_luid );
-		void BeginFrame( float red, float green, float blue ) noexcept;
-		void EndFrame();
-		void DrawIndexed( int count )  noexcept;
-		void RenderLayer( float offset_x, float offset_y, float extent_width, float extent_height, swapchain_surfdata_t& surface );
-		swapchain_surfdata_t MakeSurfaceData( ID3D11Texture2D* texture );
-		DirectX::XMMATRIX GetXRProjection( float angleLeft, float angleRight, float angleUp, float angleDown, float clip_near, float clip_far );
+		void InitializeDevice( XrInstance instance, XrSystemId systemId );
 	private:
-		IDXGIAdapter1* GetAdapter( LUID& adapter_luid );
-	public:
-		ID3D11Device* m_Device = nullptr;
-		ID3D11DeviceContext* m_Context = nullptr;
-		int64_t              m_Swapchain_fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
+		void InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels,
+			ID3D11Device** device, ID3D11DeviceContext** deviceContext );
+		void InitializeResources();
+		IDXGIAdapter1* GetAdapter( LUID adapterId );
+	private:
+		ID3D11Device* m_device;
+		ID3D11DeviceContext* m_deviceContext;
+		XrGraphicsBindingD3D11KHR m_graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
+		std::list<std::vector<XrSwapchainImageD3D11KHR>> m_swapchainImageBuffers;
+		ID3D11VertexShader* m_vertexShader;
+		ID3D11PixelShader* m_pixelShader;
+		ID3D11InputLayout* m_inputLayout;
+		ID3D11Buffer* m_modelCBuffer;
+		ID3D11Buffer* m_viewProjectionCBuffer;
+		ID3D11Buffer* m_cubeVertexBuffer;
+		ID3D11Buffer* m_cubeIndexBuffer;
+
+		// Map color buffer to associated depth buffer. This map is populated on demand.
+		std::map<ID3D11Texture2D*, ID3D11DepthStencilView> m_colorToDepthMap;
+		std::array<float, 4> m_clearColor;
 	};
 
 }

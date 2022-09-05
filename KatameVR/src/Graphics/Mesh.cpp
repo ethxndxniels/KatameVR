@@ -84,7 +84,7 @@ namespace Katame {
 		vl.Append( Dvtx::VertexLayout::Bitangent );
 		vl.Append( Dvtx::VertexLayout::Texture2D );
 
-		m_VertexBuffer = new Bind::VertexBuffer( gfx, m_Vertices.data(), m_Vertices.size() * sizeof( Vertex ) );
+		m_VertexBuffer = new Bind::VertexBuffer( gfx, m_Vertices.data(), (unsigned int)(m_Indices.size() * sizeof( Vertex )) );
 		m_InputLayout = new Bind::InputLayout( gfx, vl, vs->GetBytecode() );
 
 		// Extract indices from model
@@ -95,7 +95,7 @@ namespace Katame {
 			m_Indices.push_back( { mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2] } );
 		}
 
-		m_IndexBuffer = new Bind::IndexBuffer( gfx, m_Indices.data(), m_Indices.size() * sizeof( Index ) );
+		m_IndexBuffer = new Bind::IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( Index )) );
 	}
 
 	Mesh::~Mesh()

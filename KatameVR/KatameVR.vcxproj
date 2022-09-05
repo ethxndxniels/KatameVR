@@ -96,6 +96,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics\D3DCommon.cpp" />
     <ClCompile Include="src\Bindables\Blender.cpp" />
     <ClCompile Include="src\Bindables\DynamicConstant.cpp" />
     <ClCompile Include="src\Bindables\Rasterizer.cpp" />
@@ -113,7 +114,7 @@
     <ClCompile Include="src\Graphics\LayoutCodex.cpp" />
     <ClCompile Include="src\Graphics\Mesh.cpp" />
     <ClCompile Include="src\Graphics\Surface.cpp" />
-    <ClCompile Include="src\Platform\OpenXRManager.cpp" />
+    <ClCompile Include="src\XR\XRCore.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Bindables\IndexBuffer.cpp" />
     <ClCompile Include="src\Bindables\InputLayout.cpp" />
@@ -136,6 +137,9 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Graphics\Check.h" />
+    <ClInclude Include="src\Graphics\Common.h" />
+    <ClInclude Include="src\Graphics\D3DCommon.h" />
     <ClInclude Include="src\Bindables\Bindable.h" />
     <ClInclude Include="src\Bindables\BindableCodex.h" />
     <ClInclude Include="src\Bindables\BindableCommon.h" />
@@ -158,7 +162,7 @@
     <ClInclude Include="src\Graphics\LayoutCodex.h" />
     <ClInclude Include="src\Graphics\Mesh.h" />
     <ClInclude Include="src\Graphics\Surface.h" />
-    <ClInclude Include="src\Platform\OpenXRManager.h" />
+    <ClInclude Include="src\XR\XRCore.h" />
     <ClInclude Include="src\Graphics\Graphics.h" />
     <ClInclude Include="src\Geometry\Cube.h" />
     <ClInclude Include="src\Bindables\IndexBuffer.h" />

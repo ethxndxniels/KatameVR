@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../Platform/OpenXRManager.h"
+#include "../XR/OpenXRManager.h"
 #include "../Graphics/Graphics.h"
 
 #include <thread> // sleep_for
