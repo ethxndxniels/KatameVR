@@ -13,6 +13,7 @@
 #include "../Graphics/Graphics.h"
 
 #include <map>
+#include <set>
 
 namespace Katame
 {
@@ -23,12 +24,6 @@ namespace Katame
         int32_t height;
     };
 
-    namespace Side
-    {
-        const int LEFT = 0;
-        const int RIGHT = 1;
-        const int COUNT = 2;
-    };
 
     struct InputState 
     {
@@ -47,14 +42,24 @@ namespace Katame
 	{
 	public:
 		void CreateInstance();
+        void InitializeSystem();
+        void InitializeDevice();
+        void InitializeSession();
 	private:
 		void LogLayersAndExtensions();
 		void CreateInstanceInternal();
 		void LogInstanceInfo();
+        void LogViewConfigurations();
+        void LogEnvironmentBlendMode( XrViewConfigurationType type );
+        void LogReferenceSpaces();
+        void InitializeActions();
+        void CreateVisualizedSpaces();
 	private:
         //const std::shared_ptr<const Options> m_options;
         //std::shared_ptr<IPlatformPlugin> m_platformPlugin;
        // std::shared_ptr<IGraphicsPlugin> m_graphicsPlugin;
+
+        XrResult m_LastCallResult = XR_SUCCESS;
         XrInstance m_Instance{ XR_NULL_HANDLE };
         XrSession m_Session{ XR_NULL_HANDLE };
         XrSpace m_Space{ XR_NULL_HANDLE };

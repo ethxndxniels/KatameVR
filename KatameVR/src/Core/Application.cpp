@@ -8,7 +8,6 @@ namespace Katame
 {
 	Application::Application()
 	{
-		openxrManager = new OpenXRManager();
 
 		auto cube = Cube::MakeIndependent( std::move(
 			Dvtx::VertexLayout{}

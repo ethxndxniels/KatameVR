@@ -45,7 +45,7 @@ constexpr char ShaderHlsl[] = R"_(
 DirectX::XMMATRIX XM_CALLCONV LoadXrPose( const XrPosef& pose );
 DirectX::XMMATRIX XM_CALLCONV LoadXrMatrix( const XrMatrix4x4f& matrix );
 
-Microsoft::WRL::ComPtr<ID3DBlob> CompileShader( const char* hlsl, const char* entrypoint, const char* shaderTarget );
-Microsoft::WRL::ComPtr<IDXGIAdapter1> GetAdapter( LUID adapterId );
+ID3DBlob* CompileShader( const char* hlsl, const char* entrypoint, const char* shaderTarget );
+IDXGIAdapter1* GetAdapter( LUID adapterId );
 
 #endif

@@ -18,6 +18,8 @@
 
 #include <map>
 
+#include "../Geometry/Geometry.h"
+
 namespace Katame
 {
 	struct swapchain_surfdata_t {

@@ -877,12 +877,17 @@
     <ClInclude Include="src\Graphics\Check.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Geometry\Geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\VertexShader.hlsl" />
     <FxCompile Include="src\Shaders\PixelShader.hlsl" />
     <FxCompile Include="src\Shaders\PhongVS.hlsl" />
     <FxCompile Include="src\Shaders\PhongPS.hlsl" />
+    <FxCompile Include="src\Shaders\MainPS.hlsl" />
+    <FxCompile Include="src\Shaders\MainVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\assimp\bin\win64\assimp-vc142-mtd.lib" />

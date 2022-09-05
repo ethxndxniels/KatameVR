@@ -74,35 +74,35 @@ namespace Katame
 	void Graphics::InitializeResources()
 	{
 		const ID3DBlob* vertexShaderBytes = CompileShader( ShaderHlsl, "MainVS", "vs_5_0" );
-		CHECK_HRCMD( m_device-*CreateVertexShader( vertexShaderBytes-*GetBufferPointer(), vertexShaderBytes-*GetBufferSize(), nullptr,
-			m_vertexShader.ReleaseAndGetAddressOf() ) );
+		CHECK_HRCMD( m_device->CreateVertexShader( vertexShaderBytes, sizeof(vertexShaderBytes), nullptr,
+			&m_vertexShader ) );
 
 		const ID3DBlob* pixelShaderBytes = CompileShader( ShaderHlsl, "MainPS", "ps_5_0" );
-		CHECK_HRCMD( m_device-*CreatePixelShader( pixelShaderBytes-*GetBufferPointer(), pixelShaderBytes-*GetBufferSize(), nullptr,
-			m_pixelShader.ReleaseAndGetAddressOf() ) );
+		CHECK_HRCMD( m_device->CreatePixelShader( pixelShaderBytes, sizeof( pixelShaderBytes), nullptr,
+			&m_pixelShader ) );
 
 		const D3D11_INPUT_ELEMENT_DESC vertexDesc[] = {
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		};
 
-		CHECK_HRCMD( m_device-*CreateInputLayout( vertexDesc, (UINT)ArraySize( vertexDesc ), vertexShaderBytes-*GetBufferPointer(),
-			vertexShaderBytes-*GetBufferSize(), &m_inputLayout ) );
+		CHECK_HRCMD( m_device->CreateInputLayout( vertexDesc, (UINT)ArraySize( vertexDesc ), vertexShaderBytes,
+			sizeof(vertexShaderBytes), &m_inputLayout ) );
 
 		const CD3D11_BUFFER_DESC modelConstantBufferDesc( sizeof( ModelConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
-		CHECK_HRCMD( m_device-*CreateBuffer( &modelConstantBufferDesc, nullptr, m_modelCBuffer.ReleaseAndGetAddressOf() ) );
+		CHECK_HRCMD( m_device->CreateBuffer( &modelConstantBufferDesc, nullptr, &m_modelCBuffer ) );
 
 		const CD3D11_BUFFER_DESC viewProjectionConstantBufferDesc( sizeof( ViewProjectionConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
 		CHECK_HRCMD(
-			m_device-*CreateBuffer( &viewProjectionConstantBufferDesc, nullptr, m_viewProjectionCBuffer.ReleaseAndGetAddressOf() ) );
+			m_device->CreateBuffer( &viewProjectionConstantBufferDesc, nullptr, &m_viewProjectionCBuffer ) );
 
 		const D3D11_SUBRESOURCE_DATA vertexBufferData{ Geometry::c_cubeVertices };
 		const CD3D11_BUFFER_DESC vertexBufferDesc( sizeof( Geometry::c_cubeVertices ), D3D11_BIND_VERTEX_BUFFER );
-		CHECK_HRCMD( m_device-*CreateBuffer( &vertexBufferDesc, &vertexBufferData, m_cubeVertexBuffer.ReleaseAndGetAddressOf() ) );
+		CHECK_HRCMD( m_device->CreateBuffer( &vertexBufferDesc, &vertexBufferData, &m_cubeVertexBuffer ) );
 
 		const D3D11_SUBRESOURCE_DATA indexBufferData{ Geometry::c_cubeIndices };
 		const CD3D11_BUFFER_DESC indexBufferDesc( sizeof( Geometry::c_cubeIndices ), D3D11_BIND_INDEX_BUFFER );
-		CHECK_HRCMD( m_device-*CreateBuffer( &indexBufferDesc, &indexBufferData, m_cubeIndexBuffer.ReleaseAndGetAddressOf() ) );
+		CHECK_HRCMD( m_device->CreateBuffer( &indexBufferDesc, &indexBufferData, &m_cubeIndexBuffer ) );
 	}
 
 	IDXGIAdapter1* Katame::Graphics::GetAdapter( LUID adapterId )
