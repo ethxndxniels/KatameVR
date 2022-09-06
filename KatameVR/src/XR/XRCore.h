@@ -17,13 +17,18 @@
 
 namespace Katame
 {
+    struct Cube
+    {
+        XrPosef Pose;
+        XrVector3f Scale;
+    };
+
     struct Swapchain 
     {
         XrSwapchain handle;
         int32_t width;
         int32_t height;
     };
-
 
     struct InputState 
     {
@@ -40,12 +45,21 @@ namespace Katame
 
 	class XRCore
 	{
+    public:
+        XRCore( Graphics* gfx );
+        ~XRCore();
 	public:
 		void CreateInstance();
         void InitializeSystem();
         void InitializeDevice();
         void InitializeSession();
-	private:
+        void CreateSwapchains();
+        bool IsSessionRunning();
+    public:
+        void PollEvents( bool* exitRenderLoop, bool* requestRestart );
+        void PollActions();
+        void RenderFrame();
+    private:
 		void LogLayersAndExtensions();
 		void CreateInstanceInternal();
 		void LogInstanceInfo();
@@ -54,7 +68,13 @@ namespace Katame
         void LogReferenceSpaces();
         void InitializeActions();
         void CreateVisualizedSpaces();
-	private:
+    private:
+        const XrEventDataBaseHeader* TryReadNextEvent();
+        void HandleSessionStateChangedEvent( const XrEventDataSessionStateChanged& stateChangedEvent, bool* exitRenderLoop, bool* requestRestart );
+        void LogActionSourceName( XrAction action, const std::string& actionName ) const;
+        bool RenderLayer( XrTime predictedDisplayTime, std::vector<XrCompositionLayerProjectionView>& projectionLayerViews, XrCompositionLayerProjection& layer );
+    private:
+        Graphics* gfx;
         //const std::shared_ptr<const Options> m_options;
         //std::shared_ptr<IPlatformPlugin> m_platformPlugin;
        // std::shared_ptr<IGraphicsPlugin> m_graphicsPlugin;

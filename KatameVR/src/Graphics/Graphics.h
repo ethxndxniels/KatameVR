@@ -30,9 +30,6 @@ namespace Katame
 	class Graphics
 	{
 	public:
-		Graphics( XrInstance instance, XrSystemId systemId );
-		~Graphics();
-	public:
 		void InitializeDevice( XrInstance instance, XrSystemId systemId );
 	private:
 		void InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels,

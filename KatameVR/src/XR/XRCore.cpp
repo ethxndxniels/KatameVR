@@ -102,6 +102,11 @@ namespace Katame
         return referenceSpaceCreateInfo;
     }
 
+    XRCore::XRCore( Graphics* gfx )
+        : gfx( gfx )
+    {
+    }
+
     void XRCore::CreateInstance()
     {
         LogLayersAndExtensions();
@@ -126,7 +131,7 @@ namespace Katame
 
         // The graphics API can initialize the graphics device now that the systemId and instance
         // handle are available.
-        //m_graphicsPlugin->InitializeDevice( m_Instance, m_SystemId );
+        gfx->InitializeDevice( m_Instance, m_SystemId );
     }
 
     void XRCore::InitializeSession() 
@@ -150,15 +155,239 @@ namespace Katame
         }
     }
 
-    void LogLayersAndExtensions()
+    void XRCore::CreateSwapchains()
+    {
+        // Read graphics properties for preferred swapchain length and logging.
+        XrSystemProperties systemProperties{ XR_TYPE_SYSTEM_PROPERTIES };
+        xrGetSystemProperties( m_Instance, m_SystemId, &systemProperties );
+
+        // Log system properties.
+        KM_CORE_INFO( "System Properties: Name={} VendorId={}", systemProperties.systemName, systemProperties.vendorId );
+        KM_CORE_INFO( "System Graphics Properties: MaxWidth={} MaxHeight={} MaxLayers={}",
+            systemProperties.graphicsProperties.maxSwapchainImageWidth,
+            systemProperties.graphicsProperties.maxSwapchainImageHeight,
+            systemProperties.graphicsProperties.maxLayerCount );
+        KM_CORE_INFO( "System Tracking Properties: OrientationTracking={} PositionTracking={}",
+            systemProperties.trackingProperties.orientationTracking == XR_TRUE ? "True" : "False",
+            systemProperties.trackingProperties.positionTracking == XR_TRUE ? "True" : "False" );
+
+        // Note: No other view configurations exist at the time this code was written. If this
+        // condition is not met, the project will need to be audited to see how support should be
+        // added.
+        //CHECK_MSG( m_options->Parsed.ViewConfigType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
+        //    "Unsupported view configuration type" );
+
+        // Query and cache view configuration views.
+        uint32_t viewCount;
+        xrEnumerateViewConfigurationViews( m_Instance, m_SystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO, 0, &viewCount, nullptr );
+        m_configViews.resize( viewCount, { XR_TYPE_VIEW_CONFIGURATION_VIEW } );
+        xrEnumerateViewConfigurationViews( m_Instance, m_SystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO, viewCount,
+            &viewCount, m_configViews.data() );
+
+        // Create and cache view buffer for xrLocateViews later.
+        m_views.resize( viewCount, { XR_TYPE_VIEW } );
+
+        // Create the swapchain and get the images.
+        if (viewCount > 0) 
+        {
+            // Select a swapchain format.
+            uint32_t swapchainFormatCount;
+            xrEnumerateSwapchainFormats( m_Session, 0, &swapchainFormatCount, nullptr );
+            std::vector<int64_t> swapchainFormats( swapchainFormatCount );
+            xrEnumerateSwapchainFormats( m_Session, (uint32_t)swapchainFormats.size(), &swapchainFormatCount, swapchainFormats.data() );
+            //m_colorSwapchainFormat = m_graphicsPlugin->SelectColorSwapchainFormat( swapchainFormats );
+
+            // Print swapchain formats and the selected one.
+            {
+                std::string swapchainFormatsString;
+                for (int64_t format : swapchainFormats) 
+                {
+                    const bool selected = format == m_colorSwapchainFormat;
+                    swapchainFormatsString += " ";
+                    if (selected) {
+                        swapchainFormatsString += "[";
+                    }
+                    swapchainFormatsString += std::to_string( format );
+                    if (selected) {
+                        swapchainFormatsString += "]";
+                    }
+                }
+                KM_CORE_INFO( "Swapchain Formats: {}", swapchainFormatsString.c_str() );
+            }
+
+            // Create a swapchain for each view.
+            for (uint32_t i = 0; i < viewCount; i++) 
+            {
+                const XrViewConfigurationView& vp = m_configViews[i];
+                KM_CORE_INFO( "Creating swapchain for view {} with dimensions Width={} Height={} SampleCount={}", i,
+                        vp.recommendedImageRectWidth, vp.recommendedImageRectHeight, vp.recommendedSwapchainSampleCount );
+
+                // Create the swapchain.
+                XrSwapchainCreateInfo swapchainCreateInfo{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
+                swapchainCreateInfo.arraySize = 1;
+                swapchainCreateInfo.format = m_colorSwapchainFormat;
+                swapchainCreateInfo.width = vp.recommendedImageRectWidth;
+                swapchainCreateInfo.height = vp.recommendedImageRectHeight;
+                swapchainCreateInfo.mipCount = 1;
+                swapchainCreateInfo.faceCount = 1;
+                swapchainCreateInfo.sampleCount = gfx->GetSupportedSwapchainSampleCount( vp );
+                swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
+                Swapchain swapchain;
+                swapchain.width = swapchainCreateInfo.width;
+                swapchain.height = swapchainCreateInfo.height;
+                xrCreateSwapchain( m_Session, &swapchainCreateInfo, &swapchain.handle );
+
+                m_swapchains.push_back( swapchain );
+
+                uint32_t imageCount;
+                xrEnumerateSwapchainImages( swapchain.handle, 0, &imageCount, nullptr );
+                // XXX This should really just return XrSwapchainImageBaseHeader*
+                std::vector<XrSwapchainImageBaseHeader*> swapchainImages =
+                    gfx->AllocateSwapchainImageStructs( imageCount, swapchainCreateInfo );
+                xrEnumerateSwapchainImages( swapchain.handle, imageCount, &imageCount, swapchainImages[0] );
+
+                m_swapchainImages.insert( std::make_pair( swapchain.handle, std::move( swapchainImages ) ) );
+            }
+        }
+    }
+
+    bool XRCore::IsSessionRunning()
+    {
+        return m_sessionRunning;
+    }
+
+    void XRCore::PollEvents( bool* exitRenderLoop, bool* requestRestart )
+    {
+        *exitRenderLoop = *requestRestart = false;
+
+        // Process all pending messages.
+        while (const XrEventDataBaseHeader* event = TryReadNextEvent()) 
+        {
+            switch (event->type) 
+            {
+            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+            {
+                const auto& instanceLossPending = *reinterpret_cast<const XrEventDataInstanceLossPending*>(event);
+                KM_CORE_INFO( "XrEventDataInstanceLossPending by {}", instanceLossPending.lossTime );
+                *exitRenderLoop = true;
+                *requestRestart = true;
+                return;
+            }
+            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+            {
+                auto sessionStateChangedEvent = *reinterpret_cast<const XrEventDataSessionStateChanged*>(event);
+                HandleSessionStateChangedEvent( sessionStateChangedEvent, exitRenderLoop, requestRestart );
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+                LogActionSourceName( m_Input.grabAction, "Grab" );
+                LogActionSourceName( m_Input.quitAction, "Quit" );
+                LogActionSourceName( m_Input.poseAction, "Pose" );
+                LogActionSourceName( m_Input.vibrateAction, "Vibrate" );
+                break;
+            case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+            default: 
+            {
+                KM_CORE_TRACE( "Ignoring event type {}", event->type );
+                break;
+            }
+            }
+        }
+    }
+
+    void XRCore::PollActions()
+    {
+        m_Input.handActive = { XR_FALSE, XR_FALSE };
+
+        // Sync actions
+        const XrActiveActionSet activeActionSet{ m_Input.actionSet, XR_NULL_PATH };
+        XrActionsSyncInfo syncInfo{ XR_TYPE_ACTIONS_SYNC_INFO };
+        syncInfo.countActiveActionSets = 1;
+        syncInfo.activeActionSets = &activeActionSet;
+        xrSyncActions( m_Session, &syncInfo );
+
+        // Get pose and grab action state and start haptic vibrate when hand is 90% squeezed.
+        for (auto hand : { Side::LEFT, Side::RIGHT })
+        {
+            XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+            getInfo.action = m_Input.grabAction;
+            getInfo.subactionPath = m_Input.handSubactionPath[hand];
+
+            XrActionStateFloat grabValue{ XR_TYPE_ACTION_STATE_FLOAT };
+            xrGetActionStateFloat( m_Session, &getInfo, &grabValue );
+            if (grabValue.isActive == XR_TRUE)
+            {
+                // Scale the rendered hand by 1.0f (open) to 0.5f (fully squeezed).
+                m_Input.handScale[hand] = 1.0f - 0.5f * grabValue.currentState;
+                if (grabValue.currentState > 0.9f) 
+                {
+                    XrHapticVibration vibration{ XR_TYPE_HAPTIC_VIBRATION };
+                    vibration.amplitude = 0.5;
+                    vibration.duration = XR_MIN_HAPTIC_DURATION;
+                    vibration.frequency = XR_FREQUENCY_UNSPECIFIED;
+
+                    XrHapticActionInfo hapticActionInfo{ XR_TYPE_HAPTIC_ACTION_INFO };
+                    hapticActionInfo.action = m_Input.vibrateAction;
+                    hapticActionInfo.subactionPath = m_Input.handSubactionPath[hand];
+                    xrApplyHapticFeedback( m_Session, &hapticActionInfo, (XrHapticBaseHeader*)&vibration );
+                }
+            }
+
+            getInfo.action = m_Input.poseAction;
+            XrActionStatePose poseState{ XR_TYPE_ACTION_STATE_POSE };
+            xrGetActionStatePose( m_Session, &getInfo, &poseState );
+            m_Input.handActive[hand] = poseState.isActive;
+        }
+
+        // There were no subaction paths specified for the quit action, because we don't care which hand did it.
+        XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_Input.quitAction, XR_NULL_PATH };
+        XrActionStateBoolean quitValue{ XR_TYPE_ACTION_STATE_BOOLEAN };
+        xrGetActionStateBoolean( m_Session, &getInfo, &quitValue );
+        if ((quitValue.isActive == XR_TRUE) && (quitValue.changedSinceLastSync == XR_TRUE) && (quitValue.currentState == XR_TRUE)) 
+        {
+            xrRequestExitSession( m_Session );
+        }
+    }
+
+    void XRCore::RenderFrame()
+    {
+        XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
+        XrFrameState frameState{ XR_TYPE_FRAME_STATE };
+        xrWaitFrame( m_Session, &frameWaitInfo, &frameState );
+
+        XrFrameBeginInfo frameBeginInfo{ XR_TYPE_FRAME_BEGIN_INFO };
+        xrBeginFrame( m_Session, &frameBeginInfo );
+
+        std::vector<XrCompositionLayerBaseHeader*> layers;
+        XrCompositionLayerProjection layer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+        std::vector<XrCompositionLayerProjectionView> projectionLayerViews;
+        if (frameState.shouldRender == XR_TRUE)
+        {
+            if (RenderLayer( frameState.predictedDisplayTime, projectionLayerViews, layer ))
+            {
+                layers.push_back( reinterpret_cast<XrCompositionLayerBaseHeader*>(&layer) );
+            }
+        }
+
+        XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO };
+        frameEndInfo.displayTime = frameState.predictedDisplayTime;
+        frameEndInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
+        frameEndInfo.layerCount = (uint32_t)layers.size();
+        frameEndInfo.layers = layers.data();
+        xrEndFrame( m_Session, &frameEndInfo );
+    }
+
+    void XRCore::LogLayersAndExtensions()
     {
         // Write out extension properties for a given layer.
-        const auto logExtensions = []( const char* layerName, int indent = 0 ) {
+        const auto logExtensions = []( const char* layerName, int indent = 0 ) 
+        {
             uint32_t instanceExtensionCount;
             xrEnumerateInstanceExtensionProperties( layerName, 0, &instanceExtensionCount, nullptr );
 
             std::vector<XrExtensionProperties> extensions( instanceExtensionCount );
-            for (XrExtensionProperties& extension : extensions) {
+            for (XrExtensionProperties& extension : extensions) 
+            {
                 extension.type = XR_TYPE_EXTENSION_PROPERTIES;
             }
 
@@ -514,5 +743,220 @@ namespace Katame
                 KM_CORE_WARN( "Failed to create reference space {} with error {}", visualizedSpace.c_str(), res );
             }
         }
+    }
+    const XrEventDataBaseHeader* XRCore::TryReadNextEvent()
+    {
+        // It is sufficient to clear the just the XrEventDataBuffer header to
+                // XR_TYPE_EVENT_DATA_BUFFER
+        XrEventDataBaseHeader* baseHeader = reinterpret_cast<XrEventDataBaseHeader*>(&m_eventDataBuffer);
+        *baseHeader = { XR_TYPE_EVENT_DATA_BUFFER };
+        const XrResult xr = xrPollEvent( m_Instance, &m_eventDataBuffer );
+        if (xr == XR_SUCCESS) 
+        {
+            if (baseHeader->type == XR_TYPE_EVENT_DATA_EVENTS_LOST) 
+            {
+                const XrEventDataEventsLost* const eventsLost = reinterpret_cast<const XrEventDataEventsLost*>(baseHeader);
+                KM_CORE_INFO( "{} events lost", eventsLost );
+            }
+
+            return baseHeader;
+        }
+        if (xr == XR_EVENT_UNAVAILABLE) 
+        {
+            return nullptr;
+        }
+        KM_CORE_ERROR( "Shouldn't be here." );
+    }
+    void XRCore::HandleSessionStateChangedEvent( const XrEventDataSessionStateChanged& stateChangedEvent, bool* exitRenderLoop, bool* requestRestart )
+    {
+        const XrSessionState oldState = m_sessionState;
+        m_sessionState = stateChangedEvent.state;
+
+        KM_CORE_INFO( "XrEventDataSessionStateChanged: state {}->{} session={} time={}", to_string( oldState ),
+            to_string( m_sessionState ), stateChangedEvent.session, stateChangedEvent.time );
+
+        if ((stateChangedEvent.session != XR_NULL_HANDLE) && (stateChangedEvent.session != m_Session)) {
+            KM_CORE_ERROR( "XrEventDataSessionStateChanged for unknown session" );
+            return;
+        }
+
+        switch (m_sessionState) 
+        {
+        case XR_SESSION_STATE_READY: 
+        {
+            XrSessionBeginInfo sessionBeginInfo{ XR_TYPE_SESSION_BEGIN_INFO };
+            sessionBeginInfo.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
+            xrBeginSession( m_Session, &sessionBeginInfo );
+            m_sessionRunning = true;
+            break;
+        }
+        case XR_SESSION_STATE_STOPPING: 
+        {
+            m_sessionRunning = false;
+            xrEndSession( m_Session );
+            break;
+        }
+        case XR_SESSION_STATE_EXITING: 
+        {
+            *exitRenderLoop = true;
+            // Do not attempt to restart because user closed this session.
+            *requestRestart = false;
+            break;
+        }
+        case XR_SESSION_STATE_LOSS_PENDING:
+        {
+            *exitRenderLoop = true;
+            // Poll for a new instance.
+            *requestRestart = true;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    void XRCore::LogActionSourceName( XrAction action, const std::string& actionName ) const
+    {
+        XrBoundSourcesForActionEnumerateInfo getInfo = { XR_TYPE_BOUND_SOURCES_FOR_ACTION_ENUMERATE_INFO };
+        getInfo.action = action;
+        uint32_t pathCount = 0;
+        xrEnumerateBoundSourcesForAction( m_Session, &getInfo, 0, &pathCount, nullptr );
+        std::vector<XrPath> paths( pathCount );
+        xrEnumerateBoundSourcesForAction( m_Session, &getInfo, uint32_t( paths.size() ), &pathCount, paths.data() );
+
+        std::string sourceName;
+        for (uint32_t i = 0; i < pathCount; ++i)
+        {
+            constexpr XrInputSourceLocalizedNameFlags all = XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT |
+                XR_INPUT_SOURCE_LOCALIZED_NAME_INTERACTION_PROFILE_BIT |
+                XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT;
+
+            XrInputSourceLocalizedNameGetInfo nameInfo = { XR_TYPE_INPUT_SOURCE_LOCALIZED_NAME_GET_INFO };
+            nameInfo.sourcePath = paths[i];
+            nameInfo.whichComponents = all;
+
+            uint32_t size = 0;
+            xrGetInputSourceLocalizedName( m_Session, &nameInfo, 0, &size, nullptr );
+            if (size < 1) 
+            {
+                continue;
+            }
+            std::vector<char> grabSource( size );
+            xrGetInputSourceLocalizedName( m_Session, &nameInfo, uint32_t( grabSource.size() ), &size, grabSource.data() );
+            if (!sourceName.empty()) {
+                sourceName += " and ";
+            }
+            sourceName += "'";
+            sourceName += std::string( grabSource.data(), size - 1 );
+            sourceName += "'";
+        }
+
+        KM_CORE_INFO( "{} action is bound to {}", actionName.c_str(), ((!sourceName.empty()) ? sourceName.c_str() : "nothing") );
+    }
+
+    bool XRCore::RenderLayer( XrTime predictedDisplayTime, std::vector<XrCompositionLayerProjectionView>& projectionLayerViews, XrCompositionLayerProjection& layer )
+    {
+        XrViewState viewState{ XR_TYPE_VIEW_STATE };
+        uint32_t viewCapacityInput = (uint32_t)m_views.size();
+        uint32_t viewCountOutput;
+
+        XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
+        viewLocateInfo.viewConfigurationType = m_options->Parsed.ViewConfigType;
+        viewLocateInfo.displayTime = predictedDisplayTime;
+        viewLocateInfo.space = m_Space;
+
+        m_LastCallResult = xrLocateViews( m_Session, &viewLocateInfo, &viewState, viewCapacityInput, &viewCountOutput, m_views.data() );
+        if ((viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT) == 0 ||
+            (viewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT) == 0) 
+        {
+            return false;  // There is no valid tracking poses for the views.
+        }
+
+        projectionLayerViews.resize( viewCountOutput );
+
+        // For each locatable space that we want to visualize, render a 25cm cube.
+        std::vector<Cube> cubes;
+
+        for (XrSpace visualizedSpace : m_visualizedSpaces) 
+        {
+            XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
+            m_LastCallResult = xrLocateSpace( visualizedSpace, m_Space, predictedDisplayTime, &spaceLocation );
+            if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
+            {
+                if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+                    (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
+                {
+                    cubes.push_back( Cube{ spaceLocation.pose, {0.25f, 0.25f, 0.25f} } );
+                }
+            }
+            else
+            {
+                KM_CORE_INFO( "Unable to locate a visualized reference space in app space: {}", m_LastCallResult );
+            }
+        }
+
+        // Render a 10cm cube scaled by grabAction for each hand. Note renderHand will only be
+        // true when the application has focus.
+        for (auto hand : { Side::LEFT, Side::RIGHT }) 
+        {
+            XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
+            m_LastCallResult = xrLocateSpace( m_Input.handSpace[hand], m_Space, predictedDisplayTime, &spaceLocation );
+            if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
+            {
+                if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+                    (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
+                {
+                    float scale = 0.1f * m_Input.handScale[hand];
+                    cubes.push_back( Cube{ spaceLocation.pose, {scale, scale, scale} } );
+                }
+            }
+            else 
+            {
+                // Tracking loss is expected when the hand is not active so only log a message
+                // if the hand is active.
+                if (m_Input.handActive[hand] == XR_TRUE)
+                {
+                    const char* handName[] = { "left", "right" };
+                    KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[hand], m_LastCallResult );
+                }
+            }
+        }
+
+        // Render view to the appropriate part of the swapchain image.
+        for (uint32_t i = 0; i < viewCountOutput; i++) 
+        {
+            // Each view has a separate swapchain which is acquired, rendered to, and released.
+            const Swapchain viewSwapchain = m_swapchains[i];
+
+            XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
+
+            uint32_t swapchainImageIndex;
+            xrAcquireSwapchainImage( viewSwapchain.handle, &acquireInfo, &swapchainImageIndex );
+
+            XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
+            waitInfo.timeout = XR_INFINITE_DURATION;
+            xrWaitSwapchainImage( viewSwapchain.handle, &waitInfo );
+
+            projectionLayerViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
+            projectionLayerViews[i].pose = m_views[i].pose;
+            projectionLayerViews[i].fov = m_views[i].fov;
+            projectionLayerViews[i].subImage.swapchain = viewSwapchain.handle;
+            projectionLayerViews[i].subImage.imageRect.offset = { 0, 0 };
+            projectionLayerViews[i].subImage.imageRect.extent = { viewSwapchain.width, viewSwapchain.height };
+
+            const XrSwapchainImageBaseHeader* const swapchainImage = m_swapchainImages[viewSwapchain.handle][swapchainImageIndex];
+            gfx->RenderView( projectionLayerViews[i], swapchainImage, m_colorSwapchainFormat, cubes );
+
+            XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
+            xrReleaseSwapchainImage( viewSwapchain.handle, &releaseInfo );
+        }
+
+        layer.space = m_Space;
+        layer.layerFlags =
+            m_options->Parsed.EnvironmentBlendMode == XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND
+            ? XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT | XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT
+            : 0;
+        layer.viewCount = (uint32_t)projectionLayerViews.size();
+        layer.views = projectionLayerViews.data();
+        return true;
     }
 }
