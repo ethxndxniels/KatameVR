@@ -15,6 +15,8 @@
 #define XR_USE_GRAPHICS_API_D3D11
 #include <openxr/openxr.h>
 #include <openxr/openxr_platform.h>
+#include <openxr/openxr_platform_defines.h>
+#include <openxr/openxr_reflection.h>
 
 #include <map>
 
@@ -22,7 +24,14 @@
 
 namespace Katame
 {
-	struct swapchain_surfdata_t {
+	struct Cube
+	{
+		XrPosef Pose;
+		XrVector3f Scale;
+	};
+
+	struct swapchain_surfdata_t 
+	{
 		ID3D11DepthStencilView* depth_view;
 		ID3D11RenderTargetView* target_view;
 	};
@@ -31,6 +40,8 @@ namespace Katame
 	{
 	public:
 		void InitializeDevice( XrInstance instance, XrSystemId systemId );
+		std::vector<XrSwapchainImageBaseHeader*> AllocateSwapchainImageStructs( uint32_t capacity, const XrSwapchainCreateInfo& swapchainCreateInfo );
+		void RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat, const std::vector<Cube>& cubes );
 	private:
 		void InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels,
 			ID3D11Device** device, ID3D11DeviceContext** deviceContext );

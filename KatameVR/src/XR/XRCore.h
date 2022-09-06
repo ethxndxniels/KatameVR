@@ -17,12 +17,6 @@
 
 namespace Katame
 {
-    struct Cube
-    {
-        XrPosef Pose;
-        XrVector3f Scale;
-    };
-
     struct Swapchain 
     {
         XrSwapchain handle;

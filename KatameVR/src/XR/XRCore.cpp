@@ -107,6 +107,10 @@ namespace Katame
     {
     }
 
+    XRCore::~XRCore()
+    {
+    }
+
     void XRCore::CreateInstance()
     {
         LogLayersAndExtensions();
@@ -230,7 +234,7 @@ namespace Katame
                 swapchainCreateInfo.height = vp.recommendedImageRectHeight;
                 swapchainCreateInfo.mipCount = 1;
                 swapchainCreateInfo.faceCount = 1;
-                swapchainCreateInfo.sampleCount = gfx->GetSupportedSwapchainSampleCount( vp );
+                swapchainCreateInfo.sampleCount = 1;
                 swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
                 Swapchain swapchain;
                 swapchain.width = swapchainCreateInfo.width;
@@ -860,7 +864,7 @@ namespace Katame
         uint32_t viewCountOutput;
 
         XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
-        viewLocateInfo.viewConfigurationType = m_options->Parsed.ViewConfigType;
+        viewLocateInfo.viewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
         viewLocateInfo.displayTime = predictedDisplayTime;
         viewLocateInfo.space = m_Space;
 
@@ -952,7 +956,7 @@ namespace Katame
 
         layer.space = m_Space;
         layer.layerFlags =
-            m_options->Parsed.EnvironmentBlendMode == XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND
+            XR_ENVIRONMENT_BLEND_MODE_OPAQUE == XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND
             ? XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT | XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT
             : 0;
         layer.viewCount = (uint32_t)projectionLayerViews.size();
