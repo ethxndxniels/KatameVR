@@ -13,13 +13,6 @@ namespace Katame
 #define strcpy_s(dest, source) strncpy((dest), (source), sizeof(dest))
 #endif
 
-        namespace Side
-        {
-            const int LEFT = 0;
-            const int RIGHT = 1;
-            const int COUNT = 2;
-        }
-
         namespace Math
         {
             namespace Pose
@@ -96,7 +89,7 @@ namespace Katame
         }
         else 
         {
-            KM_CORE_ERROR( "Unknown reference space type {}", referenceSpaceTypeStr.c_str() );
+            //KM_CORE_ERROR( "Unknown reference space type {}", referenceSpaceTypeStr.c_str() );
             throw std::exception{};
         }
         return referenceSpaceCreateInfo;
@@ -143,8 +136,10 @@ namespace Katame
         {
             KM_CORE_INFO( "Creating session..." );
 
+            XrGraphicsBindingD3D11KHR binding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
+            binding.device = gfx->m_Device;
             XrSessionCreateInfo createInfo{ XR_TYPE_SESSION_CREATE_INFO };
-            createInfo.next = reinterpret_cast<const XrBaseInStructure*>(XR_TYPE_GRAPHICS_BINDING_D3D11_KHR);
+            createInfo.next = &binding;
             createInfo.systemId = m_SystemId;
             xrCreateSession( m_Instance, &createInfo, &m_Session );
         }
@@ -166,14 +161,14 @@ namespace Katame
         xrGetSystemProperties( m_Instance, m_SystemId, &systemProperties );
 
         // Log system properties.
-        KM_CORE_INFO( "System Properties: Name={} VendorId={}", systemProperties.systemName, systemProperties.vendorId );
+        /*KM_CORE_INFO( "System Properties: Name={} VendorId={}", systemProperties.systemName, systemProperties.vendorId );
         KM_CORE_INFO( "System Graphics Properties: MaxWidth={} MaxHeight={} MaxLayers={}",
             systemProperties.graphicsProperties.maxSwapchainImageWidth,
             systemProperties.graphicsProperties.maxSwapchainImageHeight,
             systemProperties.graphicsProperties.maxLayerCount );
         KM_CORE_INFO( "System Tracking Properties: OrientationTracking={} PositionTracking={}",
             systemProperties.trackingProperties.orientationTracking == XR_TRUE ? "True" : "False",
-            systemProperties.trackingProperties.positionTracking == XR_TRUE ? "True" : "False" );
+            systemProperties.trackingProperties.positionTracking == XR_TRUE ? "True" : "False" );*/
 
         // Note: No other view configurations exist at the time this code was written. If this
         // condition is not met, the project will need to be audited to see how support should be
@@ -199,7 +194,7 @@ namespace Katame
             xrEnumerateSwapchainFormats( m_Session, 0, &swapchainFormatCount, nullptr );
             std::vector<int64_t> swapchainFormats( swapchainFormatCount );
             xrEnumerateSwapchainFormats( m_Session, (uint32_t)swapchainFormats.size(), &swapchainFormatCount, swapchainFormats.data() );
-            //m_colorSwapchainFormat = m_graphicsPlugin->SelectColorSwapchainFormat( swapchainFormats );
+            m_colorSwapchainFormat = gfx->SelectColorSwapchainFormat( swapchainFormats );
 
             // Print swapchain formats and the selected one.
             {
@@ -272,7 +267,7 @@ namespace Katame
             case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
             {
                 const auto& instanceLossPending = *reinterpret_cast<const XrEventDataInstanceLossPending*>(event);
-                KM_CORE_INFO( "XrEventDataInstanceLossPending by {}", instanceLossPending.lossTime );
+                //KM_CORE_INFO( "XrEventDataInstanceLossPending by {}", instanceLossPending.lossTime );
                 *exitRenderLoop = true;
                 *requestRestart = true;
                 return;
@@ -400,7 +395,7 @@ namespace Katame
             KM_CORE_INFO( "Available Extensions: {}", instanceExtensionCount );
             for (const XrExtensionProperties& extension : extensions)
             {
-                KM_CORE_INFO( "Name={} SpecVersion={}", extension.extensionName, extension.extensionVersion );
+                KM_CORE_TRACE( "Name={} SpecVersion={}", extension.extensionName, extension.extensionVersion );
             }
         };
 
@@ -491,10 +486,10 @@ namespace Katame
                 for (uint32_t i = 0; i < views.size(); i++) {
                     const XrViewConfigurationView& view = views[i];
 
-                    KM_CORE_INFO( "    View [%d]: Recommended Width=%d Height=%d SampleCount=%d", i,
+                    KM_CORE_INFO( "    View [{}]: Recommended Width={} Height={} SampleCount={}", i,
                         view.recommendedImageRectWidth, view.recommendedImageRectHeight,
                         view.recommendedSwapchainSampleCount );
-                    KM_CORE_INFO( "    View [%d]:     Maximum Width=%d Height=%d SampleCount=%d", i, view.maxImageRectWidth,
+                    KM_CORE_INFO( "    View [{}]:     Maximum Width={} Height={} SampleCount={}", i, view.maxImageRectWidth,
                         view.maxImageRectHeight, view.maxSwapchainSampleCount );
                 }
             }
@@ -760,7 +755,7 @@ namespace Katame
             if (baseHeader->type == XR_TYPE_EVENT_DATA_EVENTS_LOST) 
             {
                 const XrEventDataEventsLost* const eventsLost = reinterpret_cast<const XrEventDataEventsLost*>(baseHeader);
-                KM_CORE_INFO( "{} events lost", eventsLost );
+               // KM_CORE_INFO( "{} events lost", eventsLost );
             }
 
             return baseHeader;
@@ -776,8 +771,8 @@ namespace Katame
         const XrSessionState oldState = m_sessionState;
         m_sessionState = stateChangedEvent.state;
 
-        KM_CORE_INFO( "XrEventDataSessionStateChanged: state {}->{} session={} time={}", to_string( oldState ),
-            to_string( m_sessionState ), stateChangedEvent.session, stateChangedEvent.time );
+        //KM_CORE_INFO( "XrEventDataSessionStateChanged: state {}->{} session={} time={}", to_string( oldState ),
+        //   to_string( m_sessionState ), stateChangedEvent.session, stateChangedEvent.time );
 
         if ((stateChangedEvent.session != XR_NULL_HANDLE) && (stateChangedEvent.session != m_Session)) {
             KM_CORE_ERROR( "XrEventDataSessionStateChanged for unknown session" );

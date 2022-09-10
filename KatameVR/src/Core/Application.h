@@ -9,19 +9,6 @@
 #include <vector>
 #include <algorithm> // any_of
 
-
-#include "../Graphics/IndexedTriangleList.h"
-#include "../Bindables/VertexBuffer.h"
-#include "../Bindables/IndexBuffer.h"
-#include "../Bindables/VertexShader.h"
-#include "../Bindables/PixelShader.h"
-#include "../Bindables/InputLayout.h"
-#include "../Bindables/Topology.h"
-#include "../Bindables/ConstantBuffers.h"
-#include "../Bindables/Rasterizer.h"
-#include "../Bindables/Blender.h"
-
-#include "../Graphics/Mesh.h"
 #include "../Utilities/FrameTimer.h"
 
 namespace Katame 

@@ -1,21 +1,18 @@
 #pragma once
-#include "Bindable.h"
+
+#include "../Graphics/Graphics.h"
+
+#include <string>
 
 namespace Katame
 {
-	namespace Bind
+	class PixelShader
 	{
-		class PixelShader : public Bindable
-		{
-		public:
-			PixelShader( Graphics* gfx, const std::string& path );
-			void Bind( Graphics* gfx ) noexcept;
-			static std::shared_ptr<PixelShader> Resolve( Graphics* gfx, const std::string& path );
-			static std::string GenerateUID( const std::string& path );
-			std::string GetUID() const noexcept override;
-		protected:
-			std::string m_sPath;
-			ID3D11PixelShader* m_pPixelShader;
-		};
-	}
+	public:
+		PixelShader( Graphics* gfx, const std::string& path );
+		void Bind( Graphics* gfx ) noexcept;
+	protected:
+		std::string m_sPath;
+		ID3D11PixelShader* m_pPixelShader;
+	};
 }

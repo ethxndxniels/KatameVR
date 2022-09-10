@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Bindable.h"
-#include "../Graphics/Vertex.h"
+#include "../Graphics/Graphics.h"
+
 #include <memory>
 
 namespace Katame
@@ -10,7 +10,7 @@ namespace Katame
 	{
 	public:
 		VertexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride );
-		void Bind() noexcept;
+		void Bind( Graphics* gfx ) noexcept;
 	private:
 		UINT m_Stride;
 		ID3D11Buffer* m_pVertexBuffer;
@@ -19,8 +19,8 @@ namespace Katame
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer( void* buffer, unsigned int size, unsigned int stride );
-		void Bind() noexcept;
+		IndexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride );
+		void Bind( Graphics* gfx ) noexcept;
 	private:
 		UINT m_Stride;
 		ID3D11Buffer* m_pIndexBuffer;

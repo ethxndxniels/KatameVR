@@ -1,14 +1,13 @@
 #include "Application.h"
-#include "Log.h"
 
-#include "../Geometry/Cube.h"
-#include "../Bindables/Sampler.h"
+#include "Log.h"
 
 namespace Katame
 {
 	Application::Application()
 	{
-		m_XRCore = new XRCore();
+		m_Graphics = new Graphics();
+		m_XRCore = new XRCore( m_Graphics );
 		m_XRCore->CreateInstance();
 		m_XRCore->InitializeSystem();
 		m_XRCore->InitializeDevice();

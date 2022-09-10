@@ -12,11 +12,19 @@
 
 #include "../Graphics/Graphics.h"
 
+#include <string>
 #include <map>
 #include <set>
 
 namespace Katame
 {
+    namespace Side
+    {
+        const int LEFT = 0;
+        const int RIGHT = 1;
+        const int COUNT = 2;
+    }
+
     struct Swapchain 
     {
         XrSwapchain handle;
@@ -33,7 +41,7 @@ namespace Katame
         XrAction quitAction{ XR_NULL_HANDLE };
         std::array<XrPath, Side::COUNT> handSubactionPath;
         std::array<XrSpace, Side::COUNT> handSpace;
-        std::array<float, Side::COUNT> handScale = { {1.0f, 1.0f} };
+        std::array<float, Side::COUNT> handScale = { {1.0f, 1.0f} } ;
         std::array<XrBool32, Side::COUNT> handActive;
     };
 

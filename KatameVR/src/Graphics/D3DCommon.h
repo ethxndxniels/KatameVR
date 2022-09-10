@@ -4,9 +4,10 @@
 
 #pragma once
 
-#if defined(XR_USE_GRAPHICS_API_D3D11) || defined(XR_USE_GRAPHICS_API_D3D12)
-
 #include <DirectXMath.h>
+#include "../Utilities/xr_linear.h"
+#include <directxmath.h> // Matrix math functions and objects
+#include <d3d11.h>
 
 struct ModelConstantBuffer {
     DirectX::XMFLOAT4X4 Model;
@@ -47,5 +48,3 @@ DirectX::XMMATRIX XM_CALLCONV LoadXrMatrix( const XrMatrix4x4f& matrix );
 
 ID3DBlob* CompileShader( const char* hlsl, const char* entrypoint, const char* shaderTarget );
 IDXGIAdapter1* GetAdapter( LUID adapterId );
-
-#endif

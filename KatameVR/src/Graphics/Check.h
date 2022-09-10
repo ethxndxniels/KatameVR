@@ -10,14 +10,8 @@
 #define TOSTRING(x) CHK_STRINGIFY(x)
 #define FILE_AND_LINE __FILE__ ":" TOSTRING(__LINE__)
 
-[[noreturn]] inline void Throw( std::string failureMessage, const char* originator = nullptr, const char* sourceLocation = nullptr ) {
-    if (originator != nullptr) {
-        failureMessage += Fmt( "\n    Origin: %s", originator );
-    }
-    if (sourceLocation != nullptr) {
-        failureMessage += Fmt( "\n    Source: %s", sourceLocation );
-    }
-
+[[noreturn]] inline void Throw( std::string failureMessage, const char* originator = nullptr, const char* sourceLocation = nullptr ) 
+{
     throw std::logic_error( failureMessage );
 }
 
@@ -36,11 +30,12 @@
     }
 
 [[noreturn]] inline void ThrowXrResult( XrResult res, const char* originator = nullptr, const char* sourceLocation = nullptr ) {
-    Throw( Fmt( "XrResult failure [%s]", to_string( res ) ), originator, sourceLocation );
+    Throw( ( "XrResult failure [%s]", to_string( res ) ), originator, sourceLocation );
 }
 
 inline XrResult CheckXrResult( XrResult res, const char* originator = nullptr, const char* sourceLocation = nullptr ) {
-    if (XR_FAILED( res )) {
+    if (XR_FAILED( res )) 
+    {
         ThrowXrResult( res, originator, sourceLocation );
     }
 
@@ -54,7 +49,7 @@ inline XrResult CheckXrResult( XrResult res, const char* originator = nullptr, c
 #ifdef XR_USE_PLATFORM_WIN32
 
 [[noreturn]] inline void ThrowHResult( HRESULT hr, const char* originator = nullptr, const char* sourceLocation = nullptr ) {
-    Throw( Fmt( "HRESULT failure [%x]", hr ), originator, sourceLocation );
+    Throw( ( ( "HRESULT failure [%x]", hr ), originator, sourceLocation  ) );
 }
 
 inline HRESULT CheckHResult( HRESULT hr, const char* originator = nullptr, const char* sourceLocation = nullptr ) {

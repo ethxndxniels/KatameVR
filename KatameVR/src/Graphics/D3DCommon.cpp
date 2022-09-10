@@ -1,18 +1,15 @@
 // Copyright (c) 2017-2022, The Khronos Group Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
+#include "D3DCommon.h"
 
 #include "Common.h"
+#include "../Core/Log.h"
+#include "../Utilities/xr_linear.h"
 
-#if (defined(XR_USE_GRAPHICS_API_D3D11) || defined(XR_USE_GRAPHICS_API_D3D12)) && !defined(MISSING_DIRECTX_COLORS)
-
-#include <common/xr_linear.h>
 #include <DirectXColors.h>
 #include <D3Dcompiler.h>
 
-#include "D3DCommon.h"
-
-using namespace Microsoft::WRL;
 using namespace DirectX;
 
 XMMATRIX XM_CALLCONV LoadXrPose( const XrPosef& pose ) {
@@ -26,9 +23,9 @@ XMMATRIX XM_CALLCONV LoadXrMatrix( const XrMatrix4x4f& matrix ) {
     return XMLoadFloat4x4( reinterpret_cast<const XMFLOAT4X4*>(&matrix) );
 }
 
-ComPtr<ID3DBlob> CompileShader( const char* hlsl, const char* entrypoint, const char* shaderTarget ) {
-    ComPtr<ID3DBlob> compiled;
-    ComPtr<ID3DBlob> errMsgs;
+ID3DBlob* CompileShader( const char* hlsl, const char* entrypoint, const char* shaderTarget ) {
+    ID3DBlob* compiled;
+    ID3DBlob* errMsgs;
     DWORD flags = D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
 
 #if !defined(NDEBUG)
@@ -38,33 +35,32 @@ ComPtr<ID3DBlob> CompileShader( const char* hlsl, const char* entrypoint, const 
 #endif
 
     HRESULT hr = D3DCompile( hlsl, strlen( hlsl ), nullptr, nullptr, nullptr, entrypoint, shaderTarget, flags, 0,
-        compiled.GetAddressOf(), errMsgs.GetAddressOf() );
-    if (FAILED( hr )) {
+        &compiled, &errMsgs );
+    if (FAILED( hr ))
+    {
         std::string errMsg( (const char*)errMsgs->GetBufferPointer(), errMsgs->GetBufferSize() );
-        Log::Write( Log::Level::Error, Fmt( "D3DCompile failed %X: %s", hr, errMsg.c_str() ) );
-        THROW_HR( hr, "D3DCompile" );
+       // KM_CORE_ERROR( "D3DCompile failed {}: {}", hr, errMsg.c_str() );
+        //THROW_HR( hr, "D3DCompile" );
     }
 
     return compiled;
 }
 
-ComPtr<IDXGIAdapter1> GetAdapter( LUID adapterId ) {
+IDXGIAdapter1* GetAdapter( LUID adapterId ) {
     // Create the DXGI factory.
-    ComPtr<IDXGIFactory1> dxgiFactory;
-    CHECK_HRCMD( CreateDXGIFactory1( __uuidof(IDXGIFactory1), reinterpret_cast<void**>(dxgiFactory.ReleaseAndGetAddressOf()) ) );
+    IDXGIFactory1* dxgiFactory;
+    CreateDXGIFactory1( __uuidof(IDXGIFactory1), reinterpret_cast<void**>(dxgiFactory) );
 
     for (UINT adapterIndex = 0;; adapterIndex++) {
         // EnumAdapters1 will fail with DXGI_ERROR_NOT_FOUND when there are no more adapters to enumerate.
-        ComPtr<IDXGIAdapter1> dxgiAdapter;
-        CHECK_HRCMD( dxgiFactory->EnumAdapters1( adapterIndex, dxgiAdapter.ReleaseAndGetAddressOf() ) );
+        IDXGIAdapter1* dxgiAdapter;
+        dxgiFactory->EnumAdapters1( adapterIndex, &dxgiAdapter ) ;
 
         DXGI_ADAPTER_DESC1 adapterDesc;
-        CHECK_HRCMD( dxgiAdapter->GetDesc1( &adapterDesc ) );
+        dxgiAdapter->GetDesc1( &adapterDesc );
         if (memcmp( &adapterDesc.AdapterLuid, &adapterId, sizeof( adapterId ) ) == 0) {
-            Log::Write( Log::Level::Verbose, Fmt( "Using graphics adapter %ws", adapterDesc.Description ) );
+           // KM_CORE_INFO( "Using graphics adapter {}", adapterDesc.Description );
             return dxgiAdapter;
         }
     }
 }
-
-#endif

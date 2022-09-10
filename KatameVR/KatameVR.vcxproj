@@ -96,35 +96,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Bindables\CBuffer.cpp" />
     <ClCompile Include="src\Graphics\D3DCommon.cpp" />
-    <ClCompile Include="src\Bindables\Blender.cpp" />
-    <ClCompile Include="src\Bindables\DynamicConstant.cpp" />
-    <ClCompile Include="src\Bindables\Rasterizer.cpp" />
-    <ClCompile Include="src\Bindables\Sampler.cpp" />
-    <ClCompile Include="src\Bindables\Texture.cpp" />
-    <ClCompile Include="src\Bindables\Topology.cpp" />
-    <ClCompile Include="src\Bindables\TransformCBuf.cpp" />
-    <ClCompile Include="src\Drawable\Cube.cpp" />
-    <ClCompile Include="src\Drawable\DirectionalLight.cpp" />
-    <ClCompile Include="src\Drawable\Drawable.cpp" />
-    <ClCompile Include="src\Drawable\PointLight.cpp" />
-    <ClCompile Include="src\Drawable\SolidCone.cpp" />
-    <ClCompile Include="src\Drawable\SolidSphere.cpp" />
-    <ClCompile Include="src\Drawable\SpotLight.cpp" />
-    <ClCompile Include="src\Graphics\LayoutCodex.cpp" />
-    <ClCompile Include="src\Graphics\Mesh.cpp" />
-    <ClCompile Include="src\Graphics\Surface.cpp" />
     <ClCompile Include="src\XR\XRCore.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
-    <ClCompile Include="src\Bindables\IndexBuffer.cpp" />
     <ClCompile Include="src\Bindables\InputLayout.cpp" />
     <ClCompile Include="src\Core\main.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Bindables\PixelShader.cpp" />
     <ClCompile Include="src\Bindables\VertexShader.cpp" />
-    <ClCompile Include="src\Graphics\Vertex.cpp" />
-    <ClCompile Include="src\Bindables\VertexBuffer.cpp" />
+    <ClCompile Include="src\Bindables\Buffer.cpp" />
     <ClCompile Include="src\Utilities\FrameTimer.cpp" />
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
   </ItemGroup>
@@ -137,38 +119,15 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Bindables\CBuffer.h" />
     <ClInclude Include="src\Geometry\Geometry.h" />
     <ClInclude Include="src\Graphics\Check.h" />
     <ClInclude Include="src\Graphics\Common.h" />
     <ClInclude Include="src\Graphics\D3DCommon.h" />
-    <ClInclude Include="src\Bindables\Bindable.h" />
-    <ClInclude Include="src\Bindables\BindableCodex.h" />
-    <ClInclude Include="src\Bindables\BindableCommon.h" />
-    <ClInclude Include="src\Bindables\Blender.h" />
-    <ClInclude Include="src\Bindables\ConstantBuffers.h" />
-    <ClInclude Include="src\Bindables\ConstantBuffersEx.h" />
-    <ClInclude Include="src\Bindables\DynamicConstant.h" />
-    <ClInclude Include="src\Bindables\Rasterizer.h" />
-    <ClInclude Include="src\Bindables\Sampler.h" />
-    <ClInclude Include="src\Bindables\Texture.h" />
-    <ClInclude Include="src\Bindables\Topology.h" />
-    <ClInclude Include="src\Bindables\TransformCBuf.h" />
-    <ClInclude Include="src\Drawable\Cube.h" />
-    <ClInclude Include="src\Drawable\DirectionalLight.h" />
-    <ClInclude Include="src\Drawable\Drawable.h" />
-    <ClInclude Include="src\Drawable\PointLight.h" />
-    <ClInclude Include="src\Drawable\SolidCone.h" />
-    <ClInclude Include="src\Drawable\SolidSphere.h" />
-    <ClInclude Include="src\Drawable\SpotLight.h" />
-    <ClInclude Include="src\Graphics\LayoutCodex.h" />
-    <ClInclude Include="src\Graphics\Mesh.h" />
-    <ClInclude Include="src\Graphics\Surface.h" />
+    <ClInclude Include="src\Utilities\xr_linear.h" />
     <ClInclude Include="src\XR\XRCore.h" />
     <ClInclude Include="src\Graphics\Graphics.h" />
-    <ClInclude Include="src\Geometry\Cube.h" />
-    <ClInclude Include="src\Bindables\IndexBuffer.h" />
     <ClInclude Include="src\Graphics\Color.h" />
-    <ClInclude Include="src\Graphics\IndexedTriangleList.h" />
     <ClInclude Include="src\Bindables\InputLayout.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Log.h" />
@@ -388,17 +347,24 @@
     <ClInclude Include="vendor\spdlog\tests\includes.h" />
     <ClInclude Include="vendor\spdlog\tests\test_sink.h" />
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
-    <ClInclude Include="src\Graphics\Vertex.h" />
-    <ClInclude Include="src\Bindables\VertexBuffer.h" />
+    <ClInclude Include="src\Bindables\Buffer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\MainPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.1</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="src\Shaders\MainVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.1</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="src\Shaders\PhongPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
