@@ -161,14 +161,14 @@ namespace Katame
         xrGetSystemProperties( m_Instance, m_SystemId, &systemProperties );
 
         // Log system properties.
-        /*KM_CORE_INFO( "System Properties: Name={} VendorId={}", systemProperties.systemName, systemProperties.vendorId );
+        KM_CORE_INFO( "System Properties: Name={} VendorId={}", systemProperties.systemName, systemProperties.vendorId );
         KM_CORE_INFO( "System Graphics Properties: MaxWidth={} MaxHeight={} MaxLayers={}",
             systemProperties.graphicsProperties.maxSwapchainImageWidth,
             systemProperties.graphicsProperties.maxSwapchainImageHeight,
             systemProperties.graphicsProperties.maxLayerCount );
         KM_CORE_INFO( "System Tracking Properties: OrientationTracking={} PositionTracking={}",
             systemProperties.trackingProperties.orientationTracking == XR_TRUE ? "True" : "False",
-            systemProperties.trackingProperties.positionTracking == XR_TRUE ? "True" : "False" );*/
+            systemProperties.trackingProperties.positionTracking == XR_TRUE ? "True" : "False" );
 
         // Note: No other view configurations exist at the time this code was written. If this
         // condition is not met, the project will need to be audited to see how support should be
@@ -267,7 +267,7 @@ namespace Katame
             case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
             {
                 const auto& instanceLossPending = *reinterpret_cast<const XrEventDataInstanceLossPending*>(event);
-                //KM_CORE_INFO( "XrEventDataInstanceLossPending by {}", instanceLossPending.lossTime );
+                KM_CORE_INFO( "XrEventDataInstanceLossPending by {}", instanceLossPending.lossTime );
                 *exitRenderLoop = true;
                 *requestRestart = true;
                 return;
@@ -755,7 +755,7 @@ namespace Katame
             if (baseHeader->type == XR_TYPE_EVENT_DATA_EVENTS_LOST) 
             {
                 const XrEventDataEventsLost* const eventsLost = reinterpret_cast<const XrEventDataEventsLost*>(baseHeader);
-               // KM_CORE_INFO( "{} events lost", eventsLost );
+                KM_CORE_INFO( "{} events lost", sizeof(eventsLost) );
             }
 
             return baseHeader;
@@ -765,14 +765,15 @@ namespace Katame
             return nullptr;
         }
         KM_CORE_ERROR( "Shouldn't be here." );
+        return {};
     }
     void XRCore::HandleSessionStateChangedEvent( const XrEventDataSessionStateChanged& stateChangedEvent, bool* exitRenderLoop, bool* requestRestart )
     {
         const XrSessionState oldState = m_sessionState;
         m_sessionState = stateChangedEvent.state;
 
-        //KM_CORE_INFO( "XrEventDataSessionStateChanged: state {}->{} session={} time={}", to_string( oldState ),
-        //   to_string( m_sessionState ), stateChangedEvent.session, stateChangedEvent.time );
+        KM_CORE_INFO( "XrEventDataSessionStateChanged: state {}->{} session={} time={}", to_string( oldState ),
+           to_string( m_sessionState ), "m_Session", stateChangedEvent.time);
 
         if ((stateChangedEvent.session != XR_NULL_HANDLE) && (stateChangedEvent.session != m_Session)) {
             KM_CORE_ERROR( "XrEventDataSessionStateChanged for unknown session" );

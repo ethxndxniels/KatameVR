@@ -12,7 +12,7 @@ namespace Katame
 
 	void VCBuffer::Update( Graphics* gfx, const void* data )
 	{
-		gfx->m_Context->UpdateSubresource( m_CBuffer, u_Slot, nullptr, data, 0u, 0u );
+		gfx->m_Context->UpdateSubresource( m_CBuffer, 0, nullptr, data, 0u, 0u );
 	}
 
 	void VCBuffer::Bind( Graphics* gfx )
@@ -28,7 +28,7 @@ namespace Katame
 
 	void PCBuffer::Update( Graphics* gfx,  const void* data )
 	{
-		gfx->m_Context->UpdateSubresource( m_CBuffer, u_Slot, nullptr, data, 0u, 0u );
+		gfx->m_Context->UpdateSubresource( m_CBuffer, 0, nullptr, data, 0u, 0u );
 	}
 
 	void PCBuffer::Bind( Graphics* gfx )

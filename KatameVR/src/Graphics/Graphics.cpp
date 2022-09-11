@@ -86,10 +86,9 @@ namespace Katame
 		// Set shaders and constant buffers.
 		ViewProjectionConstantBuffer viewProjection;
 		XMStoreFloat4x4( &viewProjection.ViewProjection, DirectX::XMMatrixTranspose( spaceToView * LoadXrMatrix( projectionMatrix ) ) );
-		m_ModelCBuf->Update( this, &viewProjection );
-		m_ModelCBuf->Bind( this );
-		
+		m_ViewProjCBuf->Update( this, &viewProjection );
 		m_ViewProjCBuf->Bind( this );
+
 
 		m_VS->Bind( this );
 		m_PS->Bind( this );
@@ -107,6 +106,7 @@ namespace Katame
 			XMStoreFloat4x4( &model.Model,
 				XMMatrixTranspose( DirectX::XMMatrixScaling( cube.Scale.x, cube.Scale.y, cube.Scale.z ) * LoadXrPose( cube.Pose ) ) );
 			m_ModelCBuf->Update( this, &model );
+			m_ModelCBuf->Bind( this );
 
 			// Draw the cube.
 			m_Context->DrawIndexed( Geometry::CreateCubeIndices().size(), 0, 0 );
@@ -180,8 +180,8 @@ namespace Katame
 		const CD3D11_BUFFER_DESC viewProjectionConstantBufferDesc( sizeof( ViewProjectionConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
 		m_ViewProjCBuf = new VCBuffer( this, viewProjectionConstantBufferDesc, 1u );
 
-		m_CubeVB = new VertexBuffer( this, Geometry::CreateCubeVertices().data(), Geometry::CreateCubeVertices().size(), sizeof(Geometry::CubeVertex) );
-		m_CubeIB = new IndexBuffer( this, Geometry::CreateCubeIndices().data(), Geometry::CreateCubeIndices().size(), sizeof( unsigned int ) );
+		m_CubeVB = new VertexBuffer( this, Geometry::CreateCubeVertices().data(), Geometry::CreateCubeVertices().size() * sizeof( Geometry::CubeVertex ), sizeof(Geometry::CubeVertex) );
+		m_CubeIB = new IndexBuffer( this, Geometry::CreateCubeIndices().data(), Geometry::CreateCubeIndices().size() * sizeof( unsigned int ), sizeof( unsigned int ) );
 	}
 
 	IDXGIAdapter1* Katame::Graphics::GetAdapter( LUID adapterId )
