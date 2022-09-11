@@ -1,5 +1,7 @@
 #include "Buffer.h"
 
+#include "../Graphics/Graphics.h"
+
 namespace Katame
 {
 	VertexBuffer::VertexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride )

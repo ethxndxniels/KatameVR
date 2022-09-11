@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../Graphics/Graphics.h"
+#include <d3d11.h>
 
 namespace Katame
 {
+	class Graphics;
+
 	class VCBuffer
 	{
 	public:

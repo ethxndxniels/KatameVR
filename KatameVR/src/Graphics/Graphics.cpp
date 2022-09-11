@@ -86,21 +86,18 @@ namespace Katame
 		// Set shaders and constant buffers.
 		ViewProjectionConstantBuffer viewProjection;
 		XMStoreFloat4x4( &viewProjection.ViewProjection, DirectX::XMMatrixTranspose( spaceToView * LoadXrMatrix( projectionMatrix ) ) );
-		m_Context->UpdateSubresource( m_viewProjectionCBuffer, 0, nullptr, &viewProjection, 0, 0 );
+		m_ModelCBuf->Update( this, &viewProjection );
+		m_ModelCBuf->Bind( this );
+		
+		m_ViewProjCBuf->Bind( this );
 
-		ID3D11Buffer* const constantBuffers[] = { m_modelCBuffer, m_viewProjectionCBuffer };
-		m_Context->VSSetConstantBuffers( 0, (UINT)ArraySize( constantBuffers ), constantBuffers );
-		m_Context->VSSetShader( m_vertexShader, nullptr, 0 );
-		m_Context->PSSetShader( m_pixelShader, nullptr, 0 );
+		m_VS->Bind( this );
+		m_PS->Bind( this );
 
-		// Set cube primitive data.
-		const UINT strides[] = { sizeof( Geometry::Vertex ) };
-		const UINT offsets[] = { 0 };
-		ID3D11Buffer* vertexBuffers[] = { m_cubeVertexBuffer };
-		m_Context->IASetVertexBuffers( 0, (UINT)ArraySize( vertexBuffers ), vertexBuffers, strides, offsets );
-		m_Context->IASetIndexBuffer( m_cubeIndexBuffer, DXGI_FORMAT_R16_UINT, 0 );
+		m_CubeVB->Bind( this );
+		m_CubeIB->Bind( this );
 		m_Context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		m_Context->IASetInputLayout( m_inputLayout );
+		m_IL->Bind( this );
 
 		// Render each cube
 		for (const Cube& cube : cubes) 
@@ -109,10 +106,10 @@ namespace Katame
 			ModelConstantBuffer model;
 			XMStoreFloat4x4( &model.Model,
 				XMMatrixTranspose( DirectX::XMMatrixScaling( cube.Scale.x, cube.Scale.y, cube.Scale.z ) * LoadXrPose( cube.Pose ) ) );
-			m_Context->UpdateSubresource( m_modelCBuffer, 0, nullptr, &model, 0, 0 );
+			m_ModelCBuf->Update( this, &model );
 
 			// Draw the cube.
-			m_Context->DrawIndexed( (UINT)ArraySize( Geometry::c_cubeIndices ), 0, 0 );
+			m_Context->DrawIndexed( Geometry::CreateCubeIndices().size(), 0, 0 );
 		}
 	}
 
@@ -173,9 +170,9 @@ namespace Katame
 
 	void Graphics::InitializeResources()
 	{
-		m_VS = new VertexShader( this, ".\Shaders\Bin\MainVS.cso" );
-		m_PS = new PixelShader( this, ".\Shaders\Bin\MainPS.cso" );
-		m_IL = new InputLayout( this, Geometry::CreateCubeInputLayout(), *m_VS);
+		m_VS = new VertexShader( this, ".\\Shaders\\Bin\\MainVS.cso" );
+		m_PS = new PixelShader( this, ".\\Shaders\\Bin\\MainPS.cso" );
+		m_IL = new InputLayout( this, Geometry::CreateCubeInputLayout(), *m_VS );
 
 		const CD3D11_BUFFER_DESC modelConstantBufferDesc( sizeof( ModelConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
 		m_ModelCBuf = new VCBuffer( this, modelConstantBufferDesc, 0u );

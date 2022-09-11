@@ -20,7 +20,7 @@ cbuffer ViewProjectionConstantBuffer : register(b1)
     float4x4 ViewProjection;
 };
 
-PSVertex MainVS( Vertex input ) {
+PSVertex main( Vertex input ) {
     PSVertex output;
     output.Pos = mul( mul( float4(input.Pos, 1), Model ), ViewProjection );
     output.Color = input.Color;

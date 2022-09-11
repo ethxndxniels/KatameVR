@@ -1,6 +1,7 @@
 #include "VertexShader.h"
 
 #include "../Utilities/KatameUtils.h"
+#include "../Graphics/Graphics.h"
 
 #include <d3dcompiler.h>
 

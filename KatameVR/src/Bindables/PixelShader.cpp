@@ -1,6 +1,7 @@
 #include "PixelShader.h"
 
 #include "../Utilities/KatameUtils.h"
+#include "../Graphics/Graphics.h"
 
 namespace Katame
 {

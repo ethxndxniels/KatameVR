@@ -4,7 +4,7 @@ struct PSVertex
     float3 Color : COLOR0;
 };
 
-float4 MainPS( PSVertex input ) : SV_TARGET
+float4 main( PSVertex input ) : SV_Target
 {
     return float4(input.Color, 1);
 }

@@ -1,11 +1,13 @@
 #pragma once
 
-#include "../Graphics/Graphics.h"
-
 #include <string>
+
+#include <d3d11.h>
 
 namespace Katame
 {
+	class Graphics;
+
 	class VertexShader
 	{
 	public:

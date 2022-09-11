@@ -54,6 +54,9 @@
     <ClCompile Include="src\Bindables\CBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Graphics\Renderer\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -752,6 +755,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Bindables\CBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Renderer\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,7 @@
 #include "CBuffer.h"
 
+#include "../Graphics/Graphics.h"
+
 namespace Katame
 {
 	VCBuffer::VCBuffer( Graphics* gfx, const CD3D11_BUFFER_DESC& cbufDesc, unsigned int slot )

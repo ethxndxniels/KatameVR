@@ -1,5 +1,7 @@
 #include "InputLayout.h"
 
+#include "../Graphics/Graphics.h"
+
 namespace Katame
 {
 	InputLayout::InputLayout( Graphics* gfx, std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayout, const VertexShader& vs )

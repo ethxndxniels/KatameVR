@@ -1,10 +1,15 @@
 #pragma once
 
-#include "../Graphics/Vertex.h"
 #include "VertexShader.h"
+
+#include <vector>
+
+#include <d3d11.h>
 
 namespace Katame
 {
+	class Graphics;
+
 	class InputLayout
 	{
 	public:

@@ -77,14 +77,6 @@ namespace Katame
 		VertexBuffer* m_CubeVB;
 		IndexBuffer* m_CubeIB;
 
-		ID3D11VertexShader* m_vertexShader;
-		ID3D11PixelShader* m_pixelShader;
-		ID3D11InputLayout* m_inputLayout;
-		ID3D11Buffer* m_modelCBuffer;
-		ID3D11Buffer* m_viewProjectionCBuffer;
-		ID3D11Buffer* m_cubeVertexBuffer;
-		ID3D11Buffer* m_cubeIndexBuffer;
-
 		// Map color buffer to associated depth buffer. This map is populated on demand.
 		std::map<ID3D11Texture2D*, ID3D11DepthStencilView*> m_colorToDepthMap;
 		std::array<float, 4> m_clearColor;

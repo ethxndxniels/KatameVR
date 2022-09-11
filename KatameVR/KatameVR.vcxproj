@@ -98,6 +98,7 @@
   <ItemGroup>
     <ClCompile Include="src\Bindables\CBuffer.cpp" />
     <ClCompile Include="src\Graphics\D3DCommon.cpp" />
+    <ClCompile Include="src\Graphics\Renderer\Renderer.cpp" />
     <ClCompile Include="src\XR\XRCore.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Bindables\InputLayout.cpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="src\Graphics\Check.h" />
     <ClInclude Include="src\Graphics\Common.h" />
     <ClInclude Include="src\Graphics\D3DCommon.h" />
+    <ClInclude Include="src\Graphics\Renderer\Renderer.h" />
     <ClInclude Include="src\Utilities\xr_linear.h" />
     <ClInclude Include="src\XR\XRCore.h" />
     <ClInclude Include="src\Graphics\Graphics.h" />
