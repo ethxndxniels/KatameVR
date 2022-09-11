@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Bindable.h"
+
 #include <memory>
 
 #include <d3d11.h>
@@ -8,23 +10,25 @@ namespace Katame
 {
 	class Graphics;
 
-	class VertexBuffer
+	class VertexBuffer : public Bindable
 	{
 	public:
 		VertexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride );
-		void Bind( Graphics* gfx ) noexcept;
+		void Bind( Graphics* gfx ) override;
 	private:
 		UINT m_Stride;
 		ID3D11Buffer* m_pVertexBuffer;
 	};
 
-	class IndexBuffer
+	class IndexBuffer : public Bindable
 	{
 	public:
 		IndexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride );
-		void Bind( Graphics* gfx ) noexcept;
+		UINT GetCount() const noexcept;
+		void Bind( Graphics* gfx ) override;
 	private:
 		UINT m_Stride;
+		UINT m_Count;
 		ID3D11Buffer* m_pIndexBuffer;
 	};
 }

@@ -19,13 +19,14 @@ namespace Katame
 		gfx->m_Device->CreateBuffer( &bd, &sd, &m_pVertexBuffer );
 	}
 
-	void VertexBuffer::Bind( Graphics* gfx ) noexcept
+	void VertexBuffer::Bind( Graphics* gfx )
 	{
 		const UINT offset = 0u;
 		gfx->m_Context->IASetVertexBuffers( 0u, 1u, &m_pVertexBuffer, &m_Stride, &offset );
 	}
 
 	IndexBuffer::IndexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride )
+		: m_Count( size )
 	{
 		D3D11_BUFFER_DESC ibd = {};
 		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -39,7 +40,12 @@ namespace Katame
 		gfx->m_Device->CreateBuffer( &ibd, &isd, &m_pIndexBuffer );
 	}
 
-	void IndexBuffer::Bind( Graphics* gfx ) noexcept
+	UINT IndexBuffer::GetCount() const noexcept
+	{
+		return m_Count;
+	}
+
+	void IndexBuffer::Bind( Graphics* gfx )
 	{
 		gfx->m_Context->IASetIndexBuffer( m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0u );
 	}

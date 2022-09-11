@@ -874,7 +874,7 @@ namespace Katame
         projectionLayerViews.resize( viewCountOutput );
 
         // For each locatable space that we want to visualize, render a 25cm cube.
-        std::vector<Cube> cubes;
+        std::vector<CubeData> cubes;
 
         for (XrSpace visualizedSpace : m_visualizedSpaces) 
         {
@@ -885,7 +885,7 @@ namespace Katame
                 if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
                     (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
                 {
-                    cubes.push_back( Cube{ spaceLocation.pose, {0.25f, 0.25f, 0.25f} } );
+                    cubes.push_back( CubeData{ spaceLocation.pose, {0.25f, 0.25f, 0.25f} } );
                 }
             }
             else
@@ -906,7 +906,7 @@ namespace Katame
                     (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
                 {
                     float scale = 0.1f * m_Input.handScale[hand];
-                    cubes.push_back( Cube{ spaceLocation.pose, {scale, scale, scale} } );
+                    cubes.push_back( CubeData{ spaceLocation.pose, {scale, scale, scale} } );
                 }
             }
             else 

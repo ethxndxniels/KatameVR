@@ -5,6 +5,8 @@
 
 #include "../Utilities/xr_linear.h"
 
+#include "../Renderer/Renderer.h"
+
 namespace Katame
 {
 	void Graphics::InitializeDevice( XrInstance instance, XrSystemId systemId )
@@ -53,7 +55,7 @@ namespace Katame
 		return swapchainImageBase;
 	}
 
-	void Graphics::RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat, const std::vector<Cube>& cubes )
+	void Graphics::RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat, const std::vector<CubeData>& cubes )
 	{
 		CHECK( layerView.subImage.imageArrayIndex == 0 );  // Texture arrays not supported.
 
@@ -89,17 +91,8 @@ namespace Katame
 		m_ViewProjCBuf->Update( this, &viewProjection );
 		m_ViewProjCBuf->Bind( this );
 
-
-		m_VS->Bind( this );
-		m_PS->Bind( this );
-
-		m_CubeVB->Bind( this );
-		m_CubeIB->Bind( this );
-		m_Context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		m_IL->Bind( this );
-
 		// Render each cube
-		for (const Cube& cube : cubes) 
+		for (const CubeData& cube : cubes)
 		{
 			// Compute and update the model transform.
 			ModelConstantBuffer model;
@@ -109,8 +102,10 @@ namespace Katame
 			m_ModelCBuf->Bind( this );
 
 			// Draw the cube.
-			m_Context->DrawIndexed( Geometry::CreateCubeIndices().size(), 0, 0 );
+			DrawIndexed( Geometry::CreateCubeIndices().size(), 0, 0 );
 		}
+
+		//m_Renderer->Execute();
 	}
 
 	int64_t Graphics::SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const
@@ -133,6 +128,16 @@ namespace Katame
 		}
 
 		return *swapchainFormatIt;
+	}
+
+	void Graphics::InitializeRenderer( Renderer* renderer )
+	{
+		m_Renderer = renderer;
+	}
+
+	void Graphics::DrawIndexed( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation )
+	{
+		m_Context->DrawIndexed( indexCount, startIndexLocation, baseVertexLocation );
 	}
 
 	void Graphics::InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels, ID3D11Device** device, ID3D11DeviceContext** deviceContext )
@@ -170,18 +175,11 @@ namespace Katame
 
 	void Graphics::InitializeResources()
 	{
-		m_VS = new VertexShader( this, ".\\Shaders\\Bin\\MainVS.cso" );
-		m_PS = new PixelShader( this, ".\\Shaders\\Bin\\MainPS.cso" );
-		m_IL = new InputLayout( this, Geometry::CreateCubeInputLayout(), *m_VS );
-
 		const CD3D11_BUFFER_DESC modelConstantBufferDesc( sizeof( ModelConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
 		m_ModelCBuf = new VCBuffer( this, modelConstantBufferDesc, 0u );
 
 		const CD3D11_BUFFER_DESC viewProjectionConstantBufferDesc( sizeof( ViewProjectionConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
 		m_ViewProjCBuf = new VCBuffer( this, viewProjectionConstantBufferDesc, 1u );
-
-		m_CubeVB = new VertexBuffer( this, Geometry::CreateCubeVertices().data(), Geometry::CreateCubeVertices().size() * sizeof( Geometry::CubeVertex ), sizeof(Geometry::CubeVertex) );
-		m_CubeIB = new IndexBuffer( this, Geometry::CreateCubeIndices().data(), Geometry::CreateCubeIndices().size() * sizeof( unsigned int ), sizeof( unsigned int ) );
 	}
 
 	IDXGIAdapter1* Katame::Graphics::GetAdapter( LUID adapterId )
@@ -207,25 +205,6 @@ namespace Katame
 		}
 		dxgi_factory->Release();
 		return final_adapter;
-
-		//// Create the DXGI factory.
-		//IDXGIFactory1* dxgiFactory = {};
-		//CHECK_HRCMD( CreateDXGIFactory1( __uuidof(IDXGIFactory1), reinterpret_cast<void**>(dxgiFactory) ) );
-
-		//for (UINT adapterIndex = 0;; adapterIndex++) 
-		//{
-		//	// EnumAdapters1 will fail with DXGI_ERROR_NOT_FOUND when there are no more adapters to enumerate.
-		//	IDXGIAdapter1* dxgiAdapter;
-		//	CHECK_HRCMD( dxgiFactory->EnumAdapters1( adapterIndex, &dxgiAdapter ) );
-
-		//	DXGI_ADAPTER_DESC1 adapterDesc;
-		//	CHECK_HRCMD( dxgiAdapter->GetDesc1( &adapterDesc ) );
-		//	if (memcmp( &adapterDesc.AdapterLuid, &adapterId, sizeof( adapterId ) ) == 0) 
-		//	{
-		//		//KM_CORE_INFO( "Using graphics adapter %{}", adapterDesc.Description );
-		//		return dxgiAdapter;
-		//	}
-		//}
 	}
 
 	ID3D11DepthStencilView* Graphics::GetDepthStencilView( ID3D11Texture2D* colorTexture )

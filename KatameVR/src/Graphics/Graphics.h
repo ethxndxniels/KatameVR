@@ -34,7 +34,7 @@
 
 namespace Katame
 {
-	struct Cube
+	struct CubeData
 	{
 		XrPosef Pose;
 		XrVector3f Scale;
@@ -46,6 +46,8 @@ namespace Katame
 		ID3D11RenderTargetView* target_view;
 	};
 
+	class Renderer;
+
 	class Graphics
 	{
 	public:
@@ -54,8 +56,10 @@ namespace Katame
 	public:
 		void InitializeDevice( XrInstance instance, XrSystemId systemId );
 		std::vector<XrSwapchainImageBaseHeader*> AllocateSwapchainImageStructs( uint32_t capacity, const XrSwapchainCreateInfo& swapchainCreateInfo );
-		void RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat, const std::vector<Cube>& cubes );
+		void RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat, const std::vector<CubeData>& cubes );
 		int64_t SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const;
+		void InitializeRenderer( Renderer* renderer );
+		void DrawIndexed( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation );
 	private:
 		void InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels,
 			ID3D11Device** device, ID3D11DeviceContext** deviceContext );
@@ -65,6 +69,7 @@ namespace Katame
 	public:
 		ID3D11Device* m_Device;
 		ID3D11DeviceContext* m_Context;
+		Renderer* m_Renderer;
 	private:
 		XrGraphicsBindingD3D11KHR m_graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
 		std::list<std::vector<XrSwapchainImageD3D11KHR>> m_swapchainImageBuffers;

@@ -19,7 +19,7 @@ namespace Katame
 			&m_pVertexShader
 		);
 	}
-	void VertexShader::Bind( Graphics* gfx ) noexcept
+	void VertexShader::Bind( Graphics* gfx )
 	{
 		gfx->m_Context->VSSetShader( m_pVertexShader, nullptr, 0u );
 	}

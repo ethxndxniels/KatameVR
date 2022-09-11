@@ -96,9 +96,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Drawable\Drawables\Cube.cpp" />
     <ClCompile Include="src\Bindables\CBuffer.cpp" />
+    <ClCompile Include="src\drawable\Drawable.cpp" />
     <ClCompile Include="src\Graphics\D3DCommon.cpp" />
-    <ClCompile Include="src\Graphics\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\XR\XRCore.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Bindables\InputLayout.cpp" />
@@ -110,6 +112,7 @@
     <ClCompile Include="src\Bindables\Buffer.cpp" />
     <ClCompile Include="src\Utilities\FrameTimer.cpp" />
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
+    <ClCompile Include="src\Bindables\Topology.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -120,12 +123,15 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Drawable\Drawables\Cube.h" />
+    <ClInclude Include="src\Bindables\Bindable.h" />
     <ClInclude Include="src\Bindables\CBuffer.h" />
+    <ClInclude Include="src\Drawable\Drawable.h" />
     <ClInclude Include="src\Geometry\Geometry.h" />
     <ClInclude Include="src\Graphics\Check.h" />
     <ClInclude Include="src\Graphics\Common.h" />
     <ClInclude Include="src\Graphics\D3DCommon.h" />
-    <ClInclude Include="src\Graphics\Renderer\Renderer.h" />
+    <ClInclude Include="src\Renderer\Renderer.h" />
     <ClInclude Include="src\Utilities\xr_linear.h" />
     <ClInclude Include="src\XR\XRCore.h" />
     <ClInclude Include="src\Graphics\Graphics.h" />
@@ -237,6 +243,7 @@
     <ClInclude Include="src\Utilities\FrameTimer.h" />
     <ClInclude Include="src\Utilities\KatameUtils.h" />
     <ClInclude Include="src\Utilities\KatameXM.h" />
+    <ClInclude Include="src\Bindables\Topology.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\BC.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\BCDirectCompute.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\d3dx12.h" />

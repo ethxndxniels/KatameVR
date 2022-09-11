@@ -13,7 +13,7 @@ namespace Katame
 		D3DReadFileToBlob( ToWide( path ).c_str(), &pBlob );
 		gfx->m_Device->CreatePixelShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &m_pPixelShader );
 	}
-	void PixelShader::Bind( Graphics* gfx ) noexcept
+	void PixelShader::Bind( Graphics* gfx )
 	{
 		gfx->m_Context->PSSetShader( m_pPixelShader, nullptr, 0u );
 	}

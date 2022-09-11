@@ -13,6 +13,10 @@ namespace Katame
 		m_XRCore->InitializeDevice();
 		m_XRCore->InitializeSession();
 		m_XRCore->CreateSwapchains();
+		m_Renderer = new Renderer( m_Graphics );
+		m_Graphics->InitializeRenderer( m_Renderer );
+		m_Cube = new Cube( m_Graphics );
+		m_Renderer->Submit( m_Cube );
 	}
 
 	Application::~Application()
