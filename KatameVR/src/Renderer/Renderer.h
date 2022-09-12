@@ -6,6 +6,7 @@ namespace Katame
 {
 	class Graphics;
 	class Drawable;
+	class VCBuffer;
 
 	class Renderer
 	{
@@ -13,8 +14,8 @@ namespace Katame
 		Renderer( Graphics* gfx );
 		~Renderer();
 	public:
-		void Submit( Drawable* drawable );
-		void Execute();
+		void Submit( Drawable& drawable );
+		void Execute( VCBuffer* modelCBuf );
 	private:
 		Graphics* gfx;
 		std::vector<Drawable*> m_Drawables;

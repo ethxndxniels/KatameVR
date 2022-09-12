@@ -55,7 +55,7 @@ namespace Katame
 		return swapchainImageBase;
 	}
 
-	void Graphics::RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat, const std::vector<CubeData>& cubes )
+	void Graphics::RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat )
 	{
 		CHECK( layerView.subImage.imageArrayIndex == 0 );  // Texture arrays not supported.
 
@@ -67,9 +67,8 @@ namespace Katame
 		m_Context->RSSetViewports( 1, &viewport );
 
 		// Create RenderTargetView with original swapchain format (swapchain is typeless).
-		ID3D11RenderTargetView* renderTargetView;
+		ID3D11RenderTargetView* renderTargetView = { nullptr };
 		const CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc( D3D11_RTV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)swapchainFormat );
-		
 		m_Device->CreateRenderTargetView( colorTexture, &renderTargetViewDesc, &renderTargetView );
 
 		ID3D11DepthStencilView* depthStencilView = GetDepthStencilView( colorTexture );
@@ -91,21 +90,7 @@ namespace Katame
 		m_ViewProjCBuf->Update( this, &viewProjection );
 		m_ViewProjCBuf->Bind( this );
 
-		// Render each cube
-		for (const CubeData& cube : cubes)
-		{
-			// Compute and update the model transform.
-			ModelConstantBuffer model;
-			XMStoreFloat4x4( &model.Model,
-				XMMatrixTranspose( DirectX::XMMatrixScaling( cube.Scale.x, cube.Scale.y, cube.Scale.z ) * LoadXrPose( cube.Pose ) ) );
-			m_ModelCBuf->Update( this, &model );
-			m_ModelCBuf->Bind( this );
-
-			// Draw the cube.
-			DrawIndexed( Geometry::CreateCubeIndices().size(), 0, 0 );
-		}
-
-		//m_Renderer->Execute();
+		m_Renderer->Execute( m_ModelCBuf );
 	}
 
 	int64_t Graphics::SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const

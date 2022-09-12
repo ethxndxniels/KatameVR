@@ -15,8 +15,11 @@ namespace Katame
 		m_XRCore->CreateSwapchains();
 		m_Renderer = new Renderer( m_Graphics );
 		m_Graphics->InitializeRenderer( m_Renderer );
-		m_Cube = new Cube( m_Graphics );
-		m_Renderer->Submit( m_Cube );
+
+        m_Cube = new Cube( m_Graphics );
+		m_Cube->SetData( { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }, { 0.25f, 0.25f, 0.25f } );
+		m_Cube2 = new Cube( m_Graphics );
+		m_Cube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.25f, 0.25f, 0.25f } );
 	}
 
 	Application::~Application()
@@ -25,7 +28,7 @@ namespace Katame
 
 	void Application::Launch()
 	{
-		KM_CORE_INFO( "Launching Application.." );
+		//KM_CORE_INFO( "Launching Application.." );
 		while (m_Running) 
 		{
 			bool exitRenderLoop = false;
@@ -38,6 +41,8 @@ namespace Katame
 			if ( m_XRCore->IsSessionRunning() )
 			{
 				m_XRCore->PollActions();
+				Update( 1.0f );
+				Submit();
 				m_XRCore->RenderFrame();
 			}
 			else 
@@ -46,5 +51,17 @@ namespace Katame
 				std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
 			}
 		}
+	}
+
+	void Application::Update( float dt )
+	{
+		m_Cube->Update();
+		m_Cube2->Update();
+	}
+
+	void Application::Submit()
+	{
+		m_Renderer->Submit( *m_Cube );
+		m_Renderer->Submit( *m_Cube2 );
 	}
 }

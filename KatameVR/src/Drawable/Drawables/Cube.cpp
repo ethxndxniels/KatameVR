@@ -26,4 +26,26 @@ namespace Katame
 		Drawable::Submit( new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
 	}
 
+	Cube::~Cube()
+	{
+	}
+
+	void Cube::Update()
+	{
+		Pose.orientation.x += 0.01f;
+		Pose.orientation.y += 0.01f;
+		Pose.orientation.z += 0.01f;
+	}
+
+	DirectX::XMMATRIX Cube::GetModelMatrix()
+	{
+		return DirectX::XMMatrixTranspose( DirectX::XMMatrixScaling( Scale.x, Scale.y, Scale.z ) * LoadXrPose( Pose ) );
+	}
+
+	void Cube::SetData( XrPosef pose, XrVector3f scale )
+	{
+		Pose = pose;
+		Scale = scale;
+	}
+
 }

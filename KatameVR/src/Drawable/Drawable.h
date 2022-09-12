@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <DirectXMath.h>
 
 namespace Katame
 {
@@ -18,6 +19,7 @@ namespace Katame
 		Drawable() = default;
 		void Submit( Bindable* bind );
 		void Draw( Graphics* gfx );
+		virtual DirectX::XMMATRIX GetModelMatrix() = 0;
 	protected:
 		void SetIndexBuffer( IndexBuffer* indexBuffer );
 	private:

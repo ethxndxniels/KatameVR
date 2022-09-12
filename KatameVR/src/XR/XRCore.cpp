@@ -874,7 +874,7 @@ namespace Katame
         projectionLayerViews.resize( viewCountOutput );
 
         // For each locatable space that we want to visualize, render a 25cm cube.
-        std::vector<CubeData> cubes;
+        /*std::vector<CubeData> cubes;
 
         for (XrSpace visualizedSpace : m_visualizedSpaces) 
         {
@@ -892,34 +892,34 @@ namespace Katame
             {
                 KM_CORE_INFO( "Unable to locate a visualized reference space in app space: {}", m_LastCallResult );
             }
-        }
+        }*/
 
         // Render a 10cm cube scaled by grabAction for each hand. Note renderHand will only be
         // true when the application has focus.
-        for (auto hand : { Side::LEFT, Side::RIGHT }) 
-        {
-            XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
-            m_LastCallResult = xrLocateSpace( m_Input.handSpace[hand], m_Space, predictedDisplayTime, &spaceLocation );
-            if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
-            {
-                if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-                    (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
-                {
-                    float scale = 0.1f * m_Input.handScale[hand];
-                    cubes.push_back( CubeData{ spaceLocation.pose, {scale, scale, scale} } );
-                }
-            }
-            else 
-            {
-                // Tracking loss is expected when the hand is not active so only log a message
-                // if the hand is active.
-                if (m_Input.handActive[hand] == XR_TRUE)
-                {
-                    const char* handName[] = { "left", "right" };
-                    KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[hand], m_LastCallResult );
-                }
-            }
-        }
+        //for (auto hand : { Side::LEFT, Side::RIGHT }) 
+        //{
+        //    XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
+        //    m_LastCallResult = xrLocateSpace( m_Input.handSpace[hand], m_Space, predictedDisplayTime, &spaceLocation );
+        //    if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
+        //    {
+        //        if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+        //            (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
+        //        {
+        //            float scale = 0.1f * m_Input.handScale[hand];
+        //            cubes.push_back( CubeData{ spaceLocation.pose, {scale, scale, scale} } );
+        //        }
+        //    }
+        //    else 
+        //    {
+        //        // Tracking loss is expected when the hand is not active so only log a message
+        //        // if the hand is active.
+        //        if (m_Input.handActive[hand] == XR_TRUE)
+        //        {
+        //            const char* handName[] = { "left", "right" };
+        //            KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[hand], m_LastCallResult );
+        //        }
+        //    }
+        //}
 
         // Render view to the appropriate part of the swapchain image.
         for (uint32_t i = 0; i < viewCountOutput; i++) 
@@ -944,7 +944,7 @@ namespace Katame
             projectionLayerViews[i].subImage.imageRect.extent = { viewSwapchain.width, viewSwapchain.height };
 
             const XrSwapchainImageBaseHeader* const swapchainImage = m_swapchainImages[viewSwapchain.handle][swapchainImageIndex];
-            gfx->RenderView( projectionLayerViews[i], swapchainImage, m_colorSwapchainFormat, cubes );
+            gfx->RenderView( projectionLayerViews[i], swapchainImage, m_colorSwapchainFormat );
 
             XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
             xrReleaseSwapchainImage( viewSwapchain.handle, &releaseInfo );

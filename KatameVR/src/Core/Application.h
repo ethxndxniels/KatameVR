@@ -22,12 +22,15 @@ namespace Katame
 		Application();
 		~Application();
 		void Launch();
+		void Update( float dt );
+		void Submit();
 	private:
 		XRCore* m_XRCore = nullptr;
 		Graphics* m_Graphics = nullptr;
 		Renderer* m_Renderer = nullptr;
 	private:
 		Cube* m_Cube;
+		Cube* m_Cube2;
 	private:
 		bool m_Running = true;
 		bool requestRestart = false;

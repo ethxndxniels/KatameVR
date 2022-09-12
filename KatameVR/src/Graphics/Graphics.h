@@ -34,18 +34,6 @@
 
 namespace Katame
 {
-	struct CubeData
-	{
-		XrPosef Pose;
-		XrVector3f Scale;
-	};
-
-	struct swapchain_surfdata_t 
-	{
-		ID3D11DepthStencilView* depth_view;
-		ID3D11RenderTargetView* target_view;
-	};
-
 	class Renderer;
 
 	class Graphics
@@ -56,7 +44,7 @@ namespace Katame
 	public:
 		void InitializeDevice( XrInstance instance, XrSystemId systemId );
 		std::vector<XrSwapchainImageBaseHeader*> AllocateSwapchainImageStructs( uint32_t capacity, const XrSwapchainCreateInfo& swapchainCreateInfo );
-		void RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat, const std::vector<CubeData>& cubes );
+		void RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat );
 		int64_t SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const;
 		void InitializeRenderer( Renderer* renderer );
 		void DrawIndexed( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation );
@@ -74,13 +62,8 @@ namespace Katame
 		XrGraphicsBindingD3D11KHR m_graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
 		std::list<std::vector<XrSwapchainImageD3D11KHR>> m_swapchainImageBuffers;
 
-		VertexShader* m_VS;
-		PixelShader* m_PS;
-		InputLayout* m_IL;
 		VCBuffer* m_ModelCBuf;
 		VCBuffer* m_ViewProjCBuf;
-		VertexBuffer* m_CubeVB;
-		IndexBuffer* m_CubeIB;
 
 		// Map color buffer to associated depth buffer. This map is populated on demand.
 		std::map<ID3D11Texture2D*, ID3D11DepthStencilView*> m_colorToDepthMap;
