@@ -30,12 +30,12 @@ namespace Katame
 	{
 	}
 
-	void Cube::Update()
+	void Cube::Update( float dt )
 	{
-		Pose.position.x += 0.001f;
+		Pose.position.x += dt * 0.01f;
 		//Pose.orientation.x += 0.01f;
-		//Pose.orientation.y += 0.01f;
-		//Pose.orientation.z += 0.01f;
+		//Pose.orientation.y += dt * 0.01f;
+		//Pose.orientation.z += dt * 0.01f;
 	}
 
 	DirectX::XMMATRIX Cube::GetModelMatrix()

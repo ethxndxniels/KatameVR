@@ -41,7 +41,8 @@ namespace Katame
 			if ( m_XRCore->IsSessionRunning() )
 			{
 				m_XRCore->PollActions();
-				Update( 1.0f );
+				const auto dt = m_Timer.Mark() * speed_factor;
+				Update( dt );
 				Submit();
 				m_XRCore->RenderFrame();
 				m_Renderer->Clear();
@@ -56,8 +57,8 @@ namespace Katame
 
 	void Application::Update( float dt )
 	{
-		m_Cube->Update();
-		m_Cube2->Update();
+		m_Cube->Update( dt);
+		m_Cube2->Update( dt );
 	}
 
 	void Application::Submit()

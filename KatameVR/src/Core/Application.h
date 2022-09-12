@@ -32,6 +32,9 @@ namespace Katame
 		Cube* m_Cube;
 		Cube* m_Cube2;
 	private:
+		FrameTimer m_Timer;
+		float speed_factor = 1.0f;
+	private:
 		bool m_Running = true;
 		bool requestRestart = false;
 	};

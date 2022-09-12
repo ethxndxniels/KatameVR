@@ -16,7 +16,7 @@ namespace Katame
 		Cube( Graphics* gfx );
 		~Cube();
 	public:
-		void Update();
+		void Update( float dt );
 		DirectX::XMMATRIX GetModelMatrix() override;
 		void SetData( XrPosef pose, XrVector3f scale );
 	private:
