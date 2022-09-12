@@ -22,7 +22,7 @@ namespace Katame
 		Drawable::Submit( new PixelShader( gfx, ".\\Shaders\\Bin\\MainPS.cso" ) );
 		Drawable::Submit( new InputLayout( gfx, Geometry::CreateCubeInputLayout(), *m_VS ) );
 		Drawable::Submit( new VertexBuffer( gfx, Geometry::CreateCubeVertices().data(), (unsigned int)Geometry::CreateCubeVertices().size() * sizeof( Geometry::CubeVertex ), sizeof( Geometry::CubeVertex ) ) );
-		IndexBuffer* m_IB = new IndexBuffer( gfx, Geometry::CreateCubeIndices().data(), (unsigned int)Geometry::CreateCubeIndices().size() * sizeof( unsigned int ), sizeof( unsigned int ) );
+		IndexBuffer* m_IB = new IndexBuffer( gfx, Geometry::CreateCubeIndices().data(), (unsigned int)Geometry::CreateCubeIndices().size() * sizeof( unsigned short ), sizeof( unsigned short ) );
 		Drawable::SetIndexBuffer(  m_IB );
 		Drawable::Submit( m_IB );
 		Drawable::Submit( new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
