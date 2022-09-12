@@ -162,11 +162,11 @@ namespace Katame
 
         // Log system properties.
         KM_CORE_INFO( "System Properties: Name={} VendorId={}", systemProperties.systemName, systemProperties.vendorId );
-        KM_CORE_INFO( "System Graphics Properties: MaxWidth={} MaxHeight={} MaxLayers={}",
+        KM_CORE_TRACE( "System Graphics Properties: MaxWidth={} MaxHeight={} MaxLayers={}",
             systemProperties.graphicsProperties.maxSwapchainImageWidth,
             systemProperties.graphicsProperties.maxSwapchainImageHeight,
             systemProperties.graphicsProperties.maxLayerCount );
-        KM_CORE_INFO( "System Tracking Properties: OrientationTracking={} PositionTracking={}",
+        KM_CORE_TRACE( "System Tracking Properties: OrientationTracking={} PositionTracking={}",
             systemProperties.trackingProperties.orientationTracking == XR_TRUE ? "True" : "False",
             systemProperties.trackingProperties.positionTracking == XR_TRUE ? "True" : "False" );
 
@@ -211,14 +211,14 @@ namespace Katame
                         swapchainFormatsString += "]";
                     }
                 }
-                KM_CORE_INFO( "Swapchain Formats: {}", swapchainFormatsString.c_str() );
+                KM_CORE_TRACE( "Swapchain Formats: {}", swapchainFormatsString.c_str() );
             }
 
             // Create a swapchain for each view.
             for (uint32_t i = 0; i < viewCount; i++) 
             {
                 const XrViewConfigurationView& vp = m_configViews[i];
-                KM_CORE_INFO( "Creating swapchain for view {} with dimensions Width={} Height={} SampleCount={}", i,
+                KM_CORE_TRACE( "Creating swapchain for view {} with dimensions Width={} Height={} SampleCount={}", i,
                         vp.recommendedImageRectWidth, vp.recommendedImageRectHeight, vp.recommendedSwapchainSampleCount );
 
                 // Create the swapchain.
@@ -267,7 +267,7 @@ namespace Katame
             case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
             {
                 const auto& instanceLossPending = *reinterpret_cast<const XrEventDataInstanceLossPending*>(event);
-                KM_CORE_INFO( "XrEventDataInstanceLossPending by {}", instanceLossPending.lossTime );
+                KM_CORE_TRACE( "XrEventDataInstanceLossPending by {}", instanceLossPending.lossTime );
                 *exitRenderLoop = true;
                 *requestRestart = true;
                 return;
@@ -416,7 +416,7 @@ namespace Katame
 
             KM_CORE_INFO( "Available Layers: {}", layerCount );
             for (const XrApiLayerProperties& layer : layers) {
-                KM_CORE_INFO( "Name={} SpecVersion={} LayerVersion={} Description={}", layer.layerName, layer.specVersion,
+                KM_CORE_TRACE( "Name={} SpecVersion={} LayerVersion={} Description={}", layer.layerName, layer.specVersion,
                     layer.layerVersion, layer.description );
                 logExtensions( layer.layerName, 4 );
             }
@@ -441,7 +441,7 @@ namespace Katame
         createInfo.enabledExtensionCount = (uint32_t)extensions.size();
         createInfo.enabledExtensionNames = extensions.data();
 
-        strcpy( createInfo.applicationInfo.applicationName, "HelloXR" );
+        strcpy_s( createInfo.applicationInfo.applicationName, sizeof( "HelloXR" ) + 1, "HelloXR");
         createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
 
         m_LastCallResult = xrCreateInstance( &createInfo, &m_Instance );
@@ -469,12 +469,12 @@ namespace Katame
         KM_CORE_INFO( "Available View Configuration Types: {}", viewConfigTypeCount );
         for (XrViewConfigurationType viewConfigType : viewConfigTypes)
         {
-            KM_CORE_INFO( "  View Configuration Type: {} {}", std::to_string( viewConfigType ), viewConfigType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO ? "(Selected)" : "" );
+            KM_CORE_TRACE( "  View Configuration Type: {} {}", std::to_string( viewConfigType ), viewConfigType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO ? "(Selected)" : "" );
 
             XrViewConfigurationProperties viewConfigProperties{ XR_TYPE_VIEW_CONFIGURATION_PROPERTIES };
             xrGetViewConfigurationProperties( m_Instance, m_SystemId, viewConfigType, &viewConfigProperties );
 
-            KM_CORE_INFO( "  View configuration FovMutable={}", viewConfigProperties.fovMutable == XR_TRUE ? "True" : "False" );
+            KM_CORE_TRACE( "  View configuration FovMutable={}", viewConfigProperties.fovMutable == XR_TRUE ? "True" : "False" );
 
             uint32_t viewCount;
             xrEnumerateViewConfigurationViews( m_Instance, m_SystemId, viewConfigType, 0, &viewCount, nullptr );
@@ -486,10 +486,10 @@ namespace Katame
                 for (uint32_t i = 0; i < views.size(); i++) {
                     const XrViewConfigurationView& view = views[i];
 
-                    KM_CORE_INFO( "    View [{}]: Recommended Width={} Height={} SampleCount={}", i,
+                    KM_CORE_TRACE( "    View [{}]: Recommended Width={} Height={} SampleCount={}", i,
                         view.recommendedImageRectWidth, view.recommendedImageRectHeight,
                         view.recommendedSwapchainSampleCount );
-                    KM_CORE_INFO( "    View [{}]:     Maximum Width={} Height={} SampleCount={}", i, view.maxImageRectWidth,
+                    KM_CORE_TRACE( "    View [{}]:     Maximum Width={} Height={} SampleCount={}", i, view.maxImageRectWidth,
                         view.maxImageRectHeight, view.maxSwapchainSampleCount );
                 }
             }
@@ -516,7 +516,7 @@ namespace Katame
         for (XrEnvironmentBlendMode mode : blendModes)
         {
             const bool blendModeMatch = (mode == XR_ENVIRONMENT_BLEND_MODE_OPAQUE);
-            KM_CORE_INFO( "Environment Blend Mode {} : {}", std::to_string( mode ), blendModeMatch ? "(Selected)" : "" );
+            KM_CORE_TRACE( "Environment Blend Mode {} : {}", std::to_string( mode ), blendModeMatch ? "(Selected)" : "" );
             blendModeFound |= blendModeMatch;
         }
     }
@@ -530,7 +530,7 @@ namespace Katame
         KM_CORE_INFO( "Available reference spaces: {}", spaceCount );
         for (XrReferenceSpaceType space : spaces) 
         {
-            KM_CORE_INFO( "  Name: {}", std::to_string(space) );
+            KM_CORE_TRACE( "  Name: {}", std::to_string(space) );
         }
     }
     void XRCore::InitializeActions()
@@ -755,7 +755,7 @@ namespace Katame
             if (baseHeader->type == XR_TYPE_EVENT_DATA_EVENTS_LOST) 
             {
                 const XrEventDataEventsLost* const eventsLost = reinterpret_cast<const XrEventDataEventsLost*>(baseHeader);
-                KM_CORE_INFO( "{} events lost", sizeof(eventsLost) );
+                KM_CORE_TRACE( "{} events lost", sizeof(eventsLost) );
             }
 
             return baseHeader;
@@ -772,7 +772,7 @@ namespace Katame
         const XrSessionState oldState = m_sessionState;
         m_sessionState = stateChangedEvent.state;
 
-        KM_CORE_INFO( "XrEventDataSessionStateChanged: state {}->{} session={} time={}", to_string( oldState ),
+        KM_CORE_TRACE( "XrEventDataSessionStateChanged: state {}->{} session={} time={}", to_string( oldState ),
            to_string( m_sessionState ), "m_Session", stateChangedEvent.time);
 
         if ((stateChangedEvent.session != XR_NULL_HANDLE) && (stateChangedEvent.session != m_Session)) {

@@ -48,7 +48,7 @@ ID3DBlob* CompileShader( const char* hlsl, const char* entrypoint, const char* s
 
 IDXGIAdapter1* GetAdapter( LUID adapterId ) {
     // Create the DXGI factory.
-    IDXGIFactory1* dxgiFactory;
+    IDXGIFactory1* dxgiFactory = nullptr;
     CreateDXGIFactory1( __uuidof(IDXGIFactory1), reinterpret_cast<void**>(dxgiFactory) );
 
     for (UINT adapterIndex = 0;; adapterIndex++) {
