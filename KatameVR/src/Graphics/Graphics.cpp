@@ -90,6 +90,8 @@ namespace Katame
 		m_ViewProjCBuf->Update( this, &viewProjection );
 		m_ViewProjCBuf->Bind( this );
 
+		m_ModelCBuf->Bind( this );
+
 		m_Renderer->Execute( m_ModelCBuf );
 	}
 

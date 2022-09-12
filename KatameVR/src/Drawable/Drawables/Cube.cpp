@@ -10,6 +10,8 @@
 #include "../../Bindables/CBuffer.h"
 #include "../../Bindables/Buffer.h"
 #include "../../Bindables/Topology.h"
+#include "../../Bindables/Rasterizer.h"
+#include "../../Bindables/Blender.h"
 
 namespace Katame
 {
@@ -24,6 +26,8 @@ namespace Katame
 		Drawable::SetIndexBuffer(  m_IB );
 		Drawable::Submit( m_IB );
 		Drawable::Submit( new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
+		Drawable::Submit( new Rasterizer( gfx, true ) );
+		Drawable::Submit( new Blender( gfx, false ) );
 	}
 
 	Cube::~Cube()
@@ -32,7 +36,7 @@ namespace Katame
 
 	void Cube::Update( float dt )
 	{
-		Pose.position.x += dt * 0.01f;
+		Pose.position.x += dt * 0.1f;
 		//Pose.orientation.x += 0.01f;
 		//Pose.orientation.y += dt * 0.01f;
 		//Pose.orientation.z += dt * 0.01f;

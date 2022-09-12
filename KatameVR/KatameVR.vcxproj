@@ -96,6 +96,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Bindables\Blender.cpp" />
+    <ClCompile Include="src\Bindables\Rasterizer.cpp" />
     <ClCompile Include="src\Drawable\Drawables\Cube.cpp" />
     <ClCompile Include="src\Bindables\CBuffer.cpp" />
     <ClCompile Include="src\drawable\Drawable.cpp" />
@@ -123,6 +125,8 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Bindables\Blender.h" />
+    <ClInclude Include="src\Bindables\Rasterizer.h" />
     <ClInclude Include="src\Drawable\Drawables\Cube.h" />
     <ClInclude Include="src\Bindables\Bindable.h" />
     <ClInclude Include="src\Bindables\CBuffer.h" />

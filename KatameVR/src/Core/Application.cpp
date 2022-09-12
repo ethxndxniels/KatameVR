@@ -58,10 +58,10 @@ namespace Katame
 	void Application::Update( float dt )
 	{
 		m_Cube->Update( dt);
-		m_Cube2->Update( dt );
+		m_Cube2->Update( -dt );
 	}
 
-	void Application::Submit()
+	void Application::Submit()	
 	{
 		m_Renderer->Submit( *m_Cube );
 		m_Renderer->Submit( *m_Cube2 );
