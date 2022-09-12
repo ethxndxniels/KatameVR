@@ -30,6 +30,10 @@ namespace Katame
 			modelCBuf->Bind( gfx );
 			drawable->Draw( gfx );
 		}
+	}
+
+	void Renderer::Clear()
+	{
 		m_Drawables.clear();
 	}
 }

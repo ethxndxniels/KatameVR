@@ -16,6 +16,7 @@ namespace Katame
 	public:
 		void Submit( Drawable& drawable );
 		void Execute( VCBuffer* modelCBuf );
+		void Clear();
 	private:
 		Graphics* gfx;
 		std::vector<Drawable*> m_Drawables;

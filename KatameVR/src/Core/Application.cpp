@@ -17,9 +17,9 @@ namespace Katame
 		m_Graphics->InitializeRenderer( m_Renderer );
 
         m_Cube = new Cube( m_Graphics );
-		m_Cube->SetData( { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }, { 0.25f, 0.25f, 0.25f } );
+		m_Cube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Cube2 = new Cube( m_Graphics );
-		m_Cube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.25f, 0.25f, 0.25f } );
+		m_Cube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
 	}
 
 	Application::~Application()
@@ -28,7 +28,7 @@ namespace Katame
 
 	void Application::Launch()
 	{
-		//KM_CORE_INFO( "Launching Application.." );
+		KM_CORE_INFO( "Launching Application.." );
 		while (m_Running) 
 		{
 			bool exitRenderLoop = false;
@@ -44,6 +44,7 @@ namespace Katame
 				Update( 1.0f );
 				Submit();
 				m_XRCore->RenderFrame();
+				m_Renderer->Clear();
 			}
 			else 
 			{
