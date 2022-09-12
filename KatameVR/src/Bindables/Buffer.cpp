@@ -26,7 +26,7 @@ namespace Katame
 	}
 
 	IndexBuffer::IndexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride )
-		: m_Count( size )
+		: m_Count( size / stride )
 	{
 		D3D11_BUFFER_DESC ibd = {};
 		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
