@@ -1,13 +1,13 @@
 struct PSVertex
 {
     float4 Pos : SV_POSITION;
-    float3 Color : COLOR;
+    float3 Color : Color;
 };
 
 struct Vertex 
 {
-    float3 Pos : POSITION;
-    float3 Color : COLOR;
+    float3 Pos : Position;
+    float3 Color : Color;
 };
 
 cbuffer ModelConstantBuffer : register(b0) 

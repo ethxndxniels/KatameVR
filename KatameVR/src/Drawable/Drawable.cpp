@@ -15,7 +15,7 @@ namespace Katame
 	{
 		binds.push_back( bind );
 	}
-	void Drawable::Draw( Graphics* gfx )
+	void Drawable::Render( Graphics* gfx )
 	{
 		for (Bindable* bind : binds)
 		{

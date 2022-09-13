@@ -1,7 +1,11 @@
-cbuffer TransformBuffer : register(b0) 
+cbuffer ModelConstantBuffer : register(b0)
 {
-	float4x4 world;
-	float4x4 viewproj;
+	float4x4 Model;
+};
+
+cbuffer ViewProjectionConstantBuffer : register(b1)
+{
+	float4x4 ViewProjection;
 };
 
 struct vsIn 
@@ -23,9 +27,8 @@ struct psIn
 psIn main( vsIn input )
 {
 	psIn output;
-	output.a_Position = mul( float4(input.a_Position.xyz, 1), world );
-	output.a_Position = mul( output.a_Position, viewproj );
-	output.a_Normal = normalize( mul( float4(input.a_Normal, 0), world ).xyz );
+	output.a_Position = mul( mul( float4(input.a_Position.xyz, 1), Model ), ViewProjection );
+	output.a_Normal = normalize( mul( float4(input.a_Normal, 0), Model ).xyz );
 	output.a_TexCoord = input.a_TexCoord;
 	return output;
 }

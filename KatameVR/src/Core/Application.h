@@ -13,6 +13,7 @@
 #include "../Utilities/FrameTimer.h"
 
 #include "../Drawable/Drawables/Cube.h"
+#include "../Renderer/Mesh.h"
 
 namespace Katame 
 {
@@ -31,6 +32,8 @@ namespace Katame
 	private:
 		Cube* m_Cube;
 		Cube* m_Cube2;
+		Mesh* m_Mesh;
+		Mesh* m_Mesh2;
 	private:
 		FrameTimer m_Timer;
 		float speed_factor = 1.0f;

@@ -2,6 +2,7 @@
 
 #include "../Graphics/Graphics.h"
 #include "../Drawable/Drawable.h"
+#include "Mesh.h"
 #include "../Bindables/Buffer.h"
 #include "../Graphics/D3DCommon.h"
 
@@ -20,6 +21,11 @@ namespace Katame
 		m_Drawables.push_back( &drawable );
 	}
 
+	void Renderer::Submit( Mesh& mesh )
+	{
+		m_Meshes.push_back( &mesh );
+	}
+
 	void Renderer::Execute( VCBuffer* modelCBuf )
 	{
 		ModelConstantBuffer model;
@@ -27,7 +33,14 @@ namespace Katame
 		{	
 			XMStoreFloat4x4( &model.Model, drawable->GetModelMatrix() );
 			modelCBuf->Update( gfx, &model );
-			drawable->Draw( gfx );
+			drawable->Render( gfx );
+		}
+
+		for ( Mesh* mesh : m_Meshes )
+		{
+			XMStoreFloat4x4( &model.Model, mesh->GetModelMatrix() );
+			modelCBuf->Update( gfx, &model );
+			mesh->Render( gfx );
 		}
 	}
 

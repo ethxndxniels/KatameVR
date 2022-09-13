@@ -72,6 +72,9 @@
     <ClCompile Include="src\Bindables\Rasterizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -791,6 +794,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Bindables\Rasterizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

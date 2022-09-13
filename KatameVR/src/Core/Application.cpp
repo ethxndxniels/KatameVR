@@ -20,6 +20,7 @@ namespace Katame
 		m_Cube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Cube2 = new Cube( m_Graphics );
 		m_Cube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
+		m_Mesh = new Mesh( "Models\\cerberus.fbx", m_Graphics );
 	}
 
 	Application::~Application()
@@ -65,5 +66,6 @@ namespace Katame
 	{
 		m_Renderer->Submit( *m_Cube );
 		m_Renderer->Submit( *m_Cube2 );
+		m_Renderer->Submit( *m_Mesh );
 	}
 }
