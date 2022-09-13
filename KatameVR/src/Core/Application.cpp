@@ -60,6 +60,7 @@ namespace Katame
 	{
 		m_Cube->Update( dt);
 		m_Cube2->Update( -dt );
+		m_Mesh->Update( dt );
 	}
 
 	void Application::Submit()	

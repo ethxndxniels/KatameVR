@@ -122,9 +122,30 @@ namespace Katame {
 		gfx->DrawIndexed( m_IndexBuffer->GetCount(), 0u, 0u );
 	}
 
+	bool flag = true;
+	void Mesh::Update( float dt )
+	{
+		if (Pose.position.y > 0.5f)
+			flag = false;
+		else if ( Pose.position.y < -0.5f)
+			flag = true;
+
+		if ( flag )
+		{ 
+			Pose.position.y += dt * 0.1f;
+			Pose.orientation.w += dt * 0.1f;
+		}
+		else
+		{
+			Pose.position.y -= dt * 0.1f;
+			Pose.orientation.w -= dt * 0.1f;
+
+		}
+	}
+
 	DirectX::XMMATRIX Mesh::GetModelMatrix()
 	{
-		return DirectX::XMMatrixTranspose( DirectX::XMMatrixScaling( 0, 0, 0) * LoadXrPose( {0, 0} ));
+		return DirectX::XMMatrixTranspose( DirectX::XMMatrixScaling( Scale.x, Scale.y, Scale.z ) * LoadXrPose( Pose ) );
 	}
 
 }

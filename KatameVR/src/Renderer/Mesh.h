@@ -9,6 +9,8 @@
 
 #include <DirectXMath.h>
 
+#include <openxr/openxr.h>
+
 namespace Katame {
 
 	class Graphics;
@@ -37,6 +39,8 @@ namespace Katame {
 		~Mesh();
 
 		void Render( Graphics* gfx );
+		void Update( float dt );
+
 		DirectX::XMMATRIX GetModelMatrix();
 		inline const std::string& GetFilePath() const { return m_FilePath; }
 	private:
@@ -48,7 +52,8 @@ namespace Katame {
 		InputLayout* m_InputLayout;
 		VertexShader* vs;
 		PixelShader* ps;
-
+		XrPosef Pose = { { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } };
+		XrVector3f Scale = { 0.025f, 0.025f, 0.025f };
 		std::string m_FilePath;
 	};
 }
