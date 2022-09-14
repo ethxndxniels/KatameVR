@@ -49,13 +49,13 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>KatameVR</TargetName>
     <LibraryPath>$(ProjectDir)vendor\dxtex\bin\$(Configuration);$(ProjectDir)vendor\assimp\bin\win64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;;$(ProjectDir)vendor\stb\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>KatameVR</TargetName>
     <LibraryPath>$(ProjectDir)vendor\dxtex\bin\$(Configuration);$(ProjectDir)vendor\assimp\bin\win64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;;$(ProjectDir)vendor\stb\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -116,6 +116,7 @@
     <ClCompile Include="src\Utilities\FrameTimer.cpp" />
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
     <ClCompile Include="src\Bindables\Topology.cpp" />
+    <ClCompile Include="src\Platform\Win32Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -363,6 +364,7 @@
     <ClInclude Include="vendor\spdlog\tests\test_sink.h" />
     <ClInclude Include="vendor\spdlog\tests\utils.h" />
     <ClInclude Include="src\Bindables\Buffer.h" />
+    <ClInclude Include="src\Platform\Win32Window.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\MainPS.hlsl">

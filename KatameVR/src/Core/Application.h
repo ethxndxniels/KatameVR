@@ -5,6 +5,7 @@
 #include "../Graphics/Graphics.h"
 #include "../XR/XRCore.h"
 #include "../Renderer/Renderer.h"
+#include "../Platform/Win32Window.h"
 
 #include <thread> // sleep_for
 #include <vector>
@@ -29,6 +30,7 @@ namespace Katame
 		XRCore* m_XRCore = nullptr;
 		Graphics* m_Graphics = nullptr;
 		Renderer* m_Renderer = nullptr;
+		Win32Window* m_Window = nullptr;
 	private:
 		Cube* m_Cube;
 		Cube* m_Cube2;

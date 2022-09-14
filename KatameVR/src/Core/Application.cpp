@@ -6,6 +6,7 @@ namespace Katame
 {
 	Application::Application()
 	{
+		// Core
 		m_Graphics = new Graphics();
 		m_XRCore = new XRCore( m_Graphics );
 		m_XRCore->CreateInstance();
@@ -15,7 +16,9 @@ namespace Katame
 		m_XRCore->CreateSwapchains();
 		m_Renderer = new Renderer( m_Graphics );
 		m_Graphics->InitializeRenderer( m_Renderer );
+		m_Window = new Win32Window( 1280, 720, "Desktop" );
 
+		// Entities
         m_Cube = new Cube( m_Graphics );
 		m_Cube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Cube2 = new Cube( m_Graphics );
@@ -34,6 +37,7 @@ namespace Katame
 		{
 			bool exitRenderLoop = false;
 			m_XRCore->PollEvents( &exitRenderLoop, &requestRestart );
+			m_Window->ProcessMessages();
 			if ( exitRenderLoop ) 
 			{
 				break;

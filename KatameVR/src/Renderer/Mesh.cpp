@@ -115,7 +115,7 @@ namespace Katame {
 	{
 		// TODO: Sort this out
 		m_VertexBuffer->Bind( gfx );
-		m_IndexBuffer->Bind( gfx );
+		m_IndexBuffer->Bind( gfx ); 
 		m_InputLayout->Bind( gfx );
 		vs->Bind( gfx );
 		ps->Bind( gfx );
