@@ -63,7 +63,7 @@
     <ClCompile Include="src\Bindables\Topology.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Drawable\Drawables\Cube.cpp">
+    <ClCompile Include="src\Drawable\Drawables\ColorCube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Bindables\Blender.cpp">
@@ -76,6 +76,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Win32Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lights\DirLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Drawable\Drawables\NormalCube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -790,7 +796,7 @@
     <ClInclude Include="src\Bindables\Topology.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Drawable\Drawables\Cube.h">
+    <ClInclude Include="src\Drawable\Drawables\ColorCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Bindables\Blender.h">
@@ -805,6 +811,12 @@
     <ClInclude Include="src\Platform\Win32Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Lights\DirLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Drawable\Drawables\NormalCube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Shaders\VertexShader.hlsl" />
@@ -813,6 +825,8 @@
     <FxCompile Include="src\Shaders\PhongPS.hlsl" />
     <FxCompile Include="src\Shaders\MainPS.hlsl" />
     <FxCompile Include="src\Shaders\MainVS.hlsl" />
+    <FxCompile Include="src\Shaders\CubeNormPS.hlsl" />
+    <FxCompile Include="src\Shaders\CubeNormVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\assimp\bin\win64\assimp-vc142-mtd.lib" />

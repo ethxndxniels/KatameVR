@@ -19,15 +19,34 @@ namespace Katame
 		m_Window = new Win32Window( 1280, 720, "Desktop" );
 
 		// Entities
-        m_Cube = new Cube( m_Graphics );
+        m_Cube = new ColorCube( m_Graphics );
 		m_Cube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_Cube2 = new Cube( m_Graphics );
+		m_Cube2 = new ColorCube( m_Graphics );
 		m_Cube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_Mesh = new Mesh( "Models\\cerberus.fbx", m_Graphics );
+		m_NCube = new NormalCube( m_Graphics );
+		m_NCube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
+		m_NCube2 = new NormalCube( m_Graphics );
+		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
+		m_Mesh = new Mesh( "Models\\cerberus\\cerberus.fbx", m_Graphics );
+		//m_Mesh2 = new Mesh( "Models\\petty_imp\\character_runcycle.fbx", m_Graphics );
+	
+		// Lights
+		m_DirLight = new DirLight( m_Graphics );
 	}
 
 	Application::~Application()
 	{
+		delete m_XRCore;
+		delete m_Graphics;
+		delete m_Renderer;
+		delete m_Window;
+		delete m_Cube;
+		delete m_Cube2;
+		delete m_Mesh;
+		delete m_Mesh2;
+		delete m_DirLight;
+		delete m_NCube;
+		delete m_NCube2;
 	}
 
 	void Application::Launch()
@@ -37,7 +56,7 @@ namespace Katame
 		{
 			bool exitRenderLoop = false;
 			m_XRCore->PollEvents( &exitRenderLoop, &requestRestart );
-			m_Window->ProcessMessages();
+			//m_Window->ProcessMessages();
 			if ( exitRenderLoop ) 
 			{
 				break;
@@ -65,12 +84,18 @@ namespace Katame
 		m_Cube->Update( dt);
 		m_Cube2->Update( -dt );
 		m_Mesh->Update( dt );
+		//m_Mesh2->Update( dt );
+		m_DirLight->Update( dt );
 	}
 
 	void Application::Submit()	
 	{
 		m_Renderer->Submit( *m_Cube );
 		m_Renderer->Submit( *m_Cube2 );
+		m_Renderer->Submit( *m_NCube );
+		m_Renderer->Submit( *m_NCube2 );
 		m_Renderer->Submit( *m_Mesh );
+		//m_Renderer->Submit( *m_Mesh2 );
+		m_DirLight->Bind();
 	}
 }

@@ -83,17 +83,16 @@ namespace Katame {
 		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayout =
 		{
 			{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Bitangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Texcoord", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Bitangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Texcoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		};
-
 	
 		vs = new VertexShader( gfx, ".\\Shaders\\Bin\\PhongVS.cso" );
 		ps = new PixelShader( gfx, ".\\Shaders\\Bin\\PhongPS.cso" );
 
-		m_VertexBuffer = new VertexBuffer( gfx, m_Vertices.data(), (unsigned int)m_Vertices.size() * sizeof( Vertex ), sizeof( Vertex ) );
+		m_VertexBuffer = new VertexBuffer( gfx, m_Vertices.data(), (unsigned int)(m_Vertices.size() * sizeof( Vertex )), sizeof( Vertex ) );
 		m_InputLayout = new InputLayout( gfx, inputLayout, *vs );
 
 		// Extract indices from model
@@ -104,7 +103,7 @@ namespace Katame {
 			m_Indices.push_back( { mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2] } );
 		}
 
-		m_IndexBuffer = new IndexBuffer( gfx, m_Indices.data(), (unsigned int)m_Indices.size() * sizeof( Index ), sizeof( Index ) );
+		m_IndexBuffer = new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( Index )), sizeof( Index ) );
 	}
 
 	Mesh::~Mesh()

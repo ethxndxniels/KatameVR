@@ -9,10 +9,21 @@ namespace Katame
 	{
 		gfx->m_Device->CreateBuffer( &cbufDesc, nullptr, &m_CBuffer );
 	}
-
 	void VCBuffer::Update( Graphics* gfx, const void* data )
 	{
 		gfx->m_Context->UpdateSubresource( m_CBuffer, 0, nullptr, data, 0u, 0u );
+	}
+
+	void VCBuffer::Update( Graphics* gfx, const void* data, size_t size )
+	{
+		D3D11_MAPPED_SUBRESOURCE msr;
+		gfx->m_Context->Map(
+			m_CBuffer, 0u,
+			D3D11_MAP_WRITE_DISCARD, 0u,
+			&msr
+		);
+		memcpy( msr.pData, &data, size );
+		gfx->m_Context->Unmap( m_CBuffer, 0u );
 	}
 
 	void VCBuffer::Bind( Graphics* gfx )
@@ -26,9 +37,21 @@ namespace Katame
 		gfx->m_Device->CreateBuffer( &cbufDesc, nullptr, &m_CBuffer );
 	}
 
-	void PCBuffer::Update( Graphics* gfx,  const void* data )
+	void PCBuffer::Update( Graphics* gfx, const void* data )
 	{
 		gfx->m_Context->UpdateSubresource( m_CBuffer, 0, nullptr, data, 0u, 0u );
+	}
+
+	void PCBuffer::Update( Graphics* gfx,  const void* data, size_t size )
+	{
+		D3D11_MAPPED_SUBRESOURCE msr;
+		HRESULT hr = gfx->m_Context->Map(
+			m_CBuffer, 0u,
+			D3D11_MAP_WRITE_DISCARD, 0u,
+			&msr
+		);
+		memcpy( msr.pData, &data, size );
+		gfx->m_Context->Unmap( m_CBuffer, 0u );
 	}
 
 	void PCBuffer::Bind( Graphics* gfx )

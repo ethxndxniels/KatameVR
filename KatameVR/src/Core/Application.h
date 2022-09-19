@@ -13,8 +13,12 @@
 
 #include "../Utilities/FrameTimer.h"
 
-#include "../Drawable/Drawables/Cube.h"
+#include "../Drawable/Drawables/ColorCube.h"
+#include "../Drawable/Drawables/NormalCube.h"
+
 #include "../Renderer/Mesh.h"
+
+#include "../Lights/DirLight.h"
 
 namespace Katame 
 {
@@ -32,10 +36,14 @@ namespace Katame
 		Renderer* m_Renderer = nullptr;
 		Win32Window* m_Window = nullptr;
 	private:
-		Cube* m_Cube;
-		Cube* m_Cube2;
+		ColorCube* m_Cube;
+		ColorCube* m_Cube2;
+		NormalCube* m_NCube;
+		NormalCube* m_NCube2;
 		Mesh* m_Mesh;
 		Mesh* m_Mesh2;
+	private:
+		DirLight* m_DirLight;
 	private:
 		FrameTimer m_Timer;
 		float speed_factor = 1.0f;

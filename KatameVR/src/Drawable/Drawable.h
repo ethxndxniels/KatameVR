@@ -17,6 +17,7 @@ namespace Katame
 	{
 	public:
 		Drawable() = default;
+		virtual ~Drawable();
 		void Submit( Bindable* bind );
 		void Render( Graphics* gfx );
 		virtual DirectX::XMMATRIX GetModelMatrix() = 0;

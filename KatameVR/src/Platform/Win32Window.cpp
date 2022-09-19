@@ -72,37 +72,38 @@ namespace Katame
 
 	unsigned int Win32Window::LoadTexture( const wchar_t* pTextureFile, const char* pSamplerParam )
 	{
-		unsigned int nTexture = 0;
+		return {};
+		//unsigned int nTexture = 0;
 
-		//glGenTextures( 1, &nTexture );
-		//glBindTexture( GL_TEXTURE_2D, nTexture );
+		////glGenTextures( 1, &nTexture );
+		////glBindTexture( GL_TEXTURE_2D, nTexture );
 
-		// Set the texture parameters
-		//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-		//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		//// Set the texture parameters
+		////glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+		////glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+		////glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		////glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
-		// Load image from disk
-		int nWidth, nHeight, nChannels;
-		char pTexture[MAX_PATH] = "";
-		std::wcstombs( pTexture, pTextureFile, MAX_PATH );
+		//// Load image from disk
+		//int nWidth, nHeight, nChannels;
+		//char pTexture[MAX_PATH] = "";
+		//std::wcstombs( pTexture, pTextureFile, MAX_PATH );
 
-		stbi_set_flip_vertically_on_load( true );
+		//stbi_set_flip_vertically_on_load( true );
 
-		unsigned char* textureData = stbi_load( pTexture, &nWidth, &nHeight, &nChannels, 0 );
-		//if (textureData)
-		//	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData );
-		//else
-		//	KM_CORE_WARN( "Unable to load cube texture from disk ({})", pTexture );
+		//unsigned char* textureData = stbi_load( pTexture, &nWidth, &nHeight, &nChannels, 0 );
+		////if (textureData)
+		////	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData );
+		////else
+		////	KM_CORE_WARN( "Unable to load cube texture from disk ({})", pTexture );
 
-		stbi_image_free( textureData );
+		//stbi_image_free( textureData );
 
-		// Set the 2d texture sampler param in the shader
-		//glUseProgram( nShader );
-		//glUniform1i( glGetUniformLocation( nShader, pSamplerParam ), 0 );
+		//// Set the 2d texture sampler param in the shader
+		////glUseProgram( nShader );
+		////glUniform1i( glGetUniformLocation( nShader, pSamplerParam ), 0 );
 
-		return nTexture;
+		//return nTexture;
 	}
 
 	LRESULT Win32Window::HandleMsgSetup( HWND m_hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) noexcept

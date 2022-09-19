@@ -13,6 +13,7 @@ namespace Katame
 	public:
 		VCBuffer( Graphics* gfx, const CD3D11_BUFFER_DESC& cbufDesc, unsigned int slot );
 		void Update( Graphics* gfx, const void* data );
+		void Update( Graphics* gfx, const void* data, size_t size );
 		void Bind( Graphics* gfx ) override;
 	private:
 		unsigned int u_Slot;
@@ -24,6 +25,7 @@ namespace Katame
 	public:
 		PCBuffer( Graphics* gfx, const CD3D11_BUFFER_DESC& cbufDesc, unsigned int slot );
 		void Update( Graphics* gfx, const void* data );
+		void Update( Graphics* gfx, const void* data, size_t size );
 		void Bind( Graphics* gfx ) override;
 	private:
 		unsigned int u_Slot;

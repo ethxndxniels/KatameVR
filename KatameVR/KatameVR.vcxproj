@@ -96,10 +96,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Drawable\Drawables\NormalCube.cpp" />
+    <ClCompile Include="src\Lights\DirLight.cpp" />
     <ClCompile Include="src\Renderer\Mesh.cpp" />
     <ClCompile Include="src\Bindables\Blender.cpp" />
     <ClCompile Include="src\Bindables\Rasterizer.cpp" />
-    <ClCompile Include="src\Drawable\Drawables\Cube.cpp" />
+    <ClCompile Include="src\Drawable\Drawables\ColorCube.cpp" />
     <ClCompile Include="src\Bindables\CBuffer.cpp" />
     <ClCompile Include="src\drawable\Drawable.cpp" />
     <ClCompile Include="src\Graphics\D3DCommon.cpp" />
@@ -127,10 +129,12 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Drawable\Drawables\NormalCube.h" />
+    <ClInclude Include="src\Lights\DirLight.h" />
     <ClInclude Include="src\Renderer\Mesh.h" />
     <ClInclude Include="src\Bindables\Blender.h" />
     <ClInclude Include="src\Bindables\Rasterizer.h" />
-    <ClInclude Include="src\Drawable\Drawables\Cube.h" />
+    <ClInclude Include="src\Drawable\Drawables\ColorCube.h" />
     <ClInclude Include="src\Bindables\Bindable.h" />
     <ClInclude Include="src\Bindables\CBuffer.h" />
     <ClInclude Include="src\Drawable\Drawable.h" />
@@ -367,6 +371,18 @@
     <ClInclude Include="src\Platform\Win32Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="src\Shaders\CubeNormPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="src\Shaders\CubeNormVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\Shaders\Bin\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <FxCompile Include="src\Shaders\MainPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
