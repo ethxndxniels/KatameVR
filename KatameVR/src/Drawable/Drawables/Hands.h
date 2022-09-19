@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Drawables/ColorCube.h"
+#include "../Drawable.h"
 
 #include <d3d11.h>
 #include <DirectXMath.h>
@@ -10,6 +10,7 @@ namespace Katame
 {
 	class Graphics;
 	class XRCore;
+	class Mesh;
 
 	class Hands
 	{
@@ -18,13 +19,15 @@ namespace Katame
 		~Hands();
 	public:
 		void Update( float dt );
-		Drawable* GetLeftHand();
-		Drawable* GetRightHand();
+		Mesh* GetLeftHand();
+		Mesh* GetRightHand();
 	private:
 		Graphics* gfx;
 		XRCore* xrCore;
 	private:
-		ColorCube* m_LeftHand;
-		ColorCube* m_RightHand;
+		Mesh* m_LeftHand;
+		Mesh* m_RightHand;
+		//ColorCube* m_LeftHand;
+		//ColorCube* m_RightHand;
 	};
 };

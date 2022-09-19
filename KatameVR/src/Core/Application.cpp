@@ -29,7 +29,8 @@ namespace Katame
 		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Mesh = new Mesh( "Models\\cerberus\\cerberus.fbx", m_Graphics );
 		//m_Mesh2 = new Mesh( "Models\\petty_imp\\character_runcycle.fbx", m_Graphics );
-		
+
+		// Player
 		m_Hands = new Hands( m_Graphics, m_XRCore );
 
 		// Lights

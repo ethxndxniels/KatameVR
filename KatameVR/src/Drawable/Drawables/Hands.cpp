@@ -15,13 +15,16 @@
 #include "../../Bindables/Rasterizer.h"
 #include "../../Bindables/Blender.h"
 
+#include "../../Renderer/Mesh.h"
+
 namespace Katame
 {
 	Hands::Hands( Graphics* gfx, XRCore* xrCore )
 		: gfx( gfx ), xrCore( xrCore )
 	{
-		m_LeftHand = new ColorCube( gfx );
-		m_RightHand = new ColorCube( gfx );
+		m_LeftHand = new Mesh( "Models\\hands\\HandModel\\hand.fbx", gfx );
+		m_RightHand = new Mesh( "Models\\hands\\HandModel\\hand.fbx", gfx );
+		//m_RightHand = new ColorCube( gfx );
 	}
 
 	Hands::~Hands()
@@ -35,11 +38,11 @@ namespace Katame
 		m_LeftHand->SetData( xrCore->GetLeftHand().first, xrCore->GetLeftHand().second );
 		m_RightHand->SetData( xrCore->GetRightHand().first, xrCore->GetRightHand().second );
 	}
-	Drawable* Hands::GetLeftHand()
+	Mesh* Hands::GetLeftHand()
 	{
 		return m_LeftHand;
 	}
-	Drawable* Hands::GetRightHand()
+	Mesh* Hands::GetRightHand()
 	{
 		return m_RightHand;
 	}

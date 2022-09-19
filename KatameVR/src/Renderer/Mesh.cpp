@@ -11,17 +11,14 @@
 
 namespace Katame {
 
-	namespace {
+	namespace
+	{
 		const unsigned int ImportFlags =
-			aiProcess_CalcTangentSpace |
 			aiProcess_Triangulate |
-			aiProcess_SortByPType |
-			aiProcess_PreTransformVertices |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_ConvertToLeftHanded |
 			aiProcess_GenNormals |
-			aiProcess_GenUVCoords |
-			aiProcess_OptimizeMeshes |
-			aiProcess_Debone |
-			aiProcess_ValidateDataStructure;
+			aiProcess_CalcTangentSpace;
 	}
 
 	struct LogStream : public Assimp::LogStream
@@ -76,6 +73,7 @@ namespace Katame {
 
 			if (mesh->HasTextureCoords( 0 ))
 				vertex.Texcoord = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+
 			m_Vertices.push_back( vertex );
 		}
 
@@ -83,10 +81,10 @@ namespace Katame {
 		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayout =
 		{
 			{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Bitangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"Texcoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Bitangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Texcoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		};
 	
 		vs = new VertexShader( gfx, ".\\Shaders\\Bin\\PhongVS.cso" );
@@ -104,6 +102,9 @@ namespace Katame {
 		}
 
 		m_IndexBuffer = new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( Index )), sizeof( Index ) );
+		m_Topology = new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		m_Rasterizer = new Rasterizer( gfx, true );
+		m_Blender = new Blender( gfx, false );
 	}
 
 	Mesh::~Mesh()
@@ -118,6 +119,9 @@ namespace Katame {
 		m_InputLayout->Bind( gfx );
 		vs->Bind( gfx );
 		ps->Bind( gfx );
+		m_Topology->Bind( gfx );
+		m_Rasterizer->Bind( gfx );
+		m_Blender->Bind( gfx );
 		gfx->DrawIndexed( m_IndexBuffer->GetCount(), 0u, 0u );
 	}
 
@@ -140,6 +144,12 @@ namespace Katame {
 			Pose.orientation.w -= dt * 0.1f;
 
 		}
+	}
+
+	void Mesh::SetData( XrPosef pose, XrVector3f scale )
+	{
+		Pose = pose;
+		Scale = scale;
 	}
 
 	DirectX::XMMATRIX Mesh::GetModelMatrix()
