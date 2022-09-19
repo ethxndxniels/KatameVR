@@ -96,6 +96,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Drawable\Drawables\Hands.cpp" />
     <ClCompile Include="src\Drawable\Drawables\NormalCube.cpp" />
     <ClCompile Include="src\Lights\DirLight.cpp" />
     <ClCompile Include="src\Renderer\Mesh.cpp" />
@@ -129,6 +130,7 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Drawable\Drawables\Hands.h" />
     <ClInclude Include="src\Drawable\Drawables\NormalCube.h" />
     <ClInclude Include="src\Lights\DirLight.h" />
     <ClInclude Include="src\Renderer\Mesh.h" />

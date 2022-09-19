@@ -29,7 +29,9 @@ namespace Katame
 		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Mesh = new Mesh( "Models\\cerberus\\cerberus.fbx", m_Graphics );
 		//m_Mesh2 = new Mesh( "Models\\petty_imp\\character_runcycle.fbx", m_Graphics );
-	
+		
+		m_Hands = new Hands( m_Graphics, m_XRCore );
+
 		// Lights
 		m_DirLight = new DirLight( m_Graphics );
 	}
@@ -47,6 +49,7 @@ namespace Katame
 		delete m_DirLight;
 		delete m_NCube;
 		delete m_NCube2;
+		delete m_Hands;
 	}
 
 	void Application::Launch()
@@ -57,10 +60,9 @@ namespace Katame
 			bool exitRenderLoop = false;
 			m_XRCore->PollEvents( &exitRenderLoop, &requestRestart );
 			//m_Window->ProcessMessages();
+			
 			if ( exitRenderLoop ) 
-			{
 				break;
-			}
 
 			if ( m_XRCore->IsSessionRunning() )
 			{
@@ -81,10 +83,13 @@ namespace Katame
 
 	void Application::Update( float dt )
 	{
-		m_Cube->Update( dt);
-		m_Cube2->Update( -dt );
+		//m_Cube->Update( dt);
+		//m_Cube2->Update( -dt );
+		m_NCube->Update( dt );
+		m_NCube2->Update( -dt );
 		m_Mesh->Update( dt );
 		//m_Mesh2->Update( dt );
+		m_Hands->Update( dt );
 		m_DirLight->Update( dt );
 	}
 
@@ -96,6 +101,8 @@ namespace Katame
 		m_Renderer->Submit( *m_NCube2 );
 		m_Renderer->Submit( *m_Mesh );
 		//m_Renderer->Submit( *m_Mesh2 );
+		m_Renderer->Submit( *m_Hands->GetLeftHand() );
+		m_Renderer->Submit( *m_Hands->GetRightHand() );
 		m_DirLight->Bind();
 	}
 }

@@ -16,6 +16,8 @@
 #include "../Drawable/Drawables/ColorCube.h"
 #include "../Drawable/Drawables/NormalCube.h"
 
+#include "../Drawable/Drawables/Hands.h"
+
 #include "../Renderer/Mesh.h"
 
 #include "../Lights/DirLight.h"
@@ -42,6 +44,7 @@ namespace Katame
 		NormalCube* m_NCube2;
 		Mesh* m_Mesh;
 		Mesh* m_Mesh2;
+		Hands* m_Hands;
 	private:
 		DirLight* m_DirLight;
 	private:

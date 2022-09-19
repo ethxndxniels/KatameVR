@@ -255,6 +255,58 @@ namespace Katame
         return m_sessionRunning;
     }
 
+    std::pair<XrPosef,XrVector3f> XRCore::GetLeftHand()
+    {
+        XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
+        m_LastCallResult = xrLocateSpace( m_Input.handSpace[0], m_Space, m_PredictedDisplayTime, &spaceLocation );
+        if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
+        {
+            if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+                (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
+            {
+                float scale = 0.1f * m_Input.handScale[0];
+                return { spaceLocation.pose, {scale, scale, scale} };
+            }
+        }
+        else 
+        {
+            // Tracking loss is expected when the hand is not active so only log a message
+            // if the hand is active.
+            if (m_Input.handActive[0] == XR_TRUE)
+            {
+                const char* handName[] = { "left", "right" };
+                KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[0], m_LastCallResult );
+            }
+        }
+        return {};
+    }
+
+    std::pair<XrPosef, XrVector3f> XRCore::GetRightHand()
+    {
+        XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
+        m_LastCallResult = xrLocateSpace( m_Input.handSpace[1], m_Space, m_PredictedDisplayTime, &spaceLocation );
+        if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
+        {
+            if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+                (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
+            {
+                float scale = 0.1f * m_Input.handScale[1];
+                return { spaceLocation.pose, {scale, scale, scale} };
+            }
+        }
+        else
+        {
+            // Tracking loss is expected when the hand is not active so only log a message
+            // if the hand is active.
+            if (m_Input.handActive[1] == XR_TRUE)
+            {
+                const char* handName[] = { "left", "right" };
+                KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[1], m_LastCallResult );
+            }
+        }
+        return {};
+    }
+
     void XRCore::PollEvents( bool* exitRenderLoop, bool* requestRestart )
     {
         *exitRenderLoop = *requestRestart = false;
@@ -864,6 +916,8 @@ namespace Katame
         viewLocateInfo.displayTime = predictedDisplayTime;
         viewLocateInfo.space = m_Space;
 
+        m_PredictedDisplayTime = predictedDisplayTime;
+
         m_LastCallResult = xrLocateViews( m_Session, &viewLocateInfo, &viewState, viewCapacityInput, &viewCountOutput, m_views.data() );
         if ((viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT) == 0 ||
             (viewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT) == 0) 
@@ -872,54 +926,6 @@ namespace Katame
         }
 
         projectionLayerViews.resize( viewCountOutput );
-
-        // For each locatable space that we want to visualize, render a 25cm cube.
-        /*std::vector<CubeData> cubes;
-
-        for (XrSpace visualizedSpace : m_visualizedSpaces) 
-        {
-            XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
-            m_LastCallResult = xrLocateSpace( visualizedSpace, m_Space, predictedDisplayTime, &spaceLocation );
-            if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
-            {
-                if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-                    (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
-                {
-                    cubes.push_back( CubeData{ spaceLocation.pose, {0.25f, 0.25f, 0.25f} } );
-                }
-            }
-            else
-            {
-                KM_CORE_INFO( "Unable to locate a visualized reference space in app space: {}", m_LastCallResult );
-            }
-        }*/
-
-        // Render a 10cm cube scaled by grabAction for each hand. Note renderHand will only be
-        // true when the application has focus.
-        //for (auto hand : { Side::LEFT, Side::RIGHT }) 
-        //{
-        //    XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
-        //    m_LastCallResult = xrLocateSpace( m_Input.handSpace[hand], m_Space, predictedDisplayTime, &spaceLocation );
-        //    if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
-        //    {
-        //        if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-        //            (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
-        //        {
-        //            float scale = 0.1f * m_Input.handScale[hand];
-        //            cubes.push_back( CubeData{ spaceLocation.pose, {scale, scale, scale} } );
-        //        }
-        //    }
-        //    else 
-        //    {
-        //        // Tracking loss is expected when the hand is not active so only log a message
-        //        // if the hand is active.
-        //        if (m_Input.handActive[hand] == XR_TRUE)
-        //        {
-        //            const char* handName[] = { "left", "right" };
-        //            KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[hand], m_LastCallResult );
-        //        }
-        //    }
-        //}
 
         // Render view to the appropriate part of the swapchain image.
         for (uint32_t i = 0; i < viewCountOutput; i++) 

@@ -45,7 +45,7 @@ namespace Katame
 	void PCBuffer::Update( Graphics* gfx,  const void* data, size_t size )
 	{
 		D3D11_MAPPED_SUBRESOURCE msr;
-		HRESULT hr = gfx->m_Context->Map(
+		gfx->m_Context->Map(
 			m_CBuffer, 0u,
 			D3D11_MAP_WRITE_DISCARD, 0u,
 			&msr

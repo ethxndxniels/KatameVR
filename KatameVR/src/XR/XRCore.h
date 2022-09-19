@@ -58,6 +58,9 @@ namespace Katame
         void CreateSwapchains();
         bool IsSessionRunning();
     public:
+        std::pair<XrPosef, XrVector3f> GetLeftHand();
+        std::pair<XrPosef, XrVector3f> GetRightHand();
+    public:
         void PollEvents( bool* exitRenderLoop, bool* requestRestart );
         void PollActions();
         void RenderFrame();
@@ -103,5 +106,8 @@ namespace Katame
         InputState m_Input;
 
         const std::set<XrEnvironmentBlendMode> m_acceptableBlendModes;
+
+    private:
+        XrTime m_PredictedDisplayTime;
 	};
 }
