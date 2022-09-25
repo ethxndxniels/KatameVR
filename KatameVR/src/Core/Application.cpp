@@ -19,7 +19,7 @@ namespace Katame
 		m_Window = new Win32Window( 1280, 720, "Desktop" );
 
 		// Entities
-        m_Cube = new ColorCube( m_Graphics );
+		m_Cube = new ColorCube( m_Graphics );
 		m_Cube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Cube2 = new ColorCube( m_Graphics );
 		m_Cube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
@@ -28,6 +28,7 @@ namespace Katame
 		m_NCube2 = new NormalCube( m_Graphics );
 		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Mesh = new Mesh( "Models\\cerberus\\cerberus.fbx", m_Graphics );
+		m_Mesh->SetData( { { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } }, { 0.025f, 0.025f, 0.025f } );
 		//m_Mesh2 = new Mesh( "Models\\petty_imp\\character_runcycle.fbx", m_Graphics );
 
 		// Player
@@ -84,7 +85,6 @@ namespace Katame
 
 	void Application::Update( float dt )
 	{
-		//m_Cube->Update( dt);
 		//m_Cube2->Update( -dt );
 		m_NCube->Update( dt );
 		m_NCube2->Update( -dt );
@@ -96,6 +96,8 @@ namespace Katame
 
 	void Application::Submit()	
 	{
+		m_DirLight->Bind();
+
 		m_Renderer->Submit( *m_Cube );
 		m_Renderer->Submit( *m_Cube2 );
 		m_Renderer->Submit( *m_NCube );
@@ -104,6 +106,5 @@ namespace Katame
 		//m_Renderer->Submit( *m_Mesh2 );
 		m_Renderer->Submit( *m_Hands->GetLeftHand() );
 		m_Renderer->Submit( *m_Hands->GetRightHand() );
-		m_DirLight->Bind();
 	}
 }

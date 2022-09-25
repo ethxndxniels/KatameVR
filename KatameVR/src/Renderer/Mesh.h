@@ -23,11 +23,11 @@ namespace Katame {
 	public:
 		struct Vertex
 		{
-			XrVector3f Position;
-			XrVector3f Normal;
-			XrVector3f Tangent;
-			XrVector3f Binormal;
-			XrVector2f Texcoord;
+			DirectX::XMFLOAT3 Position;
+			DirectX::XMFLOAT3 Normal;
+			DirectX::XMFLOAT3 Tangent;
+			DirectX::XMFLOAT3 Binormal;
+			DirectX::XMFLOAT2 Texcoord;
 		};
 		static_assert(sizeof( Vertex ) == 14 * sizeof( float ));
 		static const int NumAttributes = 5;
@@ -59,7 +59,7 @@ namespace Katame {
 		Topology* m_Topology;
 		Rasterizer* m_Rasterizer;
 		Blender* m_Blender;
-		XrPosef Pose = { { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } };
+		XrPosef Pose = { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };
 		XrVector3f Scale = { 0.025f, 0.025f, 0.025f };
 		std::string m_FilePath;
 	};

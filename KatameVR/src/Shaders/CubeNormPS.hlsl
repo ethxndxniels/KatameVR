@@ -11,5 +11,5 @@ struct PSVertex
 
 float4 main( PSVertex input ) : SV_Target
 {
-    return float4(lightDir.yyy, 1);
+    return float4(lightDir.xyz, 1);
 }

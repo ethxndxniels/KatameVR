@@ -8,6 +8,7 @@
 
 namespace Katame
 {
+	class NormalCube;
 	class Graphics;
 	class XRCore;
 	class Mesh;
@@ -19,15 +20,15 @@ namespace Katame
 		~Hands();
 	public:
 		void Update( float dt );
-		Mesh* GetLeftHand();
-		Mesh* GetRightHand();
+		Drawable* GetLeftHand();
+		Drawable* GetRightHand();
 	private:
 		Graphics* gfx;
 		XRCore* xrCore;
 	private:
-		Mesh* m_LeftHand;
-		Mesh* m_RightHand;
-		//ColorCube* m_LeftHand;
-		//ColorCube* m_RightHand;
+		//Mesh* m_LeftHand;
+		//Mesh* m_RightHand;
+		NormalCube* m_LeftHand;
+		NormalCube* m_RightHand;
 	};
 };

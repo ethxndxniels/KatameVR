@@ -12,5 +12,5 @@ struct psIn
 
 float4 main( psIn input ) : SV_Target
 {
-	return float4( dot( input.a_Normal, lightDir.xyz ).xxx, 1.0f );
+	return float4( lightDir.yyy, 1.0f );
 }

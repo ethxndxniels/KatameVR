@@ -17,13 +17,15 @@
 
 #include "../../Renderer/Mesh.h"
 
+#include "./NormalCube.h"
+
 namespace Katame
 {
 	Hands::Hands( Graphics* gfx, XRCore* xrCore )
 		: gfx( gfx ), xrCore( xrCore )
 	{
-		m_LeftHand = new Mesh( "Models\\hands\\HandModel\\hand.fbx", gfx );
-		m_RightHand = new Mesh( "Models\\hands\\HandModel\\hand.fbx", gfx );
+		m_LeftHand = new NormalCube( gfx );
+		m_RightHand = new NormalCube( gfx );
 		//m_RightHand = new ColorCube( gfx );
 	}
 
@@ -38,11 +40,11 @@ namespace Katame
 		m_LeftHand->SetData( xrCore->GetLeftHand().first, xrCore->GetLeftHand().second );
 		m_RightHand->SetData( xrCore->GetRightHand().first, xrCore->GetRightHand().second );
 	}
-	Mesh* Hands::GetLeftHand()
+	Drawable* Hands::GetLeftHand()
 	{
 		return m_LeftHand;
 	}
-	Mesh* Hands::GetRightHand()
+	Drawable* Hands::GetRightHand()
 	{
 		return m_RightHand;
 	}

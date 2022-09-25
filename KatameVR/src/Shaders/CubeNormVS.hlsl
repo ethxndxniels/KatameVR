@@ -24,6 +24,6 @@ psIn main( vsIn input )
 {
 	psIn output;
 	output.a_Position = mul( mul( float4(input.a_Position, 1), Model ), ViewProjection );
-	output.a_Normal = normalize( mul( float4(input.a_Normal, 1), Model ).xyz );
+	output.a_Normal = input.a_Normal;// normalize( mul( float4(input.a_Normal, 1), Model ).xyz );
 	return output;
 }

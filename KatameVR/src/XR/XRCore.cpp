@@ -258,13 +258,13 @@ namespace Katame
     std::pair<XrPosef,XrVector3f> XRCore::GetLeftHand()
     {
         XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
-        m_LastCallResult = xrLocateSpace( m_Input.handSpace[0], m_Space, m_PredictedDisplayTime, &spaceLocation );
+        m_LastCallResult = xrLocateSpace( m_Input.handSpace[Side::LEFT], m_Space, m_PredictedDisplayTime, &spaceLocation );
         if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
         {
             if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
                 (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
             {
-                float scale = 0.1f * m_Input.handScale[0];
+                float scale = 0.1f * m_Input.handScale[Side::LEFT];
                 return { spaceLocation.pose, {scale, scale, scale} };
             }
         }
@@ -272,10 +272,10 @@ namespace Katame
         {
             // Tracking loss is expected when the hand is not active so only log a message
             // if the hand is active.
-            if (m_Input.handActive[0] == XR_TRUE)
+            if (m_Input.handActive[Side::LEFT] == XR_TRUE)
             {
                 const char* handName[] = { "left", "right" };
-                KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[0], m_LastCallResult );
+                KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[Side::LEFT], m_LastCallResult );
             }
         }
         return {};
@@ -284,13 +284,13 @@ namespace Katame
     std::pair<XrPosef, XrVector3f> XRCore::GetRightHand()
     {
         XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION };
-        m_LastCallResult = xrLocateSpace( m_Input.handSpace[1], m_Space, m_PredictedDisplayTime, &spaceLocation );
+        m_LastCallResult = xrLocateSpace( m_Input.handSpace[Side::RIGHT], m_Space, m_PredictedDisplayTime, &spaceLocation );
         if (XR_UNQUALIFIED_SUCCESS( m_LastCallResult ))
         {
             if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
                 (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
             {
-                float scale = 0.1f * m_Input.handScale[1];
+                float scale = 0.1f * m_Input.handScale[Side::RIGHT];
                 return { spaceLocation.pose, {scale, scale, scale} };
             }
         }
@@ -298,10 +298,10 @@ namespace Katame
         {
             // Tracking loss is expected when the hand is not active so only log a message
             // if the hand is active.
-            if (m_Input.handActive[1] == XR_TRUE)
+            if (m_Input.handActive[Side::RIGHT] == XR_TRUE)
             {
                 const char* handName[] = { "left", "right" };
-                KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[1], m_LastCallResult );
+                KM_CORE_INFO( "Unable to locate %s hand action space in app space: %d", handName[Side::RIGHT], m_LastCallResult );
             }
         }
         return {};

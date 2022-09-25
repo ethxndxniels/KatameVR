@@ -28,12 +28,21 @@ namespace Katame
 		LightData data;
 		XMStoreFloat4( &data.lightDir, { m_BufferData.lightDir.x,  m_BufferData.lightDir.y,  m_BufferData.lightDir.z,  m_BufferData.lightDir.w } );
 		m_Buffer->Update( gfx, &data, sizeof( LightData ) );
-
 		m_Buffer->Bind( gfx );
 	}
 
 	void DirLight::Update( float dt )
 	{
+		if (m_BufferData.lightDir.y > 1.0f)
+			flag = false;
+		else if (m_BufferData.lightDir.y < -1.0f)
+			flag = true;
+
+		if (flag)
+			m_BufferData.lightDir.y += dt * 0.1f;
+		else
+			m_BufferData.lightDir.y -= dt * 0.1f;
+
 	}
 
 }
