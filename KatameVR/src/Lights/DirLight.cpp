@@ -39,9 +39,9 @@ namespace Katame
 			flag = true;
 
 		if (flag)
-			m_BufferData.lightDir.y += dt * 0.1f;
+			m_BufferData.lightDir.y += 0.01f;
 		else
-			m_BufferData.lightDir.y -= dt * 0.1f;
+			m_BufferData.lightDir.y -= 0.01f;
 
 	}
 
