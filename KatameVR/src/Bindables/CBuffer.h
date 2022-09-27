@@ -11,24 +11,24 @@ namespace Katame
 	class VCBuffer : public Bindable
 	{
 	public:
-		VCBuffer( Graphics* gfx, const CD3D11_BUFFER_DESC& cbufDesc, unsigned int slot );
+		VCBuffer( Graphics* gfx, unsigned int slot, size_t size );
 		void Update( Graphics* gfx, const void* data );
-		void Update( Graphics* gfx, const void* data, size_t size );
 		void Bind( Graphics* gfx ) override;
 	private:
 		unsigned int u_Slot;
+		size_t u_Size;
 		ID3D11Buffer* m_CBuffer;
 	};
 
 	class PCBuffer : public Bindable
 	{
 	public:
-		PCBuffer( Graphics* gfx, const CD3D11_BUFFER_DESC& cbufDesc, unsigned int slot );
+		PCBuffer( Graphics* gfx, unsigned int slot, size_t size );
 		void Update( Graphics* gfx, const void* data );
-		void Update( Graphics* gfx, const void* data, size_t size );
 		void Bind( Graphics* gfx ) override;
 	private:
 		unsigned int u_Slot;
+		size_t u_Size;
 		ID3D11Buffer* m_CBuffer;
 	};
 }

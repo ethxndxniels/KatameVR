@@ -16,7 +16,7 @@ namespace Katame
 		m_XRCore->CreateSwapchains();
 		m_Renderer = new Renderer( m_Graphics );
 		m_Graphics->InitializeRenderer( m_Renderer );
-		m_Window = new Win32Window( 1280, 720, "Desktop" );
+		//m_Window = new Win32Window( 1280, 720, "Desktop" );
 
 		// Entities
 		m_Cube = new ColorCube( m_Graphics );
@@ -96,8 +96,10 @@ namespace Katame
 
 	void Application::Submit()	
 	{
+		// Lights
 		m_DirLight->Bind();
 
+		// Entities
 		m_Renderer->Submit( *m_Cube );
 		m_Renderer->Submit( *m_Cube2 );
 		m_Renderer->Submit( *m_NCube );

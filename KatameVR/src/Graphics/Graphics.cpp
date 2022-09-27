@@ -162,11 +162,8 @@ namespace Katame
 
 	void Graphics::InitializeResources()
 	{
-		const CD3D11_BUFFER_DESC modelConstantBufferDesc( sizeof( ModelConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
-		m_ModelCBuf = new VCBuffer( this, modelConstantBufferDesc, 0u );
-
-		const CD3D11_BUFFER_DESC viewProjectionConstantBufferDesc( sizeof( ViewProjectionConstantBuffer ), D3D11_BIND_CONSTANT_BUFFER );
-		m_ViewProjCBuf = new VCBuffer( this, viewProjectionConstantBufferDesc, 1u );
+		m_ModelCBuf = new VCBuffer( this, 0u, sizeof( ModelConstantBuffer ) );
+		m_ViewProjCBuf = new VCBuffer( this, 1u, sizeof( ViewProjectionConstantBuffer ) );
 	}
 
 	IDXGIAdapter1* Katame::Graphics::GetAdapter( LUID adapterId )

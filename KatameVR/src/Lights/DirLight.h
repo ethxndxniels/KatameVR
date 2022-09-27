@@ -21,7 +21,7 @@ namespace Katame
 	private:
 		struct LightData
 		{
-			DirectX::XMFLOAT4 lightDir = { 1.0f, 0.5f, 1.0f, 0.0f };
+			DirectX::XMFLOAT4 lightDir = { 0.0f, 0.0f, 0.0f, 0.0f };
 		};
 		LightData m_BufferData;
 		PCBuffer* m_Buffer = nullptr;
