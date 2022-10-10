@@ -264,7 +264,7 @@ namespace Katame
             if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
                 (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
             {
-                float scale = 0.1f * m_Input.handScale[Side::LEFT];
+                float scale = 0.005f * m_Input.handScale[Side::LEFT];
                 return { spaceLocation.pose, {scale, scale, scale} };
             }
         }
@@ -290,7 +290,7 @@ namespace Katame
             if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
                 (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
             {
-                float scale = 0.1f * m_Input.handScale[Side::RIGHT];
+                float scale = 0.005f * m_Input.handScale[Side::RIGHT];
                 return { spaceLocation.pose, {scale, scale, scale} };
             }
         }

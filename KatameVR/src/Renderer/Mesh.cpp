@@ -14,11 +14,24 @@ namespace Katame {
 	namespace
 	{
 		const unsigned int ImportFlags =
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			aiProcess_ConvertToLeftHanded |
-			aiProcess_GenNormals |
-			aiProcess_CalcTangentSpace;
+			aiProcess_CalcTangentSpace | // calculate tangents and bitangents if possible
+			aiProcess_JoinIdenticalVertices | // join identical vertices/ optimize indexing
+			//aiProcess_ValidateDataStructure  | // perform a full validation of the loader's output
+			aiProcess_Triangulate | // Ensure all verticies are triangulated (each 3 vertices are triangle)
+			aiProcess_ConvertToLeftHanded | // convert everything to D3D left handed space (by default right-handed, for OpenGL)
+			aiProcess_SortByPType | // ?
+			aiProcess_ImproveCacheLocality | // improve the cache locality of the output vertices
+			aiProcess_RemoveRedundantMaterials | // remove redundant materials
+			aiProcess_FindDegenerates | // remove degenerated polygons from the import
+			aiProcess_FindInvalidData | // detect invalid model data, such as invalid normal vectors
+			aiProcess_GenUVCoords | // convert spherical, cylindrical, box and planar mapping to proper UVs
+			aiProcess_TransformUVCoords | // preprocess UV transformations (scaling, translation ...)
+			aiProcess_FindInstances | // search for instanced meshes and remove them by references to one master
+			aiProcess_LimitBoneWeights | // limit bone weights to 4 per vertex
+			aiProcess_OptimizeMeshes | // join small meshes, if possible;
+			aiProcess_PreTransformVertices | //-- fixes the transformation issue.
+			aiProcess_SplitByBoneCount | // split meshes with too many bones. Necessary for our (limited) hardware skinning shader
+			0;
 	}
 
 	struct LogStream : public Assimp::LogStream
@@ -94,14 +107,17 @@ namespace Katame {
 		m_InputLayout = new InputLayout( gfx, inputLayout, *vs );
 
 		// Extract indices from model
-		m_Indices.reserve( mesh->mNumFaces );
-		for (size_t i = 0; i < m_Indices.capacity(); i++)
+		//m_Indices.reserve( mesh->mNumFaces );
+		for (size_t i = 0; i < mesh->mNumFaces; i++)
 		{
 			KM_CORE_ASSERT( mesh->mFaces[i].mNumIndices == 3, "Must have 3 indices." );
-			m_Indices.push_back( { mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2] } );
+			for (size_t j = 0; j < mesh->mFaces[i].mNumIndices; j++ )
+			{
+				m_Indices.push_back( mesh->mFaces[i].mIndices[j] );
+			}
 		}
 
-		m_IndexBuffer = new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( Index )), sizeof( Index ) );
+		m_IndexBuffer = new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( unsigned int )), sizeof( unsigned int ) );
 		m_Topology = new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 		m_Rasterizer = new Rasterizer( gfx, true );
 		m_Blender = new Blender( gfx, false );
@@ -125,7 +141,6 @@ namespace Katame {
 		gfx->DrawIndexed( m_IndexBuffer->GetCount(), 0u, 0u );
 	}
 
-	bool flag = true;
 	void Mesh::Update( float dt )
 	{
 		if (Pose.position.y > 0.5f)

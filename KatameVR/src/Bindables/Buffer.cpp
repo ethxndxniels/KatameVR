@@ -47,6 +47,6 @@ namespace Katame
 
 	void IndexBuffer::Bind( Graphics* gfx )
 	{
-		gfx->m_Context->IASetIndexBuffer( m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0u );
+		gfx->m_Context->IASetIndexBuffer( m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0u );
 	}
 }

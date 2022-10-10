@@ -20,15 +20,15 @@ namespace Katame
 		~Hands();
 	public:
 		void Update( float dt );
-		Drawable* GetLeftHand();
-		Drawable* GetRightHand();
+		Mesh* GetLeftHand();
+		Mesh* GetRightHand();
 	private:
 		Graphics* gfx;
 		XRCore* xrCore;
 	private:
-		//Mesh* m_LeftHand;
-		//Mesh* m_RightHand;
-		NormalCube* m_LeftHand;
-		NormalCube* m_RightHand;
+		Mesh* m_LeftHand;
+		Mesh* m_RightHand;
+		//NormalCube* m_LeftHand;
+		//NormalCube* m_RightHand;
 	};
 };

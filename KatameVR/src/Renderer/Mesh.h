@@ -48,8 +48,10 @@ namespace Katame {
 		DirectX::XMMATRIX GetModelMatrix();
 		inline const std::string& GetFilePath() const { return m_FilePath; }
 	private:
+		bool flag = true;
+
 		std::vector<Vertex> m_Vertices;
-		std::vector<Index> m_Indices;
+		std::vector<unsigned int> m_Indices;
 
 		VertexBuffer* m_VertexBuffer;
 		IndexBuffer* m_IndexBuffer;

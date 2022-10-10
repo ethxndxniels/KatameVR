@@ -27,7 +27,6 @@ namespace Katame
 		UINT GetCount() const noexcept;
 		void Bind( Graphics* gfx ) override;
 	private:
-		UINT m_Stride;
 		UINT m_Count;
 		ID3D11Buffer* m_pIndexBuffer;
 	};
