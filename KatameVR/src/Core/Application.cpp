@@ -101,10 +101,10 @@ namespace Katame
 		m_DirLight->Bind();
 
 		// Entities
-		m_Renderer->Submit( *m_Cube );
-		m_Renderer->Submit( *m_Cube2 );
-		m_Renderer->Submit( *m_NCube );
-		m_Renderer->Submit( *m_NCube2 );
+		//m_Renderer->Submit( *m_Cube );
+		//m_Renderer->Submit( *m_Cube2 );
+		//m_Renderer->Submit( *m_NCube );
+		//m_Renderer->Submit( *m_NCube2 );
 		m_Renderer->Submit( *m_Mesh );
 		m_Renderer->Submit( *m_Mesh2 );
 		m_Renderer->Submit( *m_Hands->GetLeftHand() );

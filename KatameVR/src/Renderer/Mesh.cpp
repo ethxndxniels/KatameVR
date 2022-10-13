@@ -1,13 +1,8 @@
 #include "Mesh.h"
 #include "../Core/Log.h"
 
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/Importer.hpp>
-#include <assimp/DefaultLogger.hpp>
-#include <assimp/LogStream.hpp>
-
 #include "../Graphics/Graphics.h"
+#include <filesystem>
 
 namespace Katame {
 
@@ -107,7 +102,7 @@ namespace Katame {
 		m_InputLayout = new InputLayout( gfx, inputLayout, *vs );
 
 		// Extract indices from model
-		//m_Indices.reserve( mesh->mNumFaces );
+		//m_Indices.reserve( mesh->mNumFaces * 3 );
 		for (size_t i = 0; i < mesh->mNumFaces; i++)
 		{
 			KM_CORE_ASSERT( mesh->mFaces[i].mNumIndices == 3, "Must have 3 indices." );
@@ -118,6 +113,19 @@ namespace Katame {
 		}
 
 		m_IndexBuffer = new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( unsigned int )), sizeof( unsigned int ) );
+		
+		if (mesh->mMaterialIndex >= 0) 
+		{
+			aiString texFileName;
+			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+			const auto rootPath = std::filesystem::path(filename).parent_path().string() + "\\";
+
+			if (material->GetTexture( aiTextureType_DIFFUSE, 0, &texFileName ) == aiReturn_SUCCESS)
+			{
+				m_DiffTex = new Texture( gfx, rootPath + texFileName.C_Str() );
+			}
+		}
+		
 		m_Topology = new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 		m_Rasterizer = new Rasterizer( gfx, true );
 		m_Blender = new Blender( gfx, false );
@@ -138,6 +146,10 @@ namespace Katame {
 		m_Topology->Bind( gfx );
 		m_Rasterizer->Bind( gfx );
 		m_Blender->Bind( gfx );
+
+		m_DiffTex->Bind( gfx );
+		
+
 		gfx->DrawIndexed( m_IndexBuffer->GetCount(), 0u, 0u );
 	}
 
@@ -157,7 +169,6 @@ namespace Katame {
 		{
 			Pose.position.y -= dt * 0.1f;
 			Pose.orientation.w -= dt * 0.1f;
-
 		}
 	}
 

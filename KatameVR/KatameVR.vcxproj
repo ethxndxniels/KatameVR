@@ -121,6 +121,8 @@
     <ClCompile Include="src\Utilities\KatameUtils.cpp" />
     <ClCompile Include="src\Bindables\Topology.cpp" />
     <ClCompile Include="src\Platform\Win32Window.cpp" />
+    <ClCompile Include="src\Bindables\Texture.cpp" />
+    <ClCompile Include="src\Renderer\Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -258,6 +260,8 @@
     <ClInclude Include="src\Utilities\KatameUtils.h" />
     <ClInclude Include="src\Utilities\KatameXM.h" />
     <ClInclude Include="src\Bindables\Topology.h" />
+    <ClInclude Include="src\Bindables\Texture.h" />
+    <ClInclude Include="src\Renderer\Surface.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\BC.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\BCDirectCompute.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\d3dx12.h" />

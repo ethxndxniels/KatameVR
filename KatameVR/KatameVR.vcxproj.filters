@@ -87,6 +87,12 @@
     <ClCompile Include="src\Drawable\Drawables\Hands.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Bindables\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Surface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -821,6 +827,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Drawable\Drawables\Hands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Bindables\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

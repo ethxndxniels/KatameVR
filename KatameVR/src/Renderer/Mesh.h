@@ -6,6 +6,7 @@
 #include "../Bindables/InputLayout.h"
 #include "../Bindables/VertexShader.h"
 #include "../Bindables/PixelShader.h"
+#include "../Bindables/Texture.h"
 #include "../Bindables/Topology.h"
 #include "../Bindables/Rasterizer.h"
 #include "../Bindables/Blender.h"
@@ -13,6 +14,12 @@
 #include <DirectXMath.h>
 
 #include <openxr/openxr.h>
+
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/LogStream.hpp>
 
 namespace Katame {
 
@@ -32,14 +39,12 @@ namespace Katame {
 		static_assert(sizeof( Vertex ) == 14 * sizeof( float ));
 		static const int NumAttributes = 5;
 
-		struct Index
-		{
-			uint32_t V1, V2, V3;
-		};
-		static_assert(sizeof( Index ) == 3 * sizeof( uint32_t ));
-
 		Mesh( const std::string& filename, Graphics* gfx );
 		~Mesh();
+	private:
+		std::vector<Texture> loadMaterialTextures( aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene, Graphics* gfx );
+		ID3D11ShaderResourceView* loadEmbeddedTexture( const aiTexture* embeddedTexture, Graphics* gfx );
+	public:
 
 		void Render( Graphics* gfx );
 		void Update( float dt );
@@ -56,6 +61,7 @@ namespace Katame {
 		VertexBuffer* m_VertexBuffer;
 		IndexBuffer* m_IndexBuffer;
 		InputLayout* m_InputLayout;
+		Texture* m_DiffTex;
 		VertexShader* vs;
 		PixelShader* ps;
 		Topology* m_Topology;
