@@ -81,6 +81,8 @@ namespace Katame
 
 	Surface Surface::FromFile( const std::string& name )
 	{
+		CoInitialize( 0 );
+
 		DirectX::ScratchImage scratch;
 		// TODO: Figure this out
 		HRESULT hr = DirectX::LoadFromWICFile( ToWide( name ).c_str(), DirectX::WIC_FLAGS_IGNORE_SRGB, nullptr, scratch );
@@ -107,9 +109,11 @@ namespace Katame
 				throw std::exception();
 			}
 
+			CoUninitialize();
 			return Surface( std::move( converted ) );
 		}
 
+		CoUninitialize();
 		return Surface( std::move( scratch ) );
 	}
 

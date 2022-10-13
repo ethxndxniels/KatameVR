@@ -7,6 +7,7 @@
 namespace Katame
 {
 	Texture::Texture( Graphics* gfx, const std::string& path, UINT slot )
+		: slot( slot )
 	{
 		// load surface
 		const auto s = Surface::FromFile( path );

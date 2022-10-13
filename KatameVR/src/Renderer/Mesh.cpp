@@ -129,6 +129,7 @@ namespace Katame {
 		m_Topology = new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 		m_Rasterizer = new Rasterizer( gfx, true );
 		m_Blender = new Blender( gfx, false );
+		m_Sampler = new Sampler( gfx, Sampler::Type::Anisotropic, false );
 	}
 
 	Mesh::~Mesh()
@@ -146,8 +147,10 @@ namespace Katame {
 		m_Topology->Bind( gfx );
 		m_Rasterizer->Bind( gfx );
 		m_Blender->Bind( gfx );
+		m_Sampler->Bind( gfx );
 
-		m_DiffTex->Bind( gfx );
+		if ( m_DiffTex )
+			m_DiffTex->Bind( gfx );
 		
 
 		gfx->DrawIndexed( m_IndexBuffer->GetCount(), 0u, 0u );

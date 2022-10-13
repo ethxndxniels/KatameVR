@@ -10,6 +10,7 @@
 #include "../Bindables/Topology.h"
 #include "../Bindables/Rasterizer.h"
 #include "../Bindables/Blender.h"
+#include "../Bindables/Sampler.h"
 
 #include <DirectXMath.h>
 
@@ -61,12 +62,13 @@ namespace Katame {
 		VertexBuffer* m_VertexBuffer;
 		IndexBuffer* m_IndexBuffer;
 		InputLayout* m_InputLayout;
-		Texture* m_DiffTex;
+		Texture* m_DiffTex = nullptr;
 		VertexShader* vs;
 		PixelShader* ps;
 		Topology* m_Topology;
 		Rasterizer* m_Rasterizer;
 		Blender* m_Blender;
+		Sampler* m_Sampler;
 		XrPosef Pose = { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };
 		XrVector3f Scale = { 0.025f, 0.025f, 0.025f };
 		std::string m_FilePath;

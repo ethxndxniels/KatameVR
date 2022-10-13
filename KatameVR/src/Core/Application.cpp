@@ -27,8 +27,8 @@ namespace Katame
 		m_NCube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_NCube2 = new NormalCube( m_Graphics );
 		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_Mesh = new Mesh( "Models\\cerberus\\cerberus.fbx", m_Graphics );
-		m_Mesh->SetData( { { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } }, { 0.025f, 0.025f, 0.025f } );
+		//m_Mesh = new Mesh( "Models\\cerberus\\cerberus.fbx", m_Graphics );
+		//m_Mesh->SetData( { { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Mesh2 = new Mesh( "Models\\Sponza\\sponza.obj", m_Graphics );
 		m_Mesh2->SetData( { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, -1.0f, 0.0f } }, { 0.0025f, 0.0025f, 0.0025f } );
 
@@ -89,7 +89,7 @@ namespace Katame
 		//m_Cube2->Update( -dt );
 		m_NCube->Update( dt );
 		m_NCube2->Update( -dt );
-		m_Mesh->Update( dt );
+		//m_Mesh->Update( dt );
 		//m_Mesh2->Update( dt );
 		m_Hands->Update( dt );
 		m_DirLight->Update( dt );
@@ -105,7 +105,7 @@ namespace Katame
 		//m_Renderer->Submit( *m_Cube2 );
 		//m_Renderer->Submit( *m_NCube );
 		//m_Renderer->Submit( *m_NCube2 );
-		m_Renderer->Submit( *m_Mesh );
+		//m_Renderer->Submit( *m_Mesh );
 		m_Renderer->Submit( *m_Mesh2 );
 		m_Renderer->Submit( *m_Hands->GetLeftHand() );
 		m_Renderer->Submit( *m_Hands->GetRightHand() );
