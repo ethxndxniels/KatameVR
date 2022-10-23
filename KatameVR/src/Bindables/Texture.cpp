@@ -3,20 +3,20 @@
 #include "../Graphics/Graphics.h"
 #include "../Renderer/Surface.h"
 #include "../Utilities/KatameUtils.h"
+#include "../Renderer/Surface.h"
 
 namespace Katame
 {
 	Texture::Texture( Graphics* gfx, const std::string& path, UINT slot )
-		: slot( slot )
+		: slot( slot ), path( path ), m_Surface( Surface::FromFile( path ) )
 	{
 		// load surface
-		const auto s = Surface::FromFile( path );
-		hasAlpha = s.AlphaLoaded();
+		hasAlpha = m_Surface.AlphaLoaded();
 
 		// create texture resource
 		D3D11_TEXTURE2D_DESC textureDesc = {};
-		textureDesc.Width = s.GetWidth();
-		textureDesc.Height = s.GetHeight();
+		textureDesc.Width = m_Surface.GetWidth();
+		textureDesc.Height = m_Surface.GetHeight();
 		textureDesc.MipLevels = 0;
 		textureDesc.ArraySize = 1;
 		textureDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -33,7 +33,7 @@ namespace Katame
 
 		// write image data into top mip level
 		gfx->m_Context->UpdateSubresource(
-			pTexture, 0u, nullptr, s.GetBufferPtrConst(), s.GetWidth() * sizeof( Surface::Color ), 0u
+			pTexture, 0u, nullptr, m_Surface.GetBufferPtrConst(), m_Surface.GetWidth() * sizeof( Surface::Color ), 0u
 		);
 
 		// create the resource view on the texture
@@ -53,6 +53,11 @@ namespace Katame
 	void Texture::Bind( Graphics* gfx )
 	{
 		gfx->m_Context->PSSetShaderResources( slot, 1u, &pTextureView );
+	}
+
+	void Texture::Save()
+	{
+		m_Surface.Save( path );
 	}
 
 }

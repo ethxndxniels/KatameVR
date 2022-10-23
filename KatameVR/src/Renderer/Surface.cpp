@@ -154,8 +154,8 @@ namespace Katame
 		return !scratch.IsAlphaAllOpaque();
 	}
 
-	Surface::Surface( DirectX::ScratchImage scratch ) noexcept
+	Surface::Surface( DirectX::ScratchImage _scratch ) noexcept
 		:
-		scratch( std::move( scratch ) )
+		scratch( std::move( _scratch ) )
 	{}
 }

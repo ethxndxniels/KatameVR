@@ -123,6 +123,7 @@ namespace Katame {
 			if (material->GetTexture( aiTextureType_DIFFUSE, 0, &texFileName ) == aiReturn_SUCCESS)
 			{
 				m_DiffTex = new Texture( gfx, rootPath + texFileName.C_Str() );
+				m_DiffTex->Save();
 			}
 		}
 		
@@ -149,8 +150,7 @@ namespace Katame {
 		m_Blender->Bind( gfx );
 		m_Sampler->Bind( gfx );
 
-		if ( m_DiffTex )
-			m_DiffTex->Bind( gfx );
+		if ( m_DiffTex ) m_DiffTex->Bind( gfx );
 		
 
 		gfx->DrawIndexed( m_IndexBuffer->GetCount(), 0u, 0u );

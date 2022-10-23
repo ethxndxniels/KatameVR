@@ -47,5 +47,9 @@ namespace Katame
 	void Renderer::Clear()
 	{
 		m_Drawables.clear();
+		m_Meshes.clear();
+
+		ID3D11ShaderResourceView* const pNullTex = nullptr;
+		gfx->m_Context->PSSetShaderResources( 0u, 1u, &pNullTex );
 	}
 }

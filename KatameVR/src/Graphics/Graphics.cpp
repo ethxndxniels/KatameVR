@@ -11,7 +11,7 @@ namespace Katame
 {
 	void Graphics::InitializeDevice( XrInstance instance, XrSystemId systemId )
 	{
-		m_clearColor = { 20.0f / 255.0f, 2.0f / 255.0f, 30.0f / 255.0f, 1 };
+		m_clearColor = { 20.0f / 255.0f, 0.0f, 0.0f, 1.0f };
 
 		PFN_xrGetD3D11GraphicsRequirementsKHR pfnGetD3D11GraphicsRequirementsKHR = nullptr;
 		xrGetInstanceProcAddr( instance, "xrGetD3D11GraphicsRequirementsKHR",

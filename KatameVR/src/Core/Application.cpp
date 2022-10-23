@@ -29,7 +29,7 @@ namespace Katame
 		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		//m_Mesh = new Mesh( "Models\\cerberus\\cerberus.fbx", m_Graphics );
 		//m_Mesh->SetData( { { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_Mesh2 = new Mesh( "Models\\Sponza\\sponza.obj", m_Graphics );
+		m_Mesh2 = new Mesh( "Models\\sponza\\sponza.obj", m_Graphics );
 		m_Mesh2->SetData( { { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, -1.0f, 0.0f } }, { 0.0025f, 0.0025f, 0.0025f } );
 
 		// Player
