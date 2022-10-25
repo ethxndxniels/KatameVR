@@ -48,9 +48,9 @@ namespace Geometry
 		};
 	}
 
-	static std::vector<unsigned short> CreateColorCubeIndices()
+	static std::vector<unsigned int> CreateColorCubeIndices()
 	{
-		return std::vector<unsigned short>
+		return std::vector<unsigned int>
 		{
 			0, 1, 2, 3, 4, 5,   // -X
 			6, 7, 8, 9, 10, 11,  // +X
@@ -105,9 +105,9 @@ namespace Geometry
 		};
 	}
 
-	static std::vector<unsigned short> CreateNormalCubeIndices()
+	static std::vector<unsigned int> CreateNormalCubeIndices()
 	{
-		return std::vector<unsigned short>
+		return std::vector<unsigned int>
 		{
 			0, 1, 2, 3, 4, 5,   // -X
 			6, 7, 8, 9, 10, 11,  // +X

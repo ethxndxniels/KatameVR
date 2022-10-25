@@ -16,7 +16,7 @@ namespace Katame
 		for (Bindable* bindable : binds)
 			delete bindable;
 	}
-	void Drawable::Submit( Bindable* bind )
+	void Drawable::AddBind( Bindable* bind )
 	{
 		binds.push_back( bind );
 	}

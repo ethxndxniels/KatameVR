@@ -106,6 +106,7 @@ namespace Katame
 
 			if (FAILED( hr ))
 			{
+				KM_CORE_ERROR( "Failed to convert surface {}", name );
 				throw std::exception();
 			}
 
@@ -145,6 +146,7 @@ namespace Katame
 		);
 		if (FAILED( hr ))
 		{
+			KM_CORE_ERROR( "Failed to save file: {}", filename );
 			throw std::exception();
 		}
 	}

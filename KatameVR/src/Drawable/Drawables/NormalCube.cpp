@@ -18,16 +18,16 @@ namespace Katame
 	NormalCube::NormalCube( Graphics* gfx )
 	{
 		VertexShader* m_VS = new VertexShader( gfx, ".\\Shaders\\Bin\\CubeNormVS.cso" );
-		Drawable::Submit( m_VS );
-		Drawable::Submit( new PixelShader( gfx, ".\\Shaders\\Bin\\CubeNormPS.cso" ) );
-		Drawable::Submit( new InputLayout( gfx, Geometry::CreateNormalCubeInputLayout(), *m_VS ) );
-		Drawable::Submit( new VertexBuffer( gfx, Geometry::CreateNormalCubeVertices().data(), (unsigned int)Geometry::CreateNormalCubeVertices().size() * sizeof( Geometry::CubeVertex ), sizeof( Geometry::CubeVertex ) ) );
-		IndexBuffer* m_IB = new IndexBuffer( gfx, Geometry::CreateNormalCubeIndices().data(), (unsigned int)Geometry::CreateNormalCubeIndices().size() * sizeof( unsigned short ), sizeof( unsigned short ) );
+		Drawable::AddBind( m_VS );
+		Drawable::AddBind( new PixelShader( gfx, ".\\Shaders\\Bin\\CubeNormPS.cso" ) );
+		Drawable::AddBind( new InputLayout( gfx, Geometry::CreateNormalCubeInputLayout(), *m_VS ) );
+		Drawable::AddBind( new VertexBuffer( gfx, Geometry::CreateNormalCubeVertices().data(), (unsigned int)Geometry::CreateNormalCubeVertices().size() * sizeof( Geometry::CubeVertex ), sizeof( Geometry::CubeVertex ) ) );
+		IndexBuffer* m_IB = new IndexBuffer( gfx, Geometry::CreateNormalCubeIndices().data(), (unsigned int)Geometry::CreateNormalCubeIndices().size() * sizeof( unsigned int ), sizeof( unsigned int ) );
 		Drawable::SetIndexBuffer( m_IB );
-		Drawable::Submit( m_IB );
-		Drawable::Submit( new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
-		Drawable::Submit( new Rasterizer( gfx, true ) );
-		Drawable::Submit( new Blender( gfx, false ) );
+		Drawable::AddBind( m_IB );
+		Drawable::AddBind( new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
+		Drawable::AddBind( new Rasterizer( gfx, true ) );
+		Drawable::AddBind( new Blender( gfx, false ) );
 	}
 
 	NormalCube::~NormalCube()

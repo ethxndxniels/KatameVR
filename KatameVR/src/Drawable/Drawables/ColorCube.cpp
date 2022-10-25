@@ -18,16 +18,16 @@ namespace Katame
 	ColorCube::ColorCube( Graphics* gfx )
 	{
 		VertexShader* m_VS = new VertexShader( gfx, ".\\Shaders\\Bin\\MainVS.cso" );
-		Drawable::Submit( m_VS );
-		Drawable::Submit( new PixelShader( gfx, ".\\Shaders\\Bin\\MainPS.cso" ) );
-		Drawable::Submit( new InputLayout( gfx, Geometry::CreateColorCubeInputLayout(), *m_VS ) );
-		Drawable::Submit( new VertexBuffer( gfx, Geometry::CreateColorCubeVertices().data(), (unsigned int)Geometry::CreateColorCubeVertices().size() * sizeof( Geometry::CubeVertex ), sizeof( Geometry::CubeVertex ) ) );
-		IndexBuffer* m_IB = new IndexBuffer( gfx, Geometry::CreateColorCubeIndices().data(), (unsigned int)Geometry::CreateColorCubeIndices().size() * sizeof( unsigned short ), sizeof( unsigned short ) );
+		Drawable::AddBind( m_VS );
+		Drawable::AddBind( new PixelShader( gfx, ".\\Shaders\\Bin\\MainPS.cso" ) );
+		Drawable::AddBind( new InputLayout( gfx, Geometry::CreateColorCubeInputLayout(), *m_VS ) );
+		Drawable::AddBind( new VertexBuffer( gfx, Geometry::CreateColorCubeVertices().data(), (unsigned int)Geometry::CreateColorCubeVertices().size() * sizeof( Geometry::CubeVertex ), sizeof( Geometry::CubeVertex ) ) );
+		IndexBuffer* m_IB = new IndexBuffer( gfx, Geometry::CreateColorCubeIndices().data(), (unsigned int)Geometry::CreateColorCubeIndices().size() * sizeof( unsigned int ), sizeof( unsigned int ) );
 		Drawable::SetIndexBuffer(  m_IB );
-		Drawable::Submit( m_IB );
-		Drawable::Submit( new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
-		Drawable::Submit( new Rasterizer( gfx, true ) );
-		Drawable::Submit( new Blender( gfx, false ) );
+		Drawable::AddBind( m_IB );
+		Drawable::AddBind( new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST ) );
+		Drawable::AddBind( new Rasterizer( gfx, true ) );
+		Drawable::AddBind( new Blender( gfx, false ) );
 	}
 
 	ColorCube::~ColorCube()
