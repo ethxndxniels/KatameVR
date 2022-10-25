@@ -97,6 +97,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Renderer\Node.cpp" />
+    <ClCompile Include="src\Renderer\Material.cpp" />
+    <ClCompile Include="src\Renderer\Model.cpp" />
     <ClCompile Include="src\Bindables\Sampler.cpp" />
     <ClCompile Include="src\Drawable\Drawables\Hands.cpp" />
     <ClCompile Include="src\Drawable\Drawables\NormalCube.cpp" />
@@ -109,6 +112,7 @@
     <ClCompile Include="src\drawable\Drawable.cpp" />
     <ClCompile Include="src\Graphics\D3DCommon.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Utilities\KatameXM.cpp" />
     <ClCompile Include="src\XR\XRCore.cpp" />
     <ClCompile Include="src\Graphics\Graphics.cpp" />
     <ClCompile Include="src\Bindables\InputLayout.cpp" />
@@ -134,6 +138,9 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Renderer\Node.h" />
+    <ClInclude Include="src\Renderer\Material.h" />
+    <ClInclude Include="src\Renderer\Model.h" />
     <ClInclude Include="src\Bindables\Sampler.h" />
     <ClInclude Include="src\Drawable\Drawables\Hands.h" />
     <ClInclude Include="src\Drawable\Drawables\NormalCube.h" />
