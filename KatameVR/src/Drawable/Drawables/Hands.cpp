@@ -15,7 +15,7 @@
 #include "../../Bindables/Rasterizer.h"
 #include "../../Bindables/Blender.h"
 
-#include "../../Renderer/Mesh.h"
+#include "../../Renderer/Model.h"
 
 #include "./NormalCube.h"
 
@@ -26,8 +26,8 @@ namespace Katame
 	{
 		//m_LeftHand = new NormalCube( gfx );
 		//m_RightHand = new NormalCube( gfx );
-		m_LeftHand = new Mesh( "Models\\hand-for-vr\\source\\Player hand.fbx",  gfx );
-		m_RightHand = new Mesh( "Models\\hand-for-vr\\source\\Player hand.fbx", gfx );
+		m_LeftHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
+		m_RightHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
 	}
 
 	Hands::~Hands()
@@ -41,11 +41,11 @@ namespace Katame
 		m_LeftHand->SetData( xrCore->GetLeftHand().first, xrCore->GetLeftHand().second );
 		m_RightHand->SetData( xrCore->GetRightHand().first, xrCore->GetRightHand().second );
 	}
-	Mesh* Hands::GetLeftHand()
+	Model* Hands::GetLeftHand()
 	{
 		return m_LeftHand;
 	}
-	Mesh* Hands::GetRightHand()
+	Model* Hands::GetRightHand()
 	{
 		return m_RightHand;
 	}

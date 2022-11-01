@@ -5,16 +5,16 @@
 #include <vector>
 #include <memory>
 
-class Model;
-class Mesh;
-class TechniqueProbe;
-class ModelProbe;
-
 namespace Katame
 {
+	class Model;
+	class Mesh;
+	class TechniqueProbe;
+	class ModelProbe;
+
 	class Node
 	{
-		friend Model;
+		friend class Model;
 	public:
 		Node( int id, const std::string& name, std::vector<Mesh*> meshPtrs, const DirectX::XMMATRIX& transform ) noexcept;
 		void Submit( DirectX::FXMMATRIX accumulatedTransform ) const noexcept;

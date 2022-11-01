@@ -27,23 +27,18 @@ namespace Katame
 	class Material
 	{
 	public:
-		struct Vertex
-		{
-			DirectX::XMFLOAT3 Position;
-			DirectX::XMFLOAT3 Normal;
-			DirectX::XMFLOAT3 Tangent;
-			DirectX::XMFLOAT3 Binormal;
-			DirectX::XMFLOAT2 Texcoord;
-		};
-		static_assert(sizeof( Vertex ) == 14 * sizeof( float ));
-	public:
 		Material( Graphics* gfx, const aiMaterial& material, const std::filesystem::path& path ) noexcept;
-		VertexBuffer ExtractVertices( const aiMesh& mesh ) const noexcept;
-		std::vector<unsigned short> ExtractIndices( const aiMesh& mesh ) const noexcept;
-		std::shared_ptr<VertexBuffer> MakeVertexBindable( Graphics* gfx, const aiMesh& mesh, float scale = 1.0f ) const noexcept;
-		std::shared_ptr<IndexBuffer> MakeIndexBindable( Graphics* gfx, const aiMesh& mesh ) const noexcept;
 	private:
-		std::string MakeMeshTag( const aiMesh& mesh ) const noexcept;
+		InputLayout* m_InputLayout;
+		Texture* m_DiffTex;
+		Texture* m_SpecTex;
+		Texture* m_NormTex;
+		VertexShader* m_VS;
+		PixelShader* m_PS;
+		Topology* m_Topology;
+		Rasterizer* m_Rasterizer;
+		Blender* m_Blender;
+		Sampler* m_Sampler;
 	private:
 		std::string modelPath;
 		std::string name;

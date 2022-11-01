@@ -26,71 +26,35 @@ namespace Katame
 		std::string shaderCode = "./Shaders/Bin/Phong";
 		aiString texFileName;
 
-		// diffuse
-			
 		if (material.GetTexture( aiTextureType_DIFFUSE, 0, &texFileName ) == aiReturn_SUCCESS)
 		{
-			new Texture( gfx, rootPath + texFileName.C_Str() );
+			m_DiffTex = new Texture( gfx, rootPath + texFileName.C_Str() );
+			shaderCode += "Dif";
 		}
 		if (material.GetTexture( aiTextureType_SPECULAR, 0, &texFileName ) == aiReturn_SUCCESS)
 		{
-			new Texture( gfx, rootPath + texFileName.C_Str(), 1 );
+			m_SpecTex = new Texture( gfx, rootPath + texFileName.C_Str(), 1 );
+			shaderCode += "Spc";
 		}
 		if (material.GetTexture( aiTextureType_NORMALS, 0, &texFileName ) == aiReturn_SUCCESS)
 		{
-			new Texture( gfx, rootPath + texFileName.C_Str(), 2 );
+			m_NormTex = new Texture( gfx, rootPath + texFileName.C_Str(), 2 );
+			shaderCode += "Nrm";
 		}
-		//step.AddBindable( std::make_shared<TransformCbuf>( gfx, 0u ) );
-		new VertexShader( gfx, shaderCode + "_VS.cso" );
-		//new InputLayout( gfx, vtxLayout, *pvs ) );
-		new PixelShader( gfx, shaderCode + "_PS.cso" );
-		
-		new Sampler( gfx ) );
-	}
 
-	VertexBuffer Material::ExtractVertices( const aiMesh& mesh ) const noexcept
-	{
-		return { vtxLayout,mesh };
-	}
-	std::vector<unsigned short> Material::ExtractIndices( const aiMesh& mesh ) const noexcept
-	{
-		std::vector<unsigned short> indices;
-		indices.reserve( mesh.mNumFaces * 3 );
-		for (unsigned int i = 0; i < mesh.mNumFaces; i++)
+		m_VS = new VertexShader( gfx, shaderCode + "_VS.cso" );
+		m_PS = new PixelShader( gfx, shaderCode + "_PS.cso" );
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayout =
 		{
-			const auto& face = mesh.mFaces[i];
-			assert( face.mNumIndices == 3 );
-			indices.push_back( face.mIndices[0] );
-			indices.push_back( face.mIndices[1] );
-			indices.push_back( face.mIndices[2] );
-		}
-		return indices;
-	}
-	std::shared_ptr<Bind::VertexBuffer> Material::MakeVertexBindable( GraphicsDeviceInterface& gfx, const aiMesh& mesh, float scale ) const noexcept
-	{
-		auto vtc = ExtractVertices( mesh );
-		if (scale != 1.0f)
-		{
-			for (auto i = 0u; i < vtc.Size(); i++)
-			{
-				DirectX::XMFLOAT3& pos = vtc[i].Attr<Dvtx::VertexLayout::ElementType::Position3D>();
-				pos.x *= scale;
-				pos.y *= scale;
-				pos.z *= scale;
-			}
-		}
-		return Bind::VertexBuffer::Resolve( gfx, MakeMeshTag( mesh ), std::move( vtc ) );
-	}
-	std::shared_ptr<Bind::IndexBuffer> Material::MakeIndexBindable( GraphicsDeviceInterface& gfx, const aiMesh& mesh ) const noexcept
-	{
-		return Bind::IndexBuffer::Resolve( gfx, MakeMeshTag( mesh ), ExtractIndices( mesh ) );
-	}
-	std::string Material::MakeMeshTag( const aiMesh& mesh ) const noexcept
-	{
-		return modelPath + "%" + mesh.mName.C_Str();
-	}
-	std::vector<Technique> Material::GetTechniques() const noexcept
-	{
-		return techniques;
+			{"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Tangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Bitangent", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"Texcoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		};
+		m_InputLayout = new InputLayout( gfx, inputLayout, *m_VS );
+
+		m_Sampler = new Sampler( gfx, Sampler::Type::Anisotropic, false );
 	}
 }
