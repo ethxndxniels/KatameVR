@@ -50,6 +50,12 @@ namespace Katame
 		SetIndexBuffer( new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( unsigned int )), sizeof( unsigned int ) ) );
 	}
 
+	void Mesh::Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform )
+	{
+		dx::XMStoreFloat4x4( &transform, accumulatedTranform );
+		Drawable::Render( gfx );
+	}
+
 	Mesh::~Mesh()
 	{
 	}

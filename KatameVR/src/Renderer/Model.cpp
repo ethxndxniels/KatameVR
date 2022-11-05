@@ -76,13 +76,13 @@ namespace Katame
 		materials.reserve( scene->mNumMaterials );
 		for (size_t i = 0; i < scene->mNumMaterials; i++)
 		{
-			materials.emplace_back( gfx, *scene->mMaterials[i], pathString );
+			materials.push_back( { gfx, *scene->mMaterials[i], pathString } );
 		}
 
 		for (size_t i = 0; i < scene->mNumMeshes; i++)
 		{
 			const auto& mesh = *scene->mMeshes[i];
-			meshPtrs.emplace_back( gfx, materials[mesh.mMaterialIndex], mesh, scale );
+			meshPtrs.push_back( new Mesh( gfx, materials[mesh.mMaterialIndex], mesh, scale ) );
 		}
 
 		int nextId = 0;
@@ -91,6 +91,11 @@ namespace Katame
 
 	Model::~Model() noexcept
 	{}
+
+	void Model::Render( Graphics* gfx )
+	{
+		pRoot->Render( gfx, DirectX::XMMatrixIdentity() );
+	}
 
 	void Model::SetData( XrPosef pose, XrVector3f scale )
 	{

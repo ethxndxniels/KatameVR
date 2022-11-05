@@ -42,8 +42,8 @@ namespace Katame
 			shaderCode += "Nrm";
 		}
 
-		m_VS = new VertexShader( gfx, shaderCode + "_VS.cso" );
-		m_PS = new PixelShader( gfx, shaderCode + "_PS.cso" );
+		m_VS = new VertexShader( gfx, shaderCode + "VS.cso" );
+		m_PS = new PixelShader( gfx, shaderCode + "PS.cso" );
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayout =
 		{

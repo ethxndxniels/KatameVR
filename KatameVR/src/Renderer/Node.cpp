@@ -15,19 +15,20 @@ namespace Katame
 		dx::XMStoreFloat4x4( &appliedTransform, dx::XMMatrixIdentity() );
 	}
 
-	void Node::Submit( DirectX::FXMMATRIX accumulatedTransform ) const noexcept
+	void Node::Render( Graphics* gfx, dx::FXMMATRIX accumulatedTranform )
 	{
 		const auto built =
 			dx::XMLoadFloat4x4( &appliedTransform ) *
 			dx::XMLoadFloat4x4( &transform ) *
-			accumulatedTransform;
+			accumulatedTranform;
+
 		for (const auto pm : meshPtrs)
 		{
-			//pm->Submit( built );
+			pm->Render( gfx, built );
 		}
 		for (const auto& pc : childPtrs)
 		{
-			//pc->Submit( built );
+			pc->Render( gfx, built );
 		}
 	}
 

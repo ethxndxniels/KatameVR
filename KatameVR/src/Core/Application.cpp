@@ -6,7 +6,7 @@ namespace Katame
 {
 	Application::Application()
 	{
-		// Core
+		// D3D11 and OpenXR
 		m_Graphics = new Graphics();
 		m_XRCore = new XRCore( m_Graphics );
 		m_XRCore->CreateInstance();
@@ -14,9 +14,13 @@ namespace Katame
 		m_XRCore->InitializeDevice();
 		m_XRCore->InitializeSession();
 		m_XRCore->CreateSwapchains();
+
+		// Renderer
 		m_Renderer = new Renderer( m_Graphics );
 		m_Graphics->InitializeRenderer( m_Renderer );
-		//m_Window = new Win32Window( 1280, 720, "Desktop" );
+
+		// Win32
+		m_Window = new Win32Window( 1280, 720, "Desktop" );
 
 		// Entities
 		m_Cube = new ColorCube( m_Graphics );
@@ -62,7 +66,7 @@ namespace Katame
 		{
 			bool exitRenderLoop = false;
 			m_XRCore->PollEvents( &exitRenderLoop, &requestRestart );
-			//m_Window->ProcessMessages();
+			m_Window->ProcessMessages();
 			
 			if ( exitRenderLoop ) 
 				break;

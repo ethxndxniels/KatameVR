@@ -42,12 +42,12 @@ namespace Katame
 			drawable->Render( gfx );
 		}
 
-		for ( Mesh* mesh : m_Meshes )
-		{
-			XMStoreFloat4x4( &model.Model, mesh->GetModelMatrix() );
-			modelCBuf->Update( gfx, &model );
-			mesh->Render( gfx );
-		}
+		//for ( Mesh* mesh : m_Meshes )
+		//{
+		//	XMStoreFloat4x4( &model.Model, mesh->GetModelMatrix() );
+		//	modelCBuf->Update( gfx, &model );
+		//	mesh->Render( gfx );
+		//}
 
 		for ( Model* draw_model : m_Models )
 		{
@@ -60,7 +60,7 @@ namespace Katame
 	void Renderer::Clear()
 	{
 		m_Drawables.clear();
-		m_Meshes.clear();
+		m_Models.clear();
 
 		ID3D11ShaderResourceView* const pNullTex = nullptr;
 		gfx->m_Context->PSSetShaderResources( 0u, 1u, &pNullTex );

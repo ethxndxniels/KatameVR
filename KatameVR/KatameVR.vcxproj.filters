@@ -872,6 +872,14 @@
     <FxCompile Include="src\Shaders\MainVS.hlsl" />
     <FxCompile Include="src\Shaders\CubeNormPS.hlsl" />
     <FxCompile Include="src\Shaders\CubeNormVS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifSpcNrmVS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifSpcNrmPS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifSpcVS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifSpcPS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifNrmPS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifNrmVS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifVS.hlsl" />
+    <FxCompile Include="src\Shaders\PhongDifPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\assimp\bin\win64\assimp-vc142-mtd.lib" />
