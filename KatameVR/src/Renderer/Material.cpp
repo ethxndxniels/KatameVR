@@ -57,4 +57,17 @@ namespace Katame
 
 		m_Sampler = new Sampler( gfx, Sampler::Type::Anisotropic, false );
 	}
+	void Material::Bind( Graphics* gfx )
+	{
+		m_InputLayout->Bind( gfx );
+		if ( m_DiffTex ) m_DiffTex->Bind( gfx );
+		if ( m_SpecTex ) m_SpecTex->Bind( gfx );
+		if ( m_NormTex ) m_NormTex->Bind( gfx );
+		m_VS->Bind( gfx );
+		m_PS->Bind( gfx );
+		//m_Topology->Bind( gfx );
+		//m_Rasterizer->Bind( gfx );
+		//m_Blender->Bind( gfx );
+		m_Sampler->Bind( gfx );
+	}
 }

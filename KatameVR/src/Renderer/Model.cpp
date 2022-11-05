@@ -92,9 +92,14 @@ namespace Katame
 	Model::~Model() noexcept
 	{}
 
-	void Model::Render( Graphics* gfx )
+	void Model::Render( Graphics* gfx, VCBuffer* modelCBuf )
 	{
-		pRoot->Render( gfx, DirectX::XMMatrixIdentity() );
+		pRoot->Render( gfx, DirectX::XMMatrixIdentity(), modelCBuf );
+	}
+
+	void Model::Update( float dt )
+	{
+		m_Pose.position.y -= 1.0f * dt;
 	}
 
 	void Model::SetData( XrPosef pose, XrVector3f scale )

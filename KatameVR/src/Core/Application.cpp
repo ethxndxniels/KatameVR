@@ -95,7 +95,7 @@ namespace Katame
 		m_NCube->Update( dt );
 		m_NCube2->Update( -dt );
 		//m_Mesh->Update( dt );
-		//m_Mesh2->Update( dt );
+		m_Mesh2->Update( dt );
 		m_Hands->Update( dt );
 		m_DirLight->Update( dt );
 	}
@@ -112,7 +112,7 @@ namespace Katame
 		m_Renderer->Submit( *m_NCube2 );
 		//m_Renderer->Submit( *m_Mesh );
 		m_Renderer->Submit( *m_Mesh2 );
-		m_Renderer->Submit( *m_Hands->GetLeftHand() );
-		m_Renderer->Submit( *m_Hands->GetRightHand() );
+		//m_Renderer->Submit( *m_Hands->GetLeftHand() );
+		//m_Renderer->Submit( *m_Hands->GetRightHand() );
 	}
 }

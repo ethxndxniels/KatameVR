@@ -3,11 +3,12 @@
 #include "../Graphics/Graphics.h"
 #include "../Drawable/Drawable.h"
 
+#include "../Renderer/Material.h"
 struct aiMesh;
 
 namespace Katame
 {
-	class Material;
+	//class Material;
 
 	class Mesh : public Drawable
 	{
@@ -21,11 +22,12 @@ namespace Katame
 		};
 		static_assert(sizeof( Vertex ) == 14 * sizeof( float ));
 	public:
-		Mesh( Graphics* gfx, const Material& mat, const aiMesh& mesh, float scale = 1.0f ) ;
+		Mesh( Graphics* gfx, Material& mat, const aiMesh& mesh, float scale = 1.0f );
 		void Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform );
 		~Mesh();
 		DirectX::XMMATRIX GetModelMatrix() override;
 	private:
+		Material m_Mat;
 		std::vector<Vertex> m_Vertices;
 		std::vector<unsigned int> m_Indices;
 

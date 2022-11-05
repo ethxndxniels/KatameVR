@@ -13,8 +13,9 @@ namespace Katame
 	namespace dx = DirectX;
 
 	// Mesh
-	Mesh::Mesh( Graphics* gfx, const Material& mat, const aiMesh& mesh, float scale )
+	Mesh::Mesh( Graphics* gfx, Material& mat, const aiMesh& mesh, float scale )
 	{
+		m_Mat = mat;
 		m_Vertices.reserve( mesh.mNumVertices );
 
 		// Extract vertices from model
@@ -53,6 +54,7 @@ namespace Katame
 	void Mesh::Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform )
 	{
 		dx::XMStoreFloat4x4( &transform, accumulatedTranform );
+		m_Mat.Bind( gfx );
 		Drawable::Render( gfx );
 	}
 

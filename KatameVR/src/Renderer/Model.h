@@ -13,6 +13,7 @@ namespace Katame
 {
 	class Node;
 	class Mesh;
+	class VCBuffer;
 
 	class Model
 	{
@@ -20,7 +21,7 @@ namespace Katame
 		Model( Graphics* gfx, const std::string& pathString, float scale = 1.0f );
 		~Model() noexcept;
 	public:
-		void Render( Graphics* gfx );
+		void Render( Graphics* gfx, VCBuffer* modelCBuf );
 		void Update( float dt );
 		void SetData( XrPosef pose, XrVector3f scale );
 		DirectX::XMMATRIX GetModelMatrix();
