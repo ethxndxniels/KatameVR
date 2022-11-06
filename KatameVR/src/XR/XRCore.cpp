@@ -381,6 +381,9 @@ namespace Katame
                     hapticActionInfo.action = m_Input.vibrateAction;
                     hapticActionInfo.subactionPath = m_Input.handSubactionPath[hand];
                     xrApplyHapticFeedback( m_Session, &hapticActionInfo, (XrHapticBaseHeader*)&vibration );
+                    m_Pose.position.x += 0.1f;
+                    m_Pose.position.y += 0.1f;
+                    m_Pose.position.z += 0.1f;
                 }
             }
 
@@ -942,8 +945,11 @@ namespace Katame
             waitInfo.timeout = XR_INFINITE_DURATION;
             xrWaitSwapchainImage( viewSwapchain.handle, &waitInfo );
 
+            XrPosef translatedPos = m_views[i].pose;
+            XrVector3f_Add( &translatedPos.position, &m_views[i].pose.position, &m_Pose.position );
+
             projectionLayerViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
-            projectionLayerViews[i].pose = m_views[i].pose;
+            projectionLayerViews[i].pose = translatedPos;
             projectionLayerViews[i].fov = m_views[i].fov;
             projectionLayerViews[i].subImage.swapchain = viewSwapchain.handle;
             projectionLayerViews[i].subImage.imageRect.offset = { 0, 0 };

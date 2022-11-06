@@ -94,6 +94,7 @@ namespace Katame
         std::vector<Swapchain> m_swapchains;
         std::map<XrSwapchain, std::vector<XrSwapchainImageBaseHeader*>> m_swapchainImages;
         std::vector<XrView> m_views;
+        XrPosef m_Pose = { 0, 0 };
         int64_t m_colorSwapchainFormat{ -1 };
 
         std::vector<XrSpace> m_visualizedSpaces;
