@@ -48,7 +48,9 @@ namespace Katame
 			}
 		}
 
-		SetIndexBuffer( new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( unsigned int )), sizeof( unsigned int ) ) );
+		IndexBuffer* IB = new IndexBuffer( gfx, m_Indices.data(), (unsigned int)(m_Indices.size() * sizeof( unsigned int )), sizeof( unsigned int ) );
+		SetIndexBuffer( IB );
+		AddBind( IB );
 	}
 
 	void Mesh::Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform )

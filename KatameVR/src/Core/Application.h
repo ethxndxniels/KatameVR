@@ -42,8 +42,7 @@ namespace Katame
 		ColorCube* m_Cube2;
 		NormalCube* m_NCube;
 		NormalCube* m_NCube2;
-		Model* m_Mesh;
-		Model* m_Mesh2;
+		Model* m_Sponza;
 		Hands* m_Hands;
 	private:
 		DirLight* m_DirLight;

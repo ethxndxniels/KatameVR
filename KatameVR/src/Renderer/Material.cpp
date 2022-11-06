@@ -54,7 +54,9 @@ namespace Katame
 			{"Texcoord", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		};
 		m_InputLayout = new InputLayout( gfx, inputLayout, *m_VS );
-
+		m_Topology = new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		m_Rasterizer = new Rasterizer( gfx, true );
+		m_Blender = new Blender( gfx, false );
 		m_Sampler = new Sampler( gfx, Sampler::Type::Anisotropic, false );
 	}
 	void Material::Bind( Graphics* gfx )
@@ -65,9 +67,9 @@ namespace Katame
 		if ( m_NormTex ) m_NormTex->Bind( gfx );
 		m_VS->Bind( gfx );
 		m_PS->Bind( gfx );
-		//m_Topology->Bind( gfx );
-		//m_Rasterizer->Bind( gfx );
-		//m_Blender->Bind( gfx );
+		m_Topology->Bind( gfx );
+		m_Rasterizer->Bind( gfx );
+		m_Blender->Bind( gfx );
 		m_Sampler->Bind( gfx );
 	}
 }
