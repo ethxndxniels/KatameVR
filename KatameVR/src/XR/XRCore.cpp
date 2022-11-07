@@ -265,7 +265,11 @@ namespace Katame
                 (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) 
             {
                 float scale = 0.005f * m_Input.handScale[Side::LEFT];
-                return { spaceLocation.pose, {scale, scale, scale} };
+                XrPosef thepose = spaceLocation.pose;
+                thepose.position.x += m_Pose.position.x;
+                thepose.position.y += m_Pose.position.y;
+                thepose.position.z += m_Pose.position.z;
+                return { thepose, {scale, scale, scale} };
             }
         }
         else 
@@ -291,7 +295,11 @@ namespace Katame
                 (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
             {
                 float scale = 0.005f * m_Input.handScale[Side::RIGHT];
-                return { spaceLocation.pose, {scale, scale, scale} };
+                XrPosef thepose = spaceLocation.pose;
+                thepose.position.x += m_Pose.position.x;
+                thepose.position.y += m_Pose.position.y;
+                thepose.position.z += m_Pose.position.z;
+                return { thepose, {scale, scale, scale} };
             }
         }
         else
@@ -335,8 +343,10 @@ namespace Katame
                 LogActionSourceName( m_Input.quitAction, "Quit" );
                 LogActionSourceName( m_Input.poseAction, "Pose" );
                 LogActionSourceName( m_Input.vibrateAction, "Vibrate" );
-                LogActionSourceName( m_Input.thumbstickXAction, "Thumbstick X" );
-                LogActionSourceName( m_Input.thumbstickYAction, "Thumbstick Y" );
+                LogActionSourceName( m_Input.leftThumbstickXAction, "Left Thumbstick X" );
+                LogActionSourceName( m_Input.leftThumbstickYAction, "Left Thumbstick Y" );
+                LogActionSourceName( m_Input.rightThumbstickXAction, "Right Thumbstick X" );
+                LogActionSourceName( m_Input.rightThumbstickYAction, "Right Thumbstick Y" );
                 break;
             case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
             default: 
@@ -386,34 +396,51 @@ namespace Katame
                 }
             }
 
-
-            XrActionStateGetInfo getInfoThumbstickX{ XR_TYPE_ACTION_STATE_GET_INFO };
-            getInfoThumbstickX.action = m_Input.thumbstickXAction;
-            getInfoThumbstickX.subactionPath = m_Input.handSubactionPath[hand];
-
-            XrActionStateFloat thumbstickXValue{ XR_TYPE_ACTION_STATE_FLOAT };
-            xrGetActionStateFloat( m_Session, &getInfoThumbstickX, &thumbstickXValue );
-            if (thumbstickXValue.changedSinceLastSync == XR_TRUE)
-            {
-                m_Pose.position.x += thumbstickXValue.currentState;
-            }
-            XrActionStateGetInfo getInfoThumbstickY{ XR_TYPE_ACTION_STATE_GET_INFO };
-            getInfoThumbstickY.action = m_Input.thumbstickYAction;
-            getInfoThumbstickY.subactionPath = m_Input.handSubactionPath[hand];
-
-            XrActionStateFloat thumbstickYValue{ XR_TYPE_ACTION_STATE_FLOAT };
-            xrGetActionStateFloat( m_Session, &getInfoThumbstickY, &thumbstickYValue );
-            if (thumbstickYValue.changedSinceLastSync == XR_TRUE)
-            {
-                m_Pose.position.z += -1.0f * thumbstickYValue.currentState;
-            }
-
-
             getInfo.action = m_Input.poseAction;
             XrActionStatePose poseState{ XR_TYPE_ACTION_STATE_POSE };
             xrGetActionStatePose( m_Session, &getInfo, &poseState );
             m_Input.handActive[hand] = poseState.isActive;
         }
+
+        // Left Controller X
+        XrActionStateGetInfo getInfoLeftThumbstickX{ XR_TYPE_ACTION_STATE_GET_INFO };
+        getInfoLeftThumbstickX.action = m_Input.leftThumbstickXAction;
+        getInfoLeftThumbstickX.subactionPath = m_Input.handSubactionPath[Side::LEFT];
+
+        XrActionStateFloat leftThumbstickXValue{ XR_TYPE_ACTION_STATE_FLOAT };
+        xrGetActionStateFloat( m_Session, &getInfoLeftThumbstickX, &leftThumbstickXValue );
+        if (leftThumbstickXValue.changedSinceLastSync == XR_TRUE)
+            m_Pose.position.x += leftThumbstickXValue.currentState;
+
+        // Left Controller Y
+        XrActionStateGetInfo getInfoLeftThumbstickY{ XR_TYPE_ACTION_STATE_GET_INFO };
+        getInfoLeftThumbstickY.action = m_Input.leftThumbstickYAction;
+        getInfoLeftThumbstickY.subactionPath = m_Input.handSubactionPath[Side::LEFT];
+
+        XrActionStateFloat leftThumbstickYValue{ XR_TYPE_ACTION_STATE_FLOAT };
+        xrGetActionStateFloat( m_Session, &getInfoLeftThumbstickY, &leftThumbstickYValue );
+        if (leftThumbstickYValue.changedSinceLastSync == XR_TRUE)
+            m_Pose.position.z += -1.0f * leftThumbstickYValue.currentState;
+
+        // Right Controller X
+        XrActionStateGetInfo getInfoRightThumbstickX{ XR_TYPE_ACTION_STATE_GET_INFO };
+        getInfoRightThumbstickX.action = m_Input.rightThumbstickXAction;
+        getInfoRightThumbstickX.subactionPath = m_Input.handSubactionPath[Side::RIGHT];
+
+        XrActionStateFloat rightThumbstickXValue{ XR_TYPE_ACTION_STATE_FLOAT };
+        xrGetActionStateFloat( m_Session, &getInfoRightThumbstickX, &rightThumbstickXValue );
+        if (rightThumbstickXValue.changedSinceLastSync == XR_TRUE)
+            m_Pose.orientation.x += 90.0f * rightThumbstickXValue.currentState;
+
+        // Right Controller Y
+        XrActionStateGetInfo getInfoRightThumbstickY{ XR_TYPE_ACTION_STATE_GET_INFO };
+        getInfoRightThumbstickY.action = m_Input.rightThumbstickYAction;
+        getInfoRightThumbstickY.subactionPath = m_Input.handSubactionPath[Side::RIGHT];
+
+        XrActionStateFloat rightThumbstickYValue{ XR_TYPE_ACTION_STATE_FLOAT };
+        xrGetActionStateFloat( m_Session, &getInfoRightThumbstickY, &rightThumbstickYValue );
+        if (rightThumbstickYValue.changedSinceLastSync == XR_TRUE)
+            m_Pose.orientation.z += 90.0f * rightThumbstickYValue.currentState;
 
         // There were no subaction paths specified for the quit action, because we don't care which hand did it.
         XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_Input.quitAction, XR_NULL_PATH };
@@ -644,21 +671,36 @@ namespace Katame
             actionInfo.subactionPaths = m_Input.handSubactionPath.data();
             xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.poseAction );
 
-            // Create an input action getting the left and right joysticks.
+            // Create an input action getting the left joysticks.
             actionInfo.actionType = XR_ACTION_TYPE_FLOAT_INPUT;
-            strcpy_s( actionInfo.actionName, "thumbstick_x" );
-            strcpy_s( actionInfo.localizedActionName, "Thumbstick X" );
+            strcpy_s( actionInfo.actionName, "left_thumbstick_x" );
+            strcpy_s( actionInfo.localizedActionName, "Left Thumbstick X" );
             actionInfo.countSubactionPaths = uint32_t( m_Input.handSubactionPath.size() );
             actionInfo.subactionPaths = m_Input.handSubactionPath.data();
-            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.thumbstickXAction );
+            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.leftThumbstickXAction );
+
+            actionInfo.actionType = XR_ACTION_TYPE_FLOAT_INPUT;
+            strcpy_s( actionInfo.actionName, "left_thumbstick_y" );
+            strcpy_s( actionInfo.localizedActionName, "Left Thumbstick Y" );
+            actionInfo.countSubactionPaths = uint32_t( m_Input.handSubactionPath.size() );
+            actionInfo.subactionPaths = m_Input.handSubactionPath.data();
+            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.leftThumbstickYAction );
+
+            // Create an input action getting the right joysticks.
+            actionInfo.actionType = XR_ACTION_TYPE_FLOAT_INPUT;
+            strcpy_s( actionInfo.actionName, "right_thumbstick_x" );
+            strcpy_s( actionInfo.localizedActionName, "Right Thumbstick X" );
+            actionInfo.countSubactionPaths = uint32_t( m_Input.handSubactionPath.size() );
+            actionInfo.subactionPaths = m_Input.handSubactionPath.data();
+            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.rightThumbstickXAction );
 
             // Create an input action getting the left and right joysticks.
             actionInfo.actionType = XR_ACTION_TYPE_FLOAT_INPUT;
-            strcpy_s( actionInfo.actionName, "thumbstick_y" );
-            strcpy_s( actionInfo.localizedActionName, "Thumbstick Y" );
+            strcpy_s( actionInfo.actionName, "right_thumbstick_y" );
+            strcpy_s( actionInfo.localizedActionName, "Right Thumbstick Y" );
             actionInfo.countSubactionPaths = uint32_t( m_Input.handSubactionPath.size() );
             actionInfo.subactionPaths = m_Input.handSubactionPath.data();
-            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.thumbstickYAction );
+            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.rightThumbstickYAction );
 
             // Create output actions for vibrating the left and right controller.
             actionInfo.actionType = XR_ACTION_TYPE_VIBRATION_OUTPUT;
@@ -688,8 +730,10 @@ namespace Katame
         std::array<XrPath, Side::COUNT> menuClickPath;
         std::array<XrPath, Side::COUNT> bClickPath;
         std::array<XrPath, Side::COUNT> triggerValuePath;
-        std::array<XrPath, Side::COUNT> thumbstickXPath;
-        std::array<XrPath, Side::COUNT> thumbstickYPath;
+        std::array<XrPath, Side::COUNT> leftThumbstickXPath;
+        std::array<XrPath, Side::COUNT> leftThumbstickYPath;
+        std::array<XrPath, Side::COUNT> rightThumbstickXPath;
+        std::array<XrPath, Side::COUNT> rightThumbstickYPath;
         ( xrStringToPath( m_Instance, "/user/hand/left/input/select/click", &selectPath[Side::LEFT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/right/input/select/click", &selectPath[Side::RIGHT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/left/input/squeeze/value", &squeezeValuePath[Side::LEFT] ) );
@@ -708,10 +752,10 @@ namespace Katame
         ( xrStringToPath( m_Instance, "/user/hand/right/input/b/click", &bClickPath[Side::RIGHT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/left/input/trigger/value", &triggerValuePath[Side::LEFT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/right/input/trigger/value", &triggerValuePath[Side::RIGHT] ) );
-        ( xrStringToPath( m_Instance, "/user/hand/left/input/thumbstick/x", &thumbstickXPath[Side::LEFT] ) );
-        ( xrStringToPath( m_Instance, "/user/hand/right/input/thumbstick/x", &thumbstickXPath[Side::RIGHT] ) );
-        ( xrStringToPath( m_Instance, "/user/hand/left/input/thumbstick/y", &thumbstickYPath[Side::LEFT] ));
-        ( xrStringToPath( m_Instance, "/user/hand/right/input/thumbstick/y", &thumbstickYPath[Side::RIGHT] ));
+        ( xrStringToPath( m_Instance, "/user/hand/left/input/thumbstick/x", &leftThumbstickXPath[Side::LEFT] ) );
+        ( xrStringToPath( m_Instance, "/user/hand/left/input/thumbstick/y", &leftThumbstickYPath[Side::LEFT] ));
+        ( xrStringToPath( m_Instance, "/user/hand/right/input/thumbstick/x", &rightThumbstickXPath[Side::RIGHT] ) );
+        ( xrStringToPath( m_Instance, "/user/hand/right/input/thumbstick/y", &rightThumbstickYPath[Side::RIGHT] ));
         // Suggest bindings for KHR Simple.
         {
             XrPath khrSimpleInteractionProfilePath;
@@ -726,10 +770,10 @@ namespace Katame
                                                             {m_Input.quitAction, menuClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::RIGHT]}, 
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]}}};
+                                                            {m_Input.leftThumbstickXAction, leftThumbstickXPath[Side::LEFT]},
+                                                            {m_Input.leftThumbstickYAction, leftThumbstickYPath[Side::LEFT]},
+                                                            {m_Input.rightThumbstickXAction, rightThumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.rightThumbstickYAction, rightThumbstickYPath[Side::RIGHT]}}};
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = khrSimpleInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -749,10 +793,10 @@ namespace Katame
                                                             {m_Input.quitAction, menuClickPath[Side::LEFT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]} }};
+                                                            {m_Input.leftThumbstickXAction, leftThumbstickXPath[Side::LEFT]},
+                                                            {m_Input.leftThumbstickYAction, leftThumbstickYPath[Side::LEFT]},
+                                                            {m_Input.rightThumbstickXAction, rightThumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.rightThumbstickYAction, rightThumbstickYPath[Side::RIGHT]}} };
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = oculusTouchInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -772,10 +816,10 @@ namespace Katame
                                                             {m_Input.quitAction, menuClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]}}};
+                                                            {m_Input.leftThumbstickXAction, leftThumbstickXPath[Side::LEFT]},
+                                                            {m_Input.leftThumbstickYAction, leftThumbstickYPath[Side::LEFT]},
+                                                            {m_Input.rightThumbstickXAction, rightThumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.rightThumbstickYAction, rightThumbstickYPath[Side::RIGHT]}} };
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = viveControllerInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -796,10 +840,10 @@ namespace Katame
                                                             {m_Input.quitAction, bClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]} }};
+                                                            {m_Input.leftThumbstickXAction, leftThumbstickXPath[Side::LEFT]},
+                                                            {m_Input.leftThumbstickYAction, leftThumbstickYPath[Side::LEFT]},
+                                                            {m_Input.rightThumbstickXAction, rightThumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.rightThumbstickYAction, rightThumbstickYPath[Side::RIGHT]}} };
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = indexControllerInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -820,10 +864,10 @@ namespace Katame
                                                             {m_Input.quitAction, menuClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
-                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
-                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]} } };
+                                                            {m_Input.leftThumbstickXAction, leftThumbstickXPath[Side::LEFT]},
+                                                            {m_Input.leftThumbstickYAction, leftThumbstickYPath[Side::LEFT]},
+                                                            {m_Input.rightThumbstickXAction, rightThumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.rightThumbstickYAction, rightThumbstickYPath[Side::RIGHT]}} };
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = microsoftMixedRealityInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();

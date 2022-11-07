@@ -94,7 +94,7 @@ namespace Katame
 
 	void Model::Render( Graphics* gfx, VCBuffer* modelCBuf )
 	{
-		pRoot->Render( gfx, DirectX::XMMatrixIdentity(), modelCBuf );
+		pRoot->Render( gfx, GetModelMatrix(), modelCBuf );
 	}
 
 	void Model::Update( float dt )
