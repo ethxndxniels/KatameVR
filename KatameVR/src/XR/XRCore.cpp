@@ -410,7 +410,7 @@ namespace Katame
         XrActionStateFloat leftThumbstickXValue{ XR_TYPE_ACTION_STATE_FLOAT };
         xrGetActionStateFloat( m_Session, &getInfoLeftThumbstickX, &leftThumbstickXValue );
         if (leftThumbstickXValue.changedSinceLastSync == XR_TRUE)
-            m_Pose.position.x += leftThumbstickXValue.currentState;
+            m_Pose.position.x += leftThumbstickXValue.currentState * 0.1f;
 
         // Left Controller Y
         XrActionStateGetInfo getInfoLeftThumbstickY{ XR_TYPE_ACTION_STATE_GET_INFO };
@@ -420,7 +420,7 @@ namespace Katame
         XrActionStateFloat leftThumbstickYValue{ XR_TYPE_ACTION_STATE_FLOAT };
         xrGetActionStateFloat( m_Session, &getInfoLeftThumbstickY, &leftThumbstickYValue );
         if (leftThumbstickYValue.changedSinceLastSync == XR_TRUE)
-            m_Pose.position.z += -1.0f * leftThumbstickYValue.currentState;
+            m_Pose.position.z += -1.0f * leftThumbstickYValue.currentState * 0.1f;
 
         // Right Controller X
         XrActionStateGetInfo getInfoRightThumbstickX{ XR_TYPE_ACTION_STATE_GET_INFO };

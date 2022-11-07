@@ -15,6 +15,7 @@ struct psIn
 
 float4 main( psIn input ) : SV_Target
 {
+	float3 diffuse = dot( normalize( float4(input.a_Normal, 1.0f) ), -lightDir ).rrr;
 	float3 color = tex.Sample( splr, input.a_TexCoord ).rgb;
-	return float4(color, 1);
+	return float4(color * diffuse, 1);
 }
