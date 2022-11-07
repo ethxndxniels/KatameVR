@@ -20,7 +20,7 @@ namespace Katame
 		m_Graphics->InitializeRenderer( m_Renderer );
 
 		// Win32
-		m_Window = new Win32Window( 1280, 720, "Desktop" );
+		m_Window = new Win32Window( 10, 10, "Desktop" );
 
 		// Entities
 		m_Cube = new ColorCube( m_Graphics );
@@ -32,7 +32,7 @@ namespace Katame
 		m_NCube2 = new NormalCube( m_Graphics );
 		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Sponza = new Model( m_Graphics, "Models\\sponza\\sponza.obj" );
-		//m_Sponza->SetData( {  { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } }, { 0.025f, 0.025f, 0.025f } );
+		m_Sponza->SetData( {  { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -5.0f } }, { 0.025f, 0.025f, 0.025f } );
 
 		// Player
 		m_Hands = new Hands( m_Graphics, m_XRCore );

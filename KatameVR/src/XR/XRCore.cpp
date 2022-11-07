@@ -335,6 +335,8 @@ namespace Katame
                 LogActionSourceName( m_Input.quitAction, "Quit" );
                 LogActionSourceName( m_Input.poseAction, "Pose" );
                 LogActionSourceName( m_Input.vibrateAction, "Vibrate" );
+                LogActionSourceName( m_Input.thumbstickXAction, "Thumbstick X" );
+                LogActionSourceName( m_Input.thumbstickYAction, "Thumbstick Y" );
                 break;
             case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
             default: 
@@ -381,11 +383,31 @@ namespace Katame
                     hapticActionInfo.action = m_Input.vibrateAction;
                     hapticActionInfo.subactionPath = m_Input.handSubactionPath[hand];
                     xrApplyHapticFeedback( m_Session, &hapticActionInfo, (XrHapticBaseHeader*)&vibration );
-                    m_Pose.position.x += 0.1f;
-                    m_Pose.position.y += 0.1f;
-                    m_Pose.position.z += 0.1f;
                 }
             }
+
+
+            XrActionStateGetInfo getInfoThumbstickX{ XR_TYPE_ACTION_STATE_GET_INFO };
+            getInfoThumbstickX.action = m_Input.thumbstickXAction;
+            getInfoThumbstickX.subactionPath = m_Input.handSubactionPath[hand];
+
+            XrActionStateFloat thumbstickXValue{ XR_TYPE_ACTION_STATE_FLOAT };
+            xrGetActionStateFloat( m_Session, &getInfoThumbstickX, &thumbstickXValue );
+            if (thumbstickXValue.changedSinceLastSync == XR_TRUE)
+            {
+                m_Pose.position.x += thumbstickXValue.currentState;
+            }
+            XrActionStateGetInfo getInfoThumbstickY{ XR_TYPE_ACTION_STATE_GET_INFO };
+            getInfoThumbstickY.action = m_Input.thumbstickYAction;
+            getInfoThumbstickY.subactionPath = m_Input.handSubactionPath[hand];
+
+            XrActionStateFloat thumbstickYValue{ XR_TYPE_ACTION_STATE_FLOAT };
+            xrGetActionStateFloat( m_Session, &getInfoThumbstickY, &thumbstickYValue );
+            if (thumbstickYValue.changedSinceLastSync == XR_TRUE)
+            {
+                m_Pose.position.y += thumbstickYValue.currentState;
+            }
+
 
             getInfo.action = m_Input.poseAction;
             XrActionStatePose poseState{ XR_TYPE_ACTION_STATE_POSE };
@@ -622,6 +644,22 @@ namespace Katame
             actionInfo.subactionPaths = m_Input.handSubactionPath.data();
             xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.poseAction );
 
+            // Create an input action getting the left and right joysticks.
+            actionInfo.actionType = XR_ACTION_TYPE_FLOAT_INPUT;
+            strcpy_s( actionInfo.actionName, "thumbstick_x" );
+            strcpy_s( actionInfo.localizedActionName, "Thumbstick X" );
+            actionInfo.countSubactionPaths = uint32_t( m_Input.handSubactionPath.size() );
+            actionInfo.subactionPaths = m_Input.handSubactionPath.data();
+            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.thumbstickXAction );
+
+            // Create an input action getting the left and right joysticks.
+            actionInfo.actionType = XR_ACTION_TYPE_FLOAT_INPUT;
+            strcpy_s( actionInfo.actionName, "thumbstick_y" );
+            strcpy_s( actionInfo.localizedActionName, "Thumbstick Y" );
+            actionInfo.countSubactionPaths = uint32_t( m_Input.handSubactionPath.size() );
+            actionInfo.subactionPaths = m_Input.handSubactionPath.data();
+            xrCreateAction( m_Input.actionSet, &actionInfo, &m_Input.thumbstickYAction );
+
             // Create output actions for vibrating the left and right controller.
             actionInfo.actionType = XR_ACTION_TYPE_VIBRATION_OUTPUT;
             strcpy_s( actionInfo.actionName, "vibrate_hand" );
@@ -650,6 +688,8 @@ namespace Katame
         std::array<XrPath, Side::COUNT> menuClickPath;
         std::array<XrPath, Side::COUNT> bClickPath;
         std::array<XrPath, Side::COUNT> triggerValuePath;
+        std::array<XrPath, Side::COUNT> thumbstickXPath;
+        std::array<XrPath, Side::COUNT> thumbstickYPath;
         ( xrStringToPath( m_Instance, "/user/hand/left/input/select/click", &selectPath[Side::LEFT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/right/input/select/click", &selectPath[Side::RIGHT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/left/input/squeeze/value", &squeezeValuePath[Side::LEFT] ) );
@@ -668,6 +708,10 @@ namespace Katame
         ( xrStringToPath( m_Instance, "/user/hand/right/input/b/click", &bClickPath[Side::RIGHT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/left/input/trigger/value", &triggerValuePath[Side::LEFT] ) );
         ( xrStringToPath( m_Instance, "/user/hand/right/input/trigger/value", &triggerValuePath[Side::RIGHT] ) );
+        ( xrStringToPath( m_Instance, "/user/hand/left/input/thumbstick/x", &thumbstickXPath[Side::LEFT] ) );
+        ( xrStringToPath( m_Instance, "/user/hand/right/input/thumbstick/x", &thumbstickXPath[Side::RIGHT] ) );
+        ( xrStringToPath( m_Instance, "/user/hand/left/input/thumbstick/y", &thumbstickYPath[Side::LEFT] ));
+        ( xrStringToPath( m_Instance, "/user/hand/right/input/thumbstick/y", &thumbstickYPath[Side::RIGHT] ));
         // Suggest bindings for KHR Simple.
         {
             XrPath khrSimpleInteractionProfilePath;
@@ -681,7 +725,11 @@ namespace Katame
                                                             {m_Input.quitAction, menuClickPath[Side::LEFT]},
                                                             {m_Input.quitAction, menuClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
-                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]}} };
+                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]}, 
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]}}};
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = khrSimpleInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -692,14 +740,19 @@ namespace Katame
         {
             XrPath oculusTouchInteractionProfilePath;
             (
-                xrStringToPath( m_Instance, "/interaction_profiles/oculus/touch_controller", &oculusTouchInteractionProfilePath ) );
-            std::vector<XrActionSuggestedBinding> bindings{ {{m_Input.grabAction, squeezeValuePath[Side::LEFT]},
+                xrStringToPath( m_Instance, "/interaction_profiles/oculus/touch_controller", &oculusTouchInteractionProfilePath ));
+            std::vector<XrActionSuggestedBinding> bindings{ {
+                                                            {m_Input.grabAction, squeezeValuePath[Side::LEFT]},
                                                             {m_Input.grabAction, squeezeValuePath[Side::RIGHT]},
                                                             {m_Input.poseAction, posePath[Side::LEFT]},
                                                             {m_Input.poseAction, posePath[Side::RIGHT]},
                                                             {m_Input.quitAction, menuClickPath[Side::LEFT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
-                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]}} };
+                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]} }};
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = oculusTouchInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -718,7 +771,11 @@ namespace Katame
                                                             {m_Input.quitAction, menuClickPath[Side::LEFT]},
                                                             {m_Input.quitAction, menuClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
-                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]}} };
+                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]}}};
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = viveControllerInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -730,7 +787,7 @@ namespace Katame
         {
             XrPath indexControllerInteractionProfilePath;
             (
-                xrStringToPath( m_Instance, "/interaction_profiles/valve/index_controller", &indexControllerInteractionProfilePath ) );
+                xrStringToPath( m_Instance, "/interaction_profiles/valve/index_controller", &indexControllerInteractionProfilePath ));
             std::vector<XrActionSuggestedBinding> bindings{ {{m_Input.grabAction, squeezeForcePath[Side::LEFT]},
                                                             {m_Input.grabAction, squeezeForcePath[Side::RIGHT]},
                                                             {m_Input.poseAction, posePath[Side::LEFT]},
@@ -738,7 +795,11 @@ namespace Katame
                                                             {m_Input.quitAction, bClickPath[Side::LEFT]},
                                                             {m_Input.quitAction, bClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
-                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]}} };
+                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]} }};
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = indexControllerInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();
@@ -758,7 +819,11 @@ namespace Katame
                                                             {m_Input.quitAction, menuClickPath[Side::LEFT]},
                                                             {m_Input.quitAction, menuClickPath[Side::RIGHT]},
                                                             {m_Input.vibrateAction, hapticPath[Side::LEFT]},
-                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]}} };
+                                                            {m_Input.vibrateAction, hapticPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::LEFT]},
+                                                            {m_Input.thumbstickXAction, thumbstickXPath[Side::RIGHT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::LEFT]},
+                                                            {m_Input.thumbstickYAction, thumbstickYPath[Side::RIGHT]} } };
             XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
             suggestedBindings.interactionProfile = microsoftMixedRealityInteractionProfilePath;
             suggestedBindings.suggestedBindings = bindings.data();

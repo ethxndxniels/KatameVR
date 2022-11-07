@@ -39,6 +39,8 @@ namespace Katame
         XrAction poseAction{ XR_NULL_HANDLE };
         XrAction vibrateAction{ XR_NULL_HANDLE };
         XrAction quitAction{ XR_NULL_HANDLE };
+        XrAction thumbstickXAction{ XR_NULL_HANDLE };
+        XrAction thumbstickYAction{ XR_NULL_HANDLE };
         std::array<XrPath, Side::COUNT> handSubactionPath;
         std::array<XrSpace, Side::COUNT> handSpace;
         std::array<float, Side::COUNT> handScale = { {1.0f, 1.0f} } ;

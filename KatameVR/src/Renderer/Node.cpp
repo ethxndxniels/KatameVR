@@ -25,6 +25,7 @@ namespace Katame
 		ModelConstantBuffer model;
 		XMStoreFloat4x4( &model.Model, built );
 		modelCBuf->Update( gfx, &model );
+		modelCBuf->Bind( gfx );
 
 		for (const auto pm : meshPtrs)
 		{

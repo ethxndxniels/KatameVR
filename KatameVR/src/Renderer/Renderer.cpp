@@ -39,6 +39,7 @@ namespace Katame
 		{	
 			XMStoreFloat4x4( &model.Model, drawable->GetModelMatrix() );
 			modelCBuf->Update( gfx, &model );
+			modelCBuf->Bind( gfx );
 			drawable->Render( gfx );
 		}
 
