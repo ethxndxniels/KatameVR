@@ -405,7 +405,7 @@ namespace Katame
             xrGetActionStateFloat( m_Session, &getInfoThumbstickY, &thumbstickYValue );
             if (thumbstickYValue.changedSinceLastSync == XR_TRUE)
             {
-                m_Pose.position.y += thumbstickYValue.currentState;
+                m_Pose.position.z += -1.0f * thumbstickYValue.currentState;
             }
 
 
