@@ -53,7 +53,7 @@ namespace Katame
 		delete m_DirLight;
 		delete m_NCube;
 		delete m_NCube2;
-		delete m_Hands;
+		//delete m_Hands;
 	}
 
 	void Application::Launch()
@@ -91,7 +91,7 @@ namespace Katame
 		//m_Cube2->Update( -dt );
 		m_NCube->Update( dt );
 		m_NCube2->Update( -dt );
-		m_Hands->Update( dt );
+		//m_Hands->Update( dt );
 		m_DirLight->Update( dt );
 	}
 
@@ -106,7 +106,7 @@ namespace Katame
 		//m_Renderer->Submit( *m_NCube );
 		//m_Renderer->Submit( *m_NCube2 );
 		m_Renderer->Submit( *m_Sponza );
-		m_Renderer->Submit( *m_Hands->GetLeftHand() );
-		m_Renderer->Submit( *m_Hands->GetRightHand() );
+		//m_Renderer->Submit( *m_Hands->GetLeftHand() );
+		//m_Renderer->Submit( *m_Hands->GetRightHand() );
 	}
 }

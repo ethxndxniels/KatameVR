@@ -111,7 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="$(OpenXRLoaderBinaryRoot)\bin\openxr_loader.dll" />
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl">
       <Filter>Header Files</Filter>
     </None>

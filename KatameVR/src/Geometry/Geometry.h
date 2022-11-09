@@ -16,7 +16,6 @@ namespace Geometry
 
 #define CUBE_SIDE(V1, V2, V3, V4, V5, V6, COLOR) {V1, COLOR}, {V2, COLOR}, {V3, COLOR}, {V4, COLOR}, {V5, COLOR}, {V6, COLOR},
 
-
 	/////////////////////////////////////////
 	// ColorCube
 	/////////////////////////////////////////
@@ -69,10 +68,6 @@ namespace Geometry
 			{"Color", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		};
 	}
-
-
-
-
 
 	/////////////////////////////////////////
 	// NormalCube

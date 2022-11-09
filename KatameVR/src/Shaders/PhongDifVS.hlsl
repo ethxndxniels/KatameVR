@@ -28,7 +28,7 @@ psIn main( vsIn input )
 {
 	psIn output;
 	output.a_Position = mul( mul( float4(input.a_Position, 1), Model ), ViewProjection );
-	output.a_Normal = normalize( mul( float4(input.a_Normal, 0), Model ).xyz );
+	output.a_Normal = normalize(mul(input.a_Normal, (float3x3)Model).xyz);
 	output.a_TexCoord = input.a_TexCoord;
 	return output;
 }

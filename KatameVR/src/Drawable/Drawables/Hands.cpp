@@ -26,8 +26,8 @@ namespace Katame
 	{
 		//m_LeftHand = new NormalCube( gfx );
 		//m_RightHand = new NormalCube( gfx );
-		m_LeftHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
-		m_RightHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
+		//m_LeftHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
+		//m_RightHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
 	}
 
 	Hands::~Hands()
