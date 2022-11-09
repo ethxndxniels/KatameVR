@@ -430,7 +430,7 @@ namespace Katame
         XrActionStateFloat rightThumbstickXValue{ XR_TYPE_ACTION_STATE_FLOAT };
         xrGetActionStateFloat( m_Session, &getInfoRightThumbstickX, &rightThumbstickXValue );
         if (rightThumbstickXValue.changedSinceLastSync == XR_TRUE)
-            m_Pose.orientation.x += 90.0f * rightThumbstickXValue.currentState;
+            m_Pose.position.x += rightThumbstickXValue.currentState;
 
         // Right Controller Y
         XrActionStateGetInfo getInfoRightThumbstickY{ XR_TYPE_ACTION_STATE_GET_INFO };
@@ -440,7 +440,7 @@ namespace Katame
         XrActionStateFloat rightThumbstickYValue{ XR_TYPE_ACTION_STATE_FLOAT };
         xrGetActionStateFloat( m_Session, &getInfoRightThumbstickY, &rightThumbstickYValue );
         if (rightThumbstickYValue.changedSinceLastSync == XR_TRUE)
-            m_Pose.orientation.z += 90.0f * rightThumbstickYValue.currentState;
+            m_Pose.position.z +=  rightThumbstickYValue.currentState;
 
         // There were no subaction paths specified for the quit action, because we don't care which hand did it.
         XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO, nullptr, m_Input.quitAction, XR_NULL_PATH };
