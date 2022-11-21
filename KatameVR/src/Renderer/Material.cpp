@@ -56,8 +56,8 @@ namespace Katame
 		m_InputLayout = new InputLayout( gfx, inputLayout, *m_VS );
 		m_Topology = new Topology( gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 		m_Rasterizer = new Rasterizer( gfx, true );
-		m_Blender = new Blender( gfx, false );
-		m_Sampler = new Sampler( gfx, Sampler::Type::Anisotropic, false );
+		m_Blender = new Blender( gfx, true );
+		m_Sampler = new Sampler( gfx, Sampler::Type::Anisotropic, true );
 	}
 	void Material::Bind( Graphics* gfx )
 	{

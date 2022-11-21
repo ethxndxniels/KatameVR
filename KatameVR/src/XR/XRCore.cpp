@@ -89,7 +89,7 @@ namespace Katame
         }
         else 
         {
-            //KM_CORE_ERROR( "Unknown reference space type {}", referenceSpaceTypeStr.c_str() );
+            KM_CORE_ERROR( "Unknown reference space type {}", referenceSpaceTypeStr.c_str() );
             throw std::exception{};
         }
         return referenceSpaceCreateInfo;
@@ -169,12 +169,6 @@ namespace Katame
         KM_CORE_TRACE( "System Tracking Properties: OrientationTracking={} PositionTracking={}",
             systemProperties.trackingProperties.orientationTracking == XR_TRUE ? "True" : "False",
             systemProperties.trackingProperties.positionTracking == XR_TRUE ? "True" : "False" );
-
-        // Note: No other view configurations exist at the time this code was written. If this
-        // condition is not met, the project will need to be audited to see how support should be
-        // added.
-        //CHECK_MSG( m_options->Parsed.ViewConfigType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
-        //    "Unsupported view configuration type" );
 
         // Query and cache view configuration views.
         uint32_t viewCount;
@@ -464,6 +458,7 @@ namespace Katame
         std::vector<XrCompositionLayerBaseHeader*> layers;
         XrCompositionLayerProjection layer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
         std::vector<XrCompositionLayerProjectionView> projectionLayerViews;
+
         if (frameState.shouldRender == XR_TRUE)
         {
             if (RenderLayer( frameState.predictedDisplayTime, projectionLayerViews, layer ))

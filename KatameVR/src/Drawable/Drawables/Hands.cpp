@@ -26,8 +26,8 @@ namespace Katame
 	{
 		//m_LeftHand = new NormalCube( gfx );
 		//m_RightHand = new NormalCube( gfx );
-		//m_LeftHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
-		//m_RightHand = new Model( gfx, "Models\\hand-for-vr\\source\\Player hand.fbx" );
+		m_LeftHand = new Model( gfx, "Models\\hand\\hand.fbx" );
+		m_RightHand = new Model( gfx, "Models\\hand\\hand.fbx" );
 	}
 
 	Hands::~Hands()
@@ -38,8 +38,10 @@ namespace Katame
 
 	void Hands::Update( float dt )
 	{
-		m_LeftHand->SetData( xrCore->GetLeftHand().first, xrCore->GetLeftHand().second );
-		m_RightHand->SetData( xrCore->GetRightHand().first, xrCore->GetRightHand().second );
+		// hard coded scale takes away user inputted scale from xrCore->GetRightHand().second
+		XrVector3f scale = { 0.00025f, 0.00025f, 0.00025f };
+		m_LeftHand->SetData( xrCore->GetLeftHand().first, scale);
+		m_RightHand->SetData( xrCore->GetRightHand().first, scale);
 	}
 	Model* Hands::GetLeftHand()
 	{

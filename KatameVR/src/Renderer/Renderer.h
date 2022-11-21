@@ -17,14 +17,12 @@ namespace Katame
 		~Renderer();
 	public:
 		void Submit( Drawable& drawable );
-		void Submit( Mesh& mesh );
 		void Submit( Model& model );
 		void Execute( VCBuffer* modelCBuf );
 		void Clear();
 	private:
 		Graphics* gfx;
 		std::vector<Drawable*> m_Drawables;
-		std::vector<Mesh*> m_Meshes;
 		std::vector<Model*> m_Models;
 	};
 }

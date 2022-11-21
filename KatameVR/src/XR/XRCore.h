@@ -84,9 +84,6 @@ namespace Katame
         bool RenderLayer( XrTime predictedDisplayTime, std::vector<XrCompositionLayerProjectionView>& projectionLayerViews, XrCompositionLayerProjection& layer );
     private:
         Graphics* gfx;
-        //const std::shared_ptr<const Options> m_options;
-        //std::shared_ptr<IPlatformPlugin> m_platformPlugin;
-       // std::shared_ptr<IGraphicsPlugin> m_graphicsPlugin;
 
         XrResult m_LastCallResult = XR_SUCCESS;
         XrInstance m_Instance{ XR_NULL_HANDLE };
