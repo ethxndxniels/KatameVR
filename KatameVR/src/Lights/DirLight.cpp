@@ -33,7 +33,7 @@ namespace Katame
 
 	void DirLight::Update( float dt )
 	{
-		if (m_BufferData.lightDir.y > 1.0f)
+		/*if (m_BufferData.lightDir.y > 0.0f)
 			flag = false;
 		else if (m_BufferData.lightDir.y < -1.0f)
 			flag = true;
@@ -41,7 +41,7 @@ namespace Katame
 		if (flag)
 			m_BufferData.lightDir.y += 0.01f;
 		else
-			m_BufferData.lightDir.y -= 0.01f;
+			m_BufferData.lightDir.y -= 0.01f;*/
 
 	}
 

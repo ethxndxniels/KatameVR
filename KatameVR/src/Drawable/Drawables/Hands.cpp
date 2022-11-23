@@ -26,8 +26,8 @@ namespace Katame
 	{
 		//m_LeftHand = new NormalCube( gfx );
 		//m_RightHand = new NormalCube( gfx );
-		m_LeftHand = new Model( gfx, "Models\\hand\\hand.fbx" );
-		m_RightHand = new Model( gfx, "Models\\hand\\hand.fbx" );
+		m_LeftHand = new Model( gfx, "Models\\hand\\source\\hand.obj" );
+		m_RightHand = new Model( gfx, "Models\\hand\\source\\hand.obj" );
 	}
 
 	Hands::~Hands()
@@ -39,7 +39,7 @@ namespace Katame
 	void Hands::Update( float dt )
 	{
 		// hard coded scale takes away user inputted scale from xrCore->GetRightHand().second
-		XrVector3f scale = { 0.00025f, 0.00025f, 0.00025f };
+		XrVector3f scale = { 0.025f, 0.025f, 0.025f };
 		m_LeftHand->SetData( xrCore->GetLeftHand().first, scale);
 		m_RightHand->SetData( xrCore->GetRightHand().first, scale);
 	}

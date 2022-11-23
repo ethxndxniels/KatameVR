@@ -13,9 +13,10 @@ struct psIn
 	float2 a_TexCoord : Texcoord;
 };
 
-float4 main( psIn input ) : SV_Target
+float4 main(psIn input) : SV_Target
 {
+	float3 ambient = (0.2f, 0.2f, 0.2f);
 	float3 diffuse = dot( normalize( float4(input.a_Normal, 1.0f) ), -lightDir ).rrr;
 	float3 color = tex.Sample( splr, input.a_TexCoord ).rgb;
-	return float4(color * diffuse, 1);
+	return float4(color * saturate( diffuse + ambient ), 1);
 }
