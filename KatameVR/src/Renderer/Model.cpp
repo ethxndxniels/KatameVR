@@ -56,6 +56,7 @@ namespace Katame
 
 	Model::Model( Graphics* gfx, const std::string& pathString, const float scale )
 	{
+		m_Scale = { scale, scale, scale };
 		LogStream::Initialize();
 
 		KM_CORE_INFO( "Loading mesh: {0}", pathString.c_str() );

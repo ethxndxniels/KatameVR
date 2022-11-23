@@ -30,7 +30,7 @@ namespace Katame
 		Material m_Mat;
 		std::vector<Vertex> m_Vertices;
 		std::vector<unsigned int> m_Indices;
-
+		float m_Scale = 1.0f;
 		IndexBuffer* m_IndexBuffer;
 		mutable DirectX::XMFLOAT4X4 transform;
 	};

@@ -15,6 +15,7 @@ namespace Katame
 	// Mesh
 	Mesh::Mesh( Graphics* gfx, Material& mat, const aiMesh& mesh, float scale )
 	{
+		m_Scale = scale;
 		m_Mat = mat;
 		m_Vertices.reserve( mesh.mNumVertices );
 
@@ -22,7 +23,7 @@ namespace Katame
 		for (size_t i = 0; i < m_Vertices.capacity(); i++)
 		{
 			Vertex vertex;
-			vertex.Position = { mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z };
+			vertex.Position = { mesh.mVertices[i].x * m_Scale, mesh.mVertices[i].y * m_Scale, mesh.mVertices[i].z * m_Scale };
 			vertex.Normal = { mesh.mNormals[i].x, mesh.mNormals[i].y, mesh.mNormals[i].z };
 
 			if (mesh.HasTangentsAndBitangents())
@@ -66,6 +67,6 @@ namespace Katame
 
 	DirectX::XMMATRIX Mesh::GetModelMatrix() 
 	{
-		return DirectX::XMLoadFloat4x4( &transform );
+		return DirectX::XMLoadFloat4x4(&transform);
 	}
 }
