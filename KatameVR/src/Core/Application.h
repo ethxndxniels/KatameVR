@@ -21,6 +21,7 @@
 #include "../Renderer/Model.h"
 
 #include "../Lights/DirLight.h"
+#include "../Lights/PointLight.h"
 
 namespace Katame 
 {
@@ -46,6 +47,7 @@ namespace Katame
 		Hands* m_Hands;
 	private:
 		DirLight* m_DirLight;
+		PointLight* m_PointLight;
 	private:
 		FrameTimer m_Timer;
 		float speed_factor = 1.0f;

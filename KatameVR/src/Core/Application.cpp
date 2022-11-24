@@ -31,7 +31,7 @@ namespace Katame
 		m_NCube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_NCube2 = new NormalCube( m_Graphics );
 		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_Sponza = new Model( m_Graphics, "Models\\sponza\\sponza.obj", 0.25f );
+		m_Sponza = new Model( m_Graphics, "Models\\sponza\\sponza.obj", 0.125f );
 		//m_Sponza->SetData( {  { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }, { 0.025f, 0.025f, 0.025f } );
 
 		// Player
@@ -39,6 +39,7 @@ namespace Katame
 
 		// Lights
 		m_DirLight = new DirLight( m_Graphics );
+		m_PointLight = new PointLight( m_Graphics );
 	}
 
 	Application::~Application()
@@ -51,6 +52,7 @@ namespace Katame
 		delete m_Cube2;
 		delete m_Sponza;
 		delete m_DirLight;
+		delete m_PointLight;
 		delete m_NCube;
 		delete m_NCube2;
 		delete m_Hands;
@@ -93,12 +95,14 @@ namespace Katame
 		m_NCube2->Update( -dt );
 		m_Hands->Update( dt );
 		m_DirLight->Update( dt );
+		m_PointLight->Update( dt );
 	}
 
 	void Application::Submit()	
 	{
 		// Lights
 		m_DirLight->Bind();
+		m_PointLight->Bind();
 
 		// Entities
 		//m_Renderer->Submit( *m_Cube );

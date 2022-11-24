@@ -108,6 +108,9 @@
     <ClCompile Include="src\Utilities\KatameXM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Lights\PointLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -118,6 +121,7 @@
     <None Include="vendor\assimp\bin\win64\assimp-vc142-mt.dll" />
     <None Include="vendor\dxtex\bin\Debug\DirectXTex.pdb" />
     <None Include="vendor\dxtex\bin\Release\DirectXTex.pdb" />
+    <None Include="$(OpenXRLoaderBinaryRoot)\bin\openxr_loader.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h">
@@ -859,6 +863,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lights\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
