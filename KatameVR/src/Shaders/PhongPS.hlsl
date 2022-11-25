@@ -7,12 +7,9 @@ cbuffer pointLight : register(b3)
 {
 	float3 pointPosition;
 	float3 color;
+	float radius;
+	float padding;
 };
-
-Texture2D tex;
-Texture2D nmap : register(t2);
-
-SamplerState splr;
 
 struct psIn
 {
@@ -24,24 +21,19 @@ struct psIn
 
 float4 main(psIn input) : SV_Target
 {
-	// TODO
-	//  - Add useNormalMap conditional
-	// Normal
-	float3 sampledNormal = nmap.Sample(splr, input.a_TexCoord).xyz;
-
 	// Ambient
 	float3 ambient = { 0.1f, 0.1f, 0.1f };
 
 	// Directional Light
-	float3 directionalDiffuse = dot(sampledNormal, -lightDir.xyz).rrr;
+	float3 directionalDiffuse = dot(input.a_Normal, -lightDir.xyz).rrr;
 
 	// Point Light
 	float3 pointToFrag = pointPosition - input.a_ModelPosition.xyz;
-	float3 pointDiffuse = dot(normalize(pointToFrag), sampledNormal).rrr;
-	float pointLightAtt = saturate((1 - (length(pointToFrag) / 100.0f)));
+	float3 pointDiffuse = max(0, dot(normalize(pointToFrag), input.a_Normal).rrr);
+	float pointLightAtt = saturate((1 - (length(pointToFrag) / radius)));
 	pointLightAtt *= pointLightAtt;
 	pointDiffuse *= pointLightAtt;
 
 	// Final Color
-	return float4(tex.Sample(splr, input.a_TexCoord).rgb * saturate( pointDiffuse + ambient), 1);
+	return float4(color * saturate( pointDiffuse + ambient), 1);
 }

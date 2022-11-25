@@ -23,7 +23,8 @@ namespace Katame
 		{
 			DirectX::XMFLOAT3 position = { 0.0f, 5.0f, 0.0f };
 			DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };
-			DirectX::XMFLOAT2 padding = { 1.0f, 1.0f };
+			float radius = { 10.0f };
+			float padding;
 		};
 		LightData m_BufferData;
 		PCBuffer* m_Buffer = nullptr;
