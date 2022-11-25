@@ -61,10 +61,14 @@ namespace Katame
 	}
 	void Material::Bind( Graphics* gfx )
 	{
+		ID3D11ShaderResourceView* null[1] = {};
 		m_InputLayout->Bind( gfx );
-		if ( m_DiffTex ) m_DiffTex->Bind( gfx );
+		if ( m_DiffTex ) m_DiffTex->Bind(gfx);
+		else gfx->m_Context->PSSetShaderResources(0, 1, null);
 		if ( m_SpecTex ) m_SpecTex->Bind( gfx );
+		else gfx->m_Context->PSSetShaderResources(1, 1, null);
 		if ( m_NormTex ) m_NormTex->Bind( gfx );
+		else gfx->m_Context->PSSetShaderResources(2, 1, null);
 		m_VS->Bind( gfx );
 		m_PS->Bind( gfx );
 		m_Topology->Bind( gfx );
