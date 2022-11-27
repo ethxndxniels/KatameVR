@@ -86,6 +86,8 @@ namespace Katame
 		// Lights
 		m_DirLight->Bind();
 		m_PointLight->Bind();
+		m_Renderer->Submit( *m_PointLight->GetLightCore() );
+
 
 		// Entities
 		m_Renderer->Submit( *m_Sponza );

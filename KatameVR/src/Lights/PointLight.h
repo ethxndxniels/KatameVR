@@ -8,6 +8,8 @@
 namespace Katame
 {
 	class Graphics;
+	class PointLightCore;
+	class Drawable;
 
 	class PointLight
 	{
@@ -16,6 +18,7 @@ namespace Katame
 		~PointLight();
 		void Bind();
 		void Update(float dt);
+		Drawable* GetLightCore();
 	private:
 		Graphics* gfx;
 	private:
@@ -28,6 +31,8 @@ namespace Katame
 		};
 		LightData m_BufferData;
 		PCBuffer* m_Buffer = nullptr;
+		PointLightCore* m_LightCore = nullptr;
+
 		bool flag = true;
 	};
 }

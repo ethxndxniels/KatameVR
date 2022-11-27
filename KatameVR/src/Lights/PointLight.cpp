@@ -2,6 +2,8 @@
 
 #include "../Graphics/Graphics.h"
 
+#include "../Drawable/Drawables/PointLightCore.h"
+
 namespace Katame
 {
 	PointLight::PointLight(Graphics* gfx)
@@ -16,6 +18,7 @@ namespace Katame
 		desc.StructureByteStride = 0u;
 
 		m_Buffer = new PCBuffer(gfx, 3u, sizeof(LightData));
+		m_LightCore = new PointLightCore(gfx);
 	}
 	PointLight::~PointLight()
 	{
@@ -27,6 +30,7 @@ namespace Katame
 		XMStoreFloat3(&data.position, { m_BufferData.position.x,  m_BufferData.position.y,  m_BufferData.position.z });
 		m_Buffer->Update(gfx, &data);
 		m_Buffer->Bind(gfx);
+		m_LightCore->SetData({ {}, { m_BufferData.position.x,  m_BufferData.position.y,  m_BufferData.position.z } }, {0.5f,0.5f,0.5f});
 	}
 	void PointLight::Update(float dt)
 	{
@@ -39,5 +43,9 @@ namespace Katame
 			m_BufferData.position.x += 0.1f;
 		else
 			m_BufferData.position.x -= 0.1f;
+	}
+	Drawable* PointLight::GetLightCore()
+	{
+		return m_LightCore;
 	}
 }

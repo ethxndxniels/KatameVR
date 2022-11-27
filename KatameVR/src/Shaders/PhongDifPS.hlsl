@@ -27,7 +27,7 @@ struct psIn
 float4 main(psIn input) : SV_Target
 {
 	// Ambient
-	float3 ambient = { 0.1f, 0.1f, 0.1f };
+	float3 ambient = { 0.05f, 0.05f, 0.05f };
 
 	// Directional Light
 	float3 directionalDiffuse = dot(input.a_Normal, -lightDir.xyz).rrr;

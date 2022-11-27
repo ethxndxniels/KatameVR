@@ -39,10 +39,7 @@ namespace Katame
 		Renderer* m_Renderer = nullptr;
 		Win32Window* m_Window = nullptr;
 	private:
-		ColorCube* m_Cube;
-		ColorCube* m_Cube2;
 		NormalCube* m_NCube;
-		NormalCube* m_NCube2;
 		Model* m_Sponza;
 		Hands* m_Hands;
 	private:

@@ -22,7 +22,7 @@ struct psIn
 float4 main(psIn input) : SV_Target
 {
 	// Ambient
-	float3 ambient = { 0.1f, 0.1f, 0.1f };
+	float3 ambient = { 0.05f, 0.05f, 0.05f };
 
 	// Directional Light
 	float3 directionalDiffuse = dot(input.a_Normal, -lightDir.xyz).rrr;
@@ -30,7 +30,7 @@ float4 main(psIn input) : SV_Target
 	// Point Light
 	float3 pointToFrag = pointPosition - input.a_ModelPosition.xyz;
 	float3 pointDiffuse = max(0, dot(normalize(pointToFrag), input.a_Normal).rrr);
-	float pointLightAtt = saturate((1 - (length(pointToFrag) / radius)));
+	float pointLightAtt = (1 - (length(pointToFrag) / radius));
 	pointLightAtt *= pointLightAtt;
 	pointDiffuse *= pointLightAtt;
 
