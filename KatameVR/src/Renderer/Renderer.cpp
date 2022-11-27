@@ -40,7 +40,10 @@ namespace Katame
 
 		for ( Model* draw_model : m_Models )
 		{
-			draw_model->Render( gfx, modelCBuf );
+			XMStoreFloat4x4(&model.Model, draw_model->GetModelMatrix());
+			modelCBuf->Update( gfx, &model );
+			modelCBuf->Bind( gfx) ;
+			draw_model->Render( gfx );
 		}
 	}
 

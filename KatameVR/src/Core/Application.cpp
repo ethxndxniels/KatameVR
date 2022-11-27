@@ -23,16 +23,7 @@ namespace Katame
 		m_Window = new Win32Window( 10, 10, "Desktop" );
 
 		// Entities
-		m_Cube = new ColorCube( m_Graphics );
-		m_Cube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_Cube2 = new ColorCube( m_Graphics );
-		m_Cube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_NCube = new NormalCube( m_Graphics );
-		m_NCube->SetData( { { -1.0f, -1.0f, -1.0f, -1.0f }, { -1.0f, -1.0f, -1.0f } }, { 0.025f, 0.025f, 0.025f } );
-		m_NCube2 = new NormalCube( m_Graphics );
-		m_NCube2->SetData( { { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f } }, { 0.025f, 0.025f, 0.025f } );
 		m_Sponza = new Model( m_Graphics, "Models\\sponza\\sponza.obj", 0.125f );
-		//m_Sponza->SetData( {  { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } }, { 0.025f, 0.025f, 0.025f } );
 
 		// Player
 		m_Hands = new Hands( m_Graphics, m_XRCore );
@@ -48,14 +39,10 @@ namespace Katame
 		delete m_Graphics;
 		delete m_Renderer;
 		delete m_Window;
-		delete m_Cube;
-		delete m_Cube2;
 		delete m_Sponza;
+		delete m_Hands;
 		delete m_DirLight;
 		delete m_PointLight;
-		delete m_NCube;
-		delete m_NCube2;
-		delete m_Hands;
 	}
 
 	void Application::Launch()
@@ -89,10 +76,6 @@ namespace Katame
 
 	void Application::Update( float dt )
 	{
-		//m_Cube->Update( dt );
-		//m_Cube2->Update( -dt );
-		m_NCube->Update( dt );
-		m_NCube2->Update( -dt );
 		m_Hands->Update( dt );
 		m_DirLight->Update( dt );
 		m_PointLight->Update( dt );
@@ -105,11 +88,9 @@ namespace Katame
 		m_PointLight->Bind();
 
 		// Entities
-		//m_Renderer->Submit( *m_Cube );
-		//m_Renderer->Submit( *m_Cube2 );
-		//m_Renderer->Submit( *m_NCube );
-		//m_Renderer->Submit( *m_NCube2 );
 		m_Renderer->Submit( *m_Sponza );
+		
+		// Hands
 		m_Renderer->Submit( *m_Hands->GetLeftHand() );
 		m_Renderer->Submit( *m_Hands->GetRightHand() );
 	}

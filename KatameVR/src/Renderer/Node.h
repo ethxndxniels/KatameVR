@@ -18,7 +18,7 @@ namespace Katame
 		friend class Model;
 	public:
 		Node( int id, const std::string& name, std::vector<Mesh*> meshPtrs, const DirectX::XMMATRIX& transform ) noexcept;
-		void Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform, VCBuffer* modelCBuf );
+		void Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform );
 		void SetAppliedTransform( DirectX::FXMMATRIX transform ) noexcept;
 		const DirectX::XMFLOAT4X4& GetAppliedTransform() const noexcept;
 		int GetId() const noexcept;

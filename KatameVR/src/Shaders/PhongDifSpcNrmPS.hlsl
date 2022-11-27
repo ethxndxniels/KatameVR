@@ -29,6 +29,10 @@ struct psIn
 
 float4 main(psIn input) : SV_Target
 {
+	// Alpha Blending
+	const float4 color = tex.Sample(splr, input.a_TexCoord);
+	clip(color.a < 0.1f ? -1 : 1);
+
 	// Normal
 	const float3x3 tanToTarget = float3x3(input.a_Tangent, input.a_Bitangent, input.a_Normal);
 	// sample and unpack the normal from texture into target space   
@@ -52,5 +56,5 @@ float4 main(psIn input) : SV_Target
 	//float3 pointLightSpec = pow(max(0.0f, dot(input.a_Normal, camToFrag)), 128);
 
 	// Final Color
-	return float4(tex.Sample(splr, input.a_TexCoord).rgb * saturate( pointDiffuse + ambient), 1);
+	return float4(color * saturate( pointDiffuse + ambient), 1);
 }

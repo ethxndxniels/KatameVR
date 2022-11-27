@@ -15,17 +15,12 @@ namespace Katame
 		dx::XMStoreFloat4x4( &appliedTransform, dx::XMMatrixIdentity() );
 	}
 
-	void Node::Render( Graphics* gfx, dx::FXMMATRIX accumulatedTranform, VCBuffer* modelCBuf )
+	void Node::Render( Graphics* gfx, dx::FXMMATRIX accumulatedTranform )
 	{
 		const auto built =
 			dx::XMLoadFloat4x4( &appliedTransform ) *
 			dx::XMLoadFloat4x4( &transform ) *
 			accumulatedTranform;
-
-		ModelConstantBuffer model;
-		XMStoreFloat4x4( &model.Model, built );
-		modelCBuf->Update( gfx, &model );
-		modelCBuf->Bind( gfx );
 
 		for (const auto pm : meshPtrs)
 		{
@@ -33,7 +28,7 @@ namespace Katame
 		}
 		for (const auto& pc : childPtrs)
 		{
-			pc->Render( gfx, built, modelCBuf );
+			pc->Render( gfx, built );
 		}
 	}
 

@@ -93,9 +93,9 @@ namespace Katame
 	Model::~Model() noexcept
 	{}
 
-	void Model::Render( Graphics* gfx, VCBuffer* modelCBuf )
+	void Model::Render( Graphics* gfx )
 	{
-		pRoot->Render( gfx, GetModelMatrix(), modelCBuf );
+		pRoot->Render( gfx, GetModelMatrix() );
 	}
 
 	void Model::Update( float dt )
