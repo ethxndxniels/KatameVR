@@ -29,8 +29,8 @@ namespace Katame
 		m_Hands = new Hands( m_Graphics, m_XRCore );
 
 		// Lights
+		m_PointLight = new PointLight(m_Graphics);
 		m_DirLight = new DirLight( m_Graphics );
-		m_PointLight = new PointLight( m_Graphics );
 	}
 
 	Application::~Application()
@@ -41,8 +41,8 @@ namespace Katame
 		delete m_Window;
 		delete m_Sponza;
 		delete m_Hands;
-		delete m_DirLight;
 		delete m_PointLight;
+		delete m_DirLight;
 	}
 
 	void Application::Launch()

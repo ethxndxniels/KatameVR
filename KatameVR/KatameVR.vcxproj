@@ -49,13 +49,13 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>KatameVR</TargetName>
     <LibraryPath>$(ProjectDir)vendor\dxtex\bin\$(Configuration);$(ProjectDir)vendor\assimp\bin\win64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;;$(ProjectDir)vendor\stb\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(ProjectDir)vendor\spdlog\include;$(ProjectDir)vendor\stb\include;$(ProjectDir)vendor\imgui;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>KatameVR</TargetName>
     <LibraryPath>$(ProjectDir)vendor\dxtex\bin\$(Configuration);$(ProjectDir)vendor\assimp\bin\win64\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-    <IncludePath>$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;;$(ProjectDir)vendor\stb\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)vendor\dxtex\include;$(ProjectDir)vendor\assimp\include;$(ProjectDir)vendor\spdlog\include;$(ProjectDir)vendor\stb\include;$(ProjectDir)vendor\imgui;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -63,15 +63,18 @@
       <SDLCheck>
       </SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;</AdditionalIncludeDirectories>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -82,11 +85,13 @@
       <SDLCheck>
       </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>vendor\spdlog\include;vendor\assimp\include;vendor\spdlog\src;vendor\dvtex\include;</AdditionalIncludeDirectories>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -97,6 +102,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\UI\ImguiHandler.cpp" />
     <ClCompile Include="src\Drawable\Drawables\PointLightCore.cpp" />
     <ClCompile Include="src\Lights\PointLight.cpp" />
     <ClCompile Include="src\Renderer\Node.cpp" />
@@ -130,6 +136,13 @@
     <ClCompile Include="src\Platform\Win32Window.cpp" />
     <ClCompile Include="src\Bindables\Texture.cpp" />
     <ClCompile Include="src\Renderer\Surface.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="vendor\imgui\imgui.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -140,6 +153,7 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\UI\ImguiHandler.h" />
     <ClInclude Include="src\Drawable\Drawables\PointLightCore.h" />
     <ClInclude Include="src\Lights\PointLight.h" />
     <ClInclude Include="src\Renderer\Node.h" />
@@ -283,6 +297,14 @@
     <ClInclude Include="vendor\dxtex\include\dxtex\DirectXTexP.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\filters.h" />
     <ClInclude Include="vendor\dxtex\include\dxtex\scoped.h" />
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="vendor\imgui\imconfig.h" />
+    <ClInclude Include="vendor\imgui\imgui.h" />
+    <ClInclude Include="vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="vendor\spdlog\bench\utils.h" />
     <ClInclude Include="vendor\spdlog\include\spdlog\async.h" />
     <ClInclude Include="vendor\spdlog\include\spdlog\async_logger-inl.h" />

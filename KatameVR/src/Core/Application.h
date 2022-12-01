@@ -11,6 +11,8 @@
 #include <vector>
 #include <algorithm> // any_of
 
+#include "../UI/ImguiHandler.h"
+
 #include "../Utilities/FrameTimer.h"
 
 #include "../Drawable/Drawables/ColorCube.h"
@@ -34,6 +36,7 @@ namespace Katame
 		void Update( float dt );
 		void Submit();
 	private:
+		ImguiHandler imgui;
 		XRCore* m_XRCore = nullptr;
 		Graphics* m_Graphics = nullptr;
 		Renderer* m_Renderer = nullptr;

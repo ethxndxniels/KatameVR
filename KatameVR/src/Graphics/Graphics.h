@@ -40,7 +40,7 @@ namespace Katame
 	{
 	public:
 		Graphics() = default;
-		~Graphics() = default;
+		~Graphics();
 	public:
 		void InitializeDevice( XrInstance instance, XrSystemId systemId );
 		std::vector<XrSwapchainImageBaseHeader*> AllocateSwapchainImageStructs( uint32_t capacity, const XrSwapchainCreateInfo& swapchainCreateInfo );

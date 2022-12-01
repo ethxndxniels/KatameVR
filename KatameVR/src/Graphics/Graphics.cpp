@@ -7,8 +7,16 @@
 
 #include "../Renderer/Renderer.h"
 
+#include "../../vendor/imgui/backends/imgui_impl_dx11.h"
+#include "../../vendor/imgui/backends/imgui_impl_win32.h"
+
 namespace Katame
 {
+	Graphics::~Graphics()
+	{
+		ImGui_ImplDX11_Shutdown();
+	}
+
 	void Graphics::InitializeDevice( XrInstance instance, XrSystemId systemId )
 	{
 		m_clearColor = { 20.0f / 255.0f, 0.0f, 0.0f, 1.0f };
@@ -35,6 +43,9 @@ namespace Katame
 		InitializeResources();
 
 		m_graphicsBinding.device = m_Device;
+
+		// init imgui d3d impl
+		ImGui_ImplDX11_Init( m_Device, m_Context );
 	}
 
 	std::vector<XrSwapchainImageBaseHeader*> Graphics::AllocateSwapchainImageStructs( uint32_t capacity, const XrSwapchainCreateInfo& swapchainCreateInfo )
@@ -58,6 +69,14 @@ namespace Katame
 	void Graphics::RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat )
 	{
 		CHECK( layerView.subImage.imageArrayIndex == 0 );  // Texture arrays not supported.
+
+		// imgui begin frame
+		if (true)
+		{
+			ImGui_ImplDX11_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
+		}
 
 		ID3D11Texture2D* const colorTexture = reinterpret_cast<const XrSwapchainImageD3D11KHR*>(swapchainImage)->texture;
 
@@ -93,6 +112,14 @@ namespace Katame
 		m_ModelCBuf->Bind( this );
 
 		m_Renderer->Execute( m_ModelCBuf );
+
+		// imgui frame end
+		if (true)
+		{
+			ImGui::Render();
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+		}
+
 	}
 
 	int64_t Graphics::SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const
