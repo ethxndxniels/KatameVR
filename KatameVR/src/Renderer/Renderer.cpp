@@ -6,6 +6,8 @@
 #include "../Drawable/Drawable.h"
 #include "../Renderer/Model.h"
 
+#include "../../vendor/imgui/imgui.h"
+
 namespace Katame
 {
 	Renderer::Renderer( Graphics* gfx )
@@ -45,6 +47,8 @@ namespace Katame
 			modelCBuf->Bind( gfx) ;
 			draw_model->Render( gfx );
 		}
+
+		ImGui::ShowDemoWindow();
 	}
 
 	void Renderer::Clear()

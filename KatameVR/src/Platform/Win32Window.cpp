@@ -2,6 +2,8 @@
 
 #include "../Core/Log.h"
 
+#include "../../vendor/imgui/backends/imgui_impl_win32.h"
+
 namespace Katame
 {
 	Win32Window::Win32Window( int nWidth, int nHeight, const char* name )
@@ -47,6 +49,8 @@ namespace Katame
 
 		// newly created windows start off as hidden
 		ShowWindow( m_hWnd, SW_SHOWDEFAULT );
+
+		ImGui_ImplWin32_Init( m_hWnd );
 	}
 
 	Win32Window::~Win32Window()

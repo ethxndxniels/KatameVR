@@ -111,6 +111,9 @@ namespace Katame
 
 		m_ModelCBuf->Bind( this );
 
+		// TODO: 
+		// - Shadow Pass turning into texture shader resource
+		// - Make Deferred
 		m_Renderer->Execute( m_ModelCBuf );
 
 		// imgui frame end

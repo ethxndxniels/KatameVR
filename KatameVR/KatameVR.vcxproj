@@ -102,6 +102,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Bindables\RenderTarget.cpp" />
     <ClCompile Include="src\UI\ImguiHandler.cpp" />
     <ClCompile Include="src\Drawable\Drawables\PointLightCore.cpp" />
     <ClCompile Include="src\Lights\PointLight.cpp" />
@@ -153,6 +154,8 @@
     <None Include="vendor\dxtex\include\dxtex\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Bindables\BufferResource.h" />
+    <ClInclude Include="src\Bindables\RenderTarget.h" />
     <ClInclude Include="src\UI\ImguiHandler.h" />
     <ClInclude Include="src\Drawable\Drawables\PointLightCore.h" />
     <ClInclude Include="src\Lights\PointLight.h" />
