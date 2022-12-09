@@ -14,18 +14,16 @@
 
 namespace Katame
 {
-	Renderer::Renderer( Graphics* gfx )
-		: gfx( gfx )
+	Renderer::Renderer( Graphics& gfx )
+		: 
+		gfx( gfx ),
+		m_ModelCBuf( gfx, 0u, sizeof(ModelConstantBuffer) ),
+		m_ViewProjCBuf( gfx, 1u, sizeof(DirectX::XMFLOAT4X4) )
 	{
-
-		m_ModelCBuf = new VCBuffer(gfx, 0u, sizeof(ModelConstantBuffer));
-		m_ViewProjCBuf = new VCBuffer(gfx, 1u, sizeof(DirectX::XMFLOAT4X4));
 	}
 
 	Renderer::~Renderer()
 	{
-		delete m_ModelCBuf;
-		delete m_ViewProjCBuf;
 	}
 
 	void Renderer::Submit( Drawable& drawable )
@@ -46,58 +44,51 @@ namespace Katame
 
 	void Renderer::Execute()
 	{
-		// Depth Pass
-		// TODO: Add point light transform
-		
 		// Light Data
 		m_PointLights[0]->Bind();
 
 		// Shadow Map Pass
-		ShaderInputDepthStencil* shadowMap = new ShaderInputDepthStencil( gfx, gfx->GetWidth(), gfx->GetHeight(), 5 );
-		shadowMap->Clear( gfx );
-		shadowMap->BindAsBuffer( gfx );
+		ShaderInputDepthStencil shadowMap{ gfx, (UINT)gfx.GetWidth(), (UINT)gfx.GetHeight(), 5 };
+		shadowMap.Clear( gfx );
+		shadowMap.BindAsBuffer( gfx );
 
 		m_PointLights[0]->BindViewProj();
 
-		Draw( m_ModelCBuf );
-
+		Draw();
 
 		// Forward Pass
-		OutputOnlyDepthStencil* depthStencil = new OutputOnlyDepthStencil( gfx, gfx->GetWidth(), gfx->GetHeight() );
-		depthStencil->Clear( gfx );
+		OutputOnlyDepthStencil depthStencil{ gfx, (UINT)gfx.GetWidth(), (UINT)gfx.GetHeight() };
+		depthStencil.Clear( gfx );
 
 		m_MainRenderTarget->Clear( gfx );
-		m_MainRenderTarget->BindAsBuffer( gfx, depthStencil );
+		m_MainRenderTarget->BindAsBuffer( gfx, &depthStencil );
 
-		m_ViewProjCBuf->Bind( gfx );
+		m_ViewProjCBuf.Bind( gfx );
 
 		// Resources
-		shadowMap->Bind( gfx );
+		shadowMap.Bind( gfx );
 
-		Draw( m_ModelCBuf );
-
-		delete shadowMap;
-		delete depthStencil;
+		Draw();
 	}
 
-	void Renderer::Draw(VCBuffer* modelCBuf)
+	void Renderer::Draw()
 	{
 		ModelConstantBuffer model;
 
 		for (Drawable* drawable : m_Drawables)
 		{
-			XMStoreFloat4x4(&model.Model, drawable->GetModelMatrix());
-			modelCBuf->Update(gfx, &model);
-			modelCBuf->Bind(gfx);
-			drawable->Render(gfx);
+			XMStoreFloat4x4( &model.Model, drawable->GetModelMatrix() );
+			m_ModelCBuf.Update( gfx, &model );
+			m_ModelCBuf.Bind( gfx );
+			drawable->Render( gfx );
 		}
 
 		for (Model* draw_model : m_Models)
 		{
-			XMStoreFloat4x4(&model.Model, draw_model->GetModelMatrix());
-			modelCBuf->Update(gfx, &model);
-			modelCBuf->Bind(gfx);
-			draw_model->Render(gfx);
+			XMStoreFloat4x4(  &model.Model, draw_model->GetModelMatrix() );
+			m_ModelCBuf.Update( gfx, &model );
+			m_ModelCBuf.Bind( gfx );
+			draw_model->Render( gfx );
 		}
 	}
 
@@ -105,17 +96,19 @@ namespace Katame
 	{
 		m_Drawables.clear();
 		m_Models.clear();
+		m_PointLights.clear();
 
 		ID3D11ShaderResourceView* const pNullTex = nullptr;
-		gfx->m_Context->PSSetShaderResources( 0u, 1u, &pNullTex );
+		gfx.m_Context->PSSetShaderResources( 0u, 1u, &pNullTex );
 	}
 
-	void Renderer::SetMainRenderTarget(OutputOnlyRenderTarget* renderTarget)
+	void Renderer::SetMainRenderTarget(OutputOnlyRenderTarget& renderTarget)
 	{
-		m_MainRenderTarget = renderTarget;
+		if ( m_MainRenderTarget != nullptr ) delete m_MainRenderTarget;
+		m_MainRenderTarget = &renderTarget;
 	}
 	void Renderer::UpdateViewProjCBuf( DirectX::XMFLOAT4X4& viewProjection )
 	{
-		m_ViewProjCBuf->Update( gfx, &viewProjection );
+		m_ViewProjCBuf.Update( gfx, &viewProjection );
 	}
 }

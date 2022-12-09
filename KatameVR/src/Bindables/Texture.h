@@ -15,8 +15,8 @@ namespace Katame
 	class Texture : public Bindable
 	{
 	public:
-		Texture( Graphics* gfx, const std::string& path, UINT slot = 0 );
-		void Bind( Graphics* gfx ) override;
+		Texture( Graphics& gfx, const std::string& path, UINT slot = 0 );
+		void Bind( Graphics& gfx ) override;
 		std::string GetPath() { return path; };
 		void Save();
 	private:

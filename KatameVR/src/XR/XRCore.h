@@ -52,7 +52,7 @@ namespace Katame
 	class XRCore
 	{
     public:
-        XRCore( Graphics* gfx );
+        XRCore( Graphics& gfx );
         ~XRCore();
 	public:
 		void CreateInstance();
@@ -83,7 +83,7 @@ namespace Katame
         void LogActionSourceName( XrAction action, const std::string& actionName ) const;
         bool RenderLayer( XrTime predictedDisplayTime, std::vector<XrCompositionLayerProjectionView>& projectionLayerViews, XrCompositionLayerProjection& layer );
     private:
-        Graphics* gfx;
+        Graphics& gfx;
 
         XrResult m_LastCallResult = XR_SUCCESS;
         XrInstance m_Instance{ XR_NULL_HANDLE };

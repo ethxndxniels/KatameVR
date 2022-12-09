@@ -15,7 +15,7 @@ namespace Katame
 		dx::XMStoreFloat4x4( &appliedTransform, dx::XMMatrixIdentity() );
 	}
 
-	void Node::Render( Graphics* gfx, dx::FXMMATRIX accumulatedTranform )
+	void Node::Render( Graphics& gfx, dx::FXMMATRIX accumulatedTranform )
 	{
 		const auto built =
 			dx::XMLoadFloat4x4( &appliedTransform ) *

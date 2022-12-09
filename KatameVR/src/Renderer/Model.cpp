@@ -54,7 +54,7 @@ namespace Katame
 		}
 	};
 
-	Model::Model( Graphics* gfx, const std::string& pathString, const float scale )
+	Model::Model( Graphics& gfx, const std::string& pathString, const float scale )
 	{
 		m_Scale = { scale, scale, scale };
 		LogStream::Initialize();
@@ -83,7 +83,7 @@ namespace Katame
 		for (size_t i = 0; i < scene->mNumMeshes; i++)
 		{
 			const auto& mesh = *scene->mMeshes[i];
-			meshPtrs.push_back( new Mesh( gfx, materials[mesh.mMaterialIndex], mesh, scale ) );
+			meshPtrs.push_back( std::make_unique<Mesh>( gfx, materials[mesh.mMaterialIndex], mesh, scale ) );
 		}
 
 		int nextId = 0;
@@ -91,9 +91,10 @@ namespace Katame
 	}
 
 	Model::~Model() noexcept
-	{}
+	{
+	}
 
-	void Model::Render( Graphics* gfx )
+	void Model::Render( Graphics& gfx )
 	{
 		pRoot->Render( gfx, GetModelMatrix() );
 	}
@@ -114,11 +115,6 @@ namespace Katame
 		return DirectX::XMMatrixTranspose( DirectX::XMMatrixScaling( m_Scale.x, m_Scale.y, m_Scale.z ) * LoadXrPose( m_Pose ) );
 	}
 
-	std::vector<Mesh*> Model::GetMeshes()
-	{
-		return meshPtrs;
-	}
-
 	std::unique_ptr<Node> Model::ParseNode( int& nextId, const aiNode& node, float scale ) noexcept
 	{
 		namespace dx = DirectX;
@@ -131,7 +127,7 @@ namespace Katame
 		for (size_t i = 0; i < node.mNumMeshes; i++)
 		{
 			const auto meshIdx = node.mMeshes[i];
-			curMeshPtrs.push_back( meshPtrs[meshIdx] );
+			curMeshPtrs.push_back( meshPtrs.at( meshIdx ).get() );
 		}
 
 		auto pNode = std::make_unique<Node>( nextId++, node.mName.C_Str(), std::move( curMeshPtrs ), transform );

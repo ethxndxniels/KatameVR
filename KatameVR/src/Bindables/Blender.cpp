@@ -4,7 +4,7 @@
 
 namespace Katame
 {
-	Blender::Blender( Graphics* gfx, bool blending )
+	Blender::Blender( Graphics& gfx, bool blending )
 		:
 		blending( blending )
 		{
@@ -16,11 +16,11 @@ namespace Katame
 				brt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
 				brt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 			}
-			gfx->m_Device->CreateBlendState( &blendDesc, &m_Blender );
+			gfx.m_Device->CreateBlendState( &blendDesc, &m_Blender );
 	}
 
-	void Blender::Bind( Graphics* gfx )
+	void Blender::Bind( Graphics& gfx )
 	{
-		gfx->m_Context->OMSetBlendState( m_Blender, nullptr, 0xFFFFFFFFu );
+		gfx.m_Context->OMSetBlendState( m_Blender, nullptr, 0xFFFFFFFFu );
 	}
 }

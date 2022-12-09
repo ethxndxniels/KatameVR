@@ -13,8 +13,8 @@ namespace Katame
 	class PixelShader : public Bindable
 	{
 	public:
-		PixelShader( Graphics* gfx, const std::string& path );
-		void Bind( Graphics* gfx ) override;
+		PixelShader( Graphics& gfx, const std::string& path );
+		void Bind( Graphics& gfx ) override;
 	protected:
 		std::string m_sPath;
 		ID3D11PixelShader* m_pPixelShader;

@@ -14,7 +14,7 @@ namespace Katame
 	class PointLight
 	{
 	public:
-		PointLight(Graphics* gfx);
+		PointLight(Graphics& gfx);
 		~PointLight();
 		void Bind();
 		void Update(float dt);

@@ -7,7 +7,7 @@
 
 namespace Katame
 {
-	Texture::Texture( Graphics* gfx, const std::string& path, UINT slot )
+	Texture::Texture( Graphics& gfx, const std::string& path, UINT slot )
 		: slot( slot ), path( path ), m_Surface( Surface::FromFile( path ) )
 	{
 		// load surface
@@ -27,12 +27,12 @@ namespace Katame
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		ID3D11Texture2D* pTexture;
-		gfx->m_Device->CreateTexture2D(
+		gfx.m_Device->CreateTexture2D(
 			&textureDesc, nullptr, &pTexture
 		);
 
 		// write image data into top mip level
-		gfx->m_Context->UpdateSubresource(
+		gfx.m_Context->UpdateSubresource(
 			pTexture, 0u, nullptr, m_Surface.GetBufferPtrConst(), m_Surface.GetWidth() * sizeof( Surface::Color ), 0u
 		);
 
@@ -42,17 +42,17 @@ namespace Katame
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = -1;
-		gfx->m_Device->CreateShaderResourceView(
+		gfx.m_Device->CreateShaderResourceView(
 			pTexture, &srvDesc, &pTextureView
 		);
 
 		// generate the mip chain using the gpu rendering pipeline
-		gfx->m_Context->GenerateMips( pTextureView );
+		gfx.m_Context->GenerateMips( pTextureView );
 	}
 
-	void Texture::Bind( Graphics* gfx )
+	void Texture::Bind( Graphics& gfx )
 	{
-		gfx->m_Context->PSSetShaderResources( slot, 1u, &pTextureView );
+		gfx.m_Context->PSSetShaderResources( slot, 1u, &pTextureView );
 	}
 
 	void Texture::Save()

@@ -4,7 +4,7 @@
 
 namespace Katame
 {
-	Sampler::Sampler( Graphics* gfx, Type type, bool reflect )
+	Sampler::Sampler( Graphics& gfx, Type type, bool reflect )
 		:
 		type( type ),
 		reflect( reflect )
@@ -22,10 +22,10 @@ namespace Katame
 		samplerDesc.AddressU = reflect ? D3D11_TEXTURE_ADDRESS_MIRROR : D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerDesc.AddressV = reflect ? D3D11_TEXTURE_ADDRESS_MIRROR : D3D11_TEXTURE_ADDRESS_WRAP;
 		samplerDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
-		gfx->m_Device->CreateSamplerState( &samplerDesc, &pSampler );
+		gfx.m_Device->CreateSamplerState( &samplerDesc, &pSampler );
 	}
-	void Sampler::Bind( Graphics* gfx )
+	void Sampler::Bind( Graphics& gfx )
 	{
-		gfx->m_Context->PSSetSamplers( 0, 1, &pSampler );
+		gfx.m_Context->PSSetSamplers( 0, 1, &pSampler );
 	}
 }

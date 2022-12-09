@@ -13,7 +13,7 @@ namespace Katame
 	class PointLightCore : public Drawable
 	{
 	public:
-		PointLightCore(Graphics* gfx);
+		PointLightCore(Graphics& gfx);
 		~PointLightCore();
 	public:
 		void Update(float dt);

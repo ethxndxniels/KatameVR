@@ -37,10 +37,10 @@ namespace Katame
 		void Submit();
 	private:
 		ImguiHandler imgui;
-		XRCore* m_XRCore = nullptr;
-		Graphics* m_Graphics = nullptr;
-		Renderer* m_Renderer = nullptr;
-		Win32Window* m_Window = nullptr;
+		Graphics m_Graphics;
+		XRCore m_XRCore;
+		Renderer m_Renderer;
+		Win32Window* m_Window;
 	private:
 		NormalCube* m_NCube;
 		Model* m_Sponza;

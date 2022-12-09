@@ -11,8 +11,8 @@ namespace Katame
 	class Rasterizer : public Bindable
 	{
 	public:
-		Rasterizer( Graphics* gfx, bool twoSided = false );
-		void Bind( Graphics* gfx ) override;
+		Rasterizer( Graphics& gfx, bool twoSided = false );
+		void Bind( Graphics& gfx ) override;
 	private:
 		ID3D11RasterizerState* m_pRasterizer;
 		bool m_TwoSided;

@@ -8,7 +8,7 @@
 
 namespace Katame
 {
-	RenderTarget::RenderTarget( Graphics* gfx, UINT width, UINT height )
+	RenderTarget::RenderTarget( Graphics& gfx, UINT width, UINT height )
 		:
 		width( width ),
 		height( height )
@@ -27,7 +27,7 @@ namespace Katame
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
 		ID3D11Texture2D* pTexture;
-		gfx->m_Device->CreateTexture2D(
+		gfx.m_Device->CreateTexture2D(
 			&textureDesc, nullptr, &pTexture
 		);
 
@@ -36,12 +36,12 @@ namespace Katame
 		rtvDesc.Format = textureDesc.Format;
 		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D = D3D11_TEX2D_RTV{ 0 };
-		gfx->m_Device->CreateRenderTargetView(
+		gfx.m_Device->CreateRenderTargetView(
 			pTexture, &rtvDesc, &pTargetView
 		);
 	}
 
-	RenderTarget::RenderTarget( Graphics* gfx, ID3D11Texture2D* pTexture )
+	RenderTarget::RenderTarget( Graphics& gfx, ID3D11Texture2D* pTexture )
 	{
 		// get information from texture about dimensions
 		D3D11_TEXTURE2D_DESC textureDesc;
@@ -54,31 +54,31 @@ namespace Katame
 		rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D = D3D11_TEX2D_RTV{ 0 };
-		HRESULT hr = gfx->m_Device->CreateRenderTargetView(
+		HRESULT hr = gfx.m_Device->CreateRenderTargetView(
 			pTexture, &rtvDesc, &pTargetView
 		);
 	}
 
-	void RenderTarget::BindAsBuffer( Graphics* gfx ) noexcept
+	void RenderTarget::BindAsBuffer( Graphics& gfx ) noexcept
 	{
 		ID3D11DepthStencilView* const null = nullptr;
 		BindAsBuffer( gfx, null );
 	}
 
-	void RenderTarget::BindAsBuffer( Graphics* gfx, BufferResource* depthStencil ) noexcept
+	void RenderTarget::BindAsBuffer( Graphics& gfx, BufferResource* depthStencil ) noexcept
 	{
 		assert( dynamic_cast<DepthStencil*>( depthStencil ) != nullptr );
 		BindAsBuffer( gfx, static_cast<DepthStencil*>( depthStencil ) );
 	}
 
-	void RenderTarget::BindAsBuffer( Graphics* gfx, DepthStencil* depthStencil ) noexcept
+	void RenderTarget::BindAsBuffer( Graphics& gfx, DepthStencil* depthStencil ) noexcept
 	{
 		BindAsBuffer( gfx, depthStencil ? depthStencil->pDepthStencilView : nullptr );
 	}
 
-	void RenderTarget::BindAsBuffer( Graphics* gfx, ID3D11DepthStencilView* pDepthStencilView ) noexcept
+	void RenderTarget::BindAsBuffer( Graphics& gfx, ID3D11DepthStencilView* pDepthStencilView ) noexcept
 	{
-		gfx->m_Context->OMSetRenderTargets( 1, &pTargetView, pDepthStencilView );
+		gfx.m_Context->OMSetRenderTargets( 1, &pTargetView, pDepthStencilView );
 
 		// configure viewport
 		D3D11_VIEWPORT vp;
@@ -88,15 +88,15 @@ namespace Katame
 		vp.MaxDepth = 1.0f;
 		vp.TopLeftX = 0.0f;
 		vp.TopLeftY = 0.0f;
-		gfx->m_Context->RSSetViewports( 1u, &vp );
+		gfx.m_Context->RSSetViewports( 1u, &vp );
 	}
 
-	void RenderTarget::Clear( Graphics* gfx, const std::array<float, 4>& color ) noexcept
+	void RenderTarget::Clear( Graphics& gfx, const std::array<float, 4>& color ) noexcept
 	{
-		gfx->m_Context->ClearRenderTargetView( pTargetView, color.data() );
+		gfx.m_Context->ClearRenderTargetView( pTargetView, color.data() );
 	}
 
-	void RenderTarget::Clear( Graphics* gfx ) noexcept
+	void RenderTarget::Clear( Graphics& gfx ) noexcept
 	{
 		Clear( gfx, { 0.0f,0.0f,0.0f,0.0f } );
 	}
@@ -112,7 +112,7 @@ namespace Katame
 	}
 
 
-	ShaderInputRenderTarget::ShaderInputRenderTarget( Graphics* gfx, UINT width, UINT height, UINT slot )
+	ShaderInputRenderTarget::ShaderInputRenderTarget( Graphics& gfx, UINT width, UINT height, UINT slot )
 		:
 		RenderTarget( gfx, width, height ),
 		slot( slot )
@@ -126,23 +126,23 @@ namespace Katame
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = 1;
-		gfx->m_Device->CreateShaderResourceView(
+		gfx.m_Device->CreateShaderResourceView(
 			pRes, &srvDesc, &pShaderResourceView
 		);
 	}
 
-	void ShaderInputRenderTarget::Bind( Graphics* gfx )
+	void ShaderInputRenderTarget::Bind( Graphics& gfx )
 	{
-		gfx->m_Context->PSSetShaderResources( slot, 1, &pShaderResourceView );
+		gfx.m_Context->PSSetShaderResources( slot, 1, &pShaderResourceView );
 	}
 
 
-	void OutputOnlyRenderTarget::Bind( Graphics* gfx )
+	void OutputOnlyRenderTarget::Bind( Graphics& gfx )
 	{
 		assert( "Cannot bind OuputOnlyRenderTarget as shader input" && false );
 	}
 
-	Surface ShaderInputRenderTarget::ToSurface( Graphics* gfx ) const
+	Surface ShaderInputRenderTarget::ToSurface( Graphics& gfx ) const
 	{
 		namespace wrl = Microsoft::WRL;
 
@@ -157,19 +157,19 @@ namespace Katame
 		textureDesc.Usage = D3D11_USAGE_STAGING;
 		textureDesc.BindFlags = 0;
 		wrl::ComPtr<ID3D11Texture2D> pTexTemp;
-		gfx->m_Device->CreateTexture2D(
+		gfx.m_Device->CreateTexture2D(
 			&textureDesc, nullptr, &pTexTemp
 		);
 
 		// copy texture contents
-		gfx->m_Context->CopyResource( pTexTemp.Get(), pTexSource );
+		gfx.m_Context->CopyResource( pTexTemp.Get(), pTexSource );
 
 		// create Surface and copy from temp texture to it
 		const auto width = GetWidth();
 		const auto height = GetHeight();
 		Surface s{ width,height };
 		D3D11_MAPPED_SUBRESOURCE msr = {};
-		gfx->m_Context->Map( pTexTemp.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &msr );
+		gfx.m_Context->Map( pTexTemp.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &msr );
 		auto pSrcBytes = static_cast<const char*>( msr.pData );
 		for ( unsigned int y = 0; y < height; y++ )
 		{
@@ -179,13 +179,13 @@ namespace Katame
 				s.PutPixel( x, y, *( pSrcRow + x ) );
 			}
 		}
-		gfx->m_Context->Unmap( pTexTemp.Get(), 0 );
+		gfx.m_Context->Unmap( pTexTemp.Get(), 0 );
 
 		return s;
 	}
 
 
-	OutputOnlyRenderTarget::OutputOnlyRenderTarget( Graphics* gfx, ID3D11Texture2D* pTexture )
+	OutputOnlyRenderTarget::OutputOnlyRenderTarget( Graphics& gfx, ID3D11Texture2D* pTexture )
 		:
 		RenderTarget( gfx, pTexture )
 	{}

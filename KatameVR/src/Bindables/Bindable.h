@@ -7,6 +7,6 @@ namespace Katame
 	class Bindable
 	{
 	public:
-		virtual void Bind( Graphics* gfx ) = 0;
+		virtual void Bind( Graphics& gfx ) = 0;
 	};
 }

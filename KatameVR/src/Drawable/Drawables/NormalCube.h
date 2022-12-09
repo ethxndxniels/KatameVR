@@ -13,7 +13,7 @@ namespace Katame
 	class NormalCube : public Drawable
 	{
 	public:
-		NormalCube( Graphics* gfx );
+		NormalCube( Graphics& gfx );
 		~NormalCube();
 	public:
 		void Update( float dt );

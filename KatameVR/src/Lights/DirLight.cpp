@@ -4,8 +4,8 @@
 
 namespace Katame
 {
-	DirLight::DirLight( Graphics* gfx )
-		: gfx( gfx )
+	DirLight::DirLight( Graphics& gfx )
+		: gfx( &gfx )
 	{
 		D3D11_BUFFER_DESC desc = {};
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -27,8 +27,8 @@ namespace Katame
 	{
 		LightData data;
 		XMStoreFloat4( &data.lightDir, { m_BufferData.lightDir.x,  m_BufferData.lightDir.y,  m_BufferData.lightDir.z,  m_BufferData.lightDir.w } );
-		m_Buffer->Update( gfx, &data );
-		m_Buffer->Bind( gfx );
+		m_Buffer->Update( *gfx, &data );
+		m_Buffer->Bind( *gfx );
 	}
 
 	void DirLight::Update( float dt )

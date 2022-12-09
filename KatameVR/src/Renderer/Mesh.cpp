@@ -13,7 +13,7 @@ namespace Katame
 	namespace dx = DirectX;
 
 	// Mesh
-	Mesh::Mesh( Graphics* gfx, Material& mat, const aiMesh& mesh, float scale )
+	Mesh::Mesh( Graphics& gfx, Material& mat, const aiMesh& mesh, float scale )
 	{
 		m_Scale = scale;
 		m_Mat = mat;
@@ -54,7 +54,7 @@ namespace Katame
 		AddBind( IB );
 	}
 
-	void Mesh::Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform )
+	void Mesh::Render( Graphics& gfx, DirectX::FXMMATRIX accumulatedTranform )
 	{
 		dx::XMStoreFloat4x4( &transform, accumulatedTranform );
 		m_Mat.Bind( gfx );

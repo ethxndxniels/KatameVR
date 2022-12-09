@@ -22,8 +22,8 @@ namespace Katame
 		};
 		static_assert(sizeof( Vertex ) == 14 * sizeof( float ));
 	public:
-		Mesh( Graphics* gfx, Material& mat, const aiMesh& mesh, float scale = 1.0f );
-		void Render( Graphics* gfx, DirectX::FXMMATRIX accumulatedTranform );
+		Mesh( Graphics& gfx, Material& mat, const aiMesh& mesh, float scale = 1.0f );
+		void Render( Graphics& gfx, DirectX::FXMMATRIX accumulatedTranform );
 		~Mesh();
 		DirectX::XMMATRIX GetModelMatrix() override;
 	private:

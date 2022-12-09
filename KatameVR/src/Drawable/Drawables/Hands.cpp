@@ -15,39 +15,35 @@
 #include "../../Bindables/Rasterizer.h"
 #include "../../Bindables/Blender.h"
 
-#include "../../Renderer/Model.h"
 
 #include "./NormalCube.h"
 
 namespace Katame
 {
-	Hands::Hands( Graphics* gfx, XRCore* xrCore )
-		: gfx( gfx ), xrCore( xrCore )
+	Hands::Hands( Graphics& gfx, XRCore& xrCore )
+		: 
+		gfx( &gfx ), xrCore( &xrCore ),
+		m_LeftHand( gfx, "Models\\hand\\LeftHand.fbx" ),
+		m_RightHand( gfx, "Models\\hand\\RightHand.fbx" )
 	{
-		//m_LeftHand = new NormalCube( gfx );
-		//m_RightHand = new NormalCube( gfx );
-		m_LeftHand = new Model( gfx, "Models\\hand\\LeftHand.fbx" );
-		m_RightHand = new Model( gfx, "Models\\hand\\RightHand.fbx" );
 	}
 
 	Hands::~Hands()
 	{
-		delete m_LeftHand;
-		delete m_RightHand;
 	}
 
 	void Hands::Update( float dt )
 	{
 		// hard coded scale takes away user inputted scale from xrCore->GetRightHand().second
 		XrVector3f scale = { 0.025f, 0.025f, 0.025f };
-		m_LeftHand->SetData( xrCore->GetLeftHand().first, scale);
-		m_RightHand->SetData( xrCore->GetRightHand().first, scale);
+		m_LeftHand.SetData( xrCore->GetLeftHand().first, scale);
+		m_RightHand.SetData( xrCore->GetRightHand().first, scale);
 	}
-	Model* Hands::GetLeftHand()
+	Model& Hands::GetLeftHand()
 	{
 		return m_LeftHand;
 	}
-	Model* Hands::GetRightHand()
+	Model& Hands::GetRightHand()
 	{
 		return m_RightHand;
 	}

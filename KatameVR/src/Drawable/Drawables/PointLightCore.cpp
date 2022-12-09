@@ -54,7 +54,7 @@ namespace Katame
 		};
 	}
 
-	PointLightCore::PointLightCore(Graphics* gfx)
+	PointLightCore::PointLightCore(Graphics& gfx)
 	{
 		VertexShader* m_VS = new VertexShader(gfx, ".\\Shaders\\Bin\\FlatColorVS.cso");
 		Drawable::AddBind(m_VS);
@@ -71,6 +71,7 @@ namespace Katame
 
 	PointLightCore::~PointLightCore()
 	{
+		Drawable::~Drawable();
 	}
 
 	void PointLightCore::Update(float dt)

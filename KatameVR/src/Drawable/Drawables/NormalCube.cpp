@@ -15,7 +15,7 @@
 
 namespace Katame
 {
-	NormalCube::NormalCube( Graphics* gfx )
+	NormalCube::NormalCube( Graphics& gfx )
 	{
 		VertexShader* m_VS = new VertexShader( gfx, ".\\Shaders\\Bin\\CubeNormVS.cso" );
 		Drawable::AddBind( m_VS );
@@ -32,6 +32,7 @@ namespace Katame
 
 	NormalCube::~NormalCube()
 	{
+		Drawable::~Drawable();
 	}
 
 	void NormalCube::Update( float dt )

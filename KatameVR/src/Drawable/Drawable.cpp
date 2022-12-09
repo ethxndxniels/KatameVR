@@ -20,14 +20,14 @@ namespace Katame
 	{
 		binds.push_back( bind );
 	}
-	void Drawable::Render( Graphics* gfx )
+	void Drawable::Render( Graphics& gfx )
 	{
 		for (Bindable* bind : binds)
 		{
 			bind->Bind( gfx );
 		}
 
-		gfx->DrawIndexed( m_IB->GetCount(), 0u, 0u );
+		gfx.DrawIndexed( m_IB->GetCount(), 0u, 0u );
 	}
 	void Drawable::SetIndexBuffer( IndexBuffer* indexBuffer )
 	{

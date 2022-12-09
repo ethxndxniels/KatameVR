@@ -46,7 +46,7 @@ namespace Katame
 		std::vector<XrSwapchainImageBaseHeader*> AllocateSwapchainImageStructs( uint32_t capacity, const XrSwapchainCreateInfo& swapchainCreateInfo );
 		void RenderView( const XrCompositionLayerProjectionView& layerView, const XrSwapchainImageBaseHeader* swapchainImage, int64_t swapchainFormat );
 		int64_t SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const;
-		void InitializeRenderer( Renderer* renderer );
+		void InitializeRenderer( Renderer& renderer );
 		void DrawIndexed( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation );
 		float GetWidth();
 		float GetHeight();

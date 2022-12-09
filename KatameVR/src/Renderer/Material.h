@@ -28,8 +28,9 @@ namespace Katame
 	{
 	public:
 		Material() = default;
-		Material( Graphics* gfx, const aiMaterial& material, const std::filesystem::path& path ) noexcept;
-		void Bind( Graphics* gfx );
+		Material( Graphics& gfx, const aiMaterial& material, const std::filesystem::path& path ) noexcept;
+		~Material();
+		void Bind( Graphics& gfx );
 	private:
 		InputLayout* m_InputLayout = nullptr;
 		Texture* m_DiffTex = nullptr;

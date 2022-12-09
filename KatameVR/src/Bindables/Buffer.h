@@ -13,8 +13,8 @@ namespace Katame
 	class VertexBuffer : public Bindable
 	{
 	public:
-		VertexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride );
-		void Bind( Graphics* gfx ) override;
+		VertexBuffer( Graphics& gfx, void* buffer, unsigned int size, unsigned int stride );
+		void Bind( Graphics& gfx ) override;
 	private:
 		UINT m_Stride;
 		ID3D11Buffer* m_pVertexBuffer;
@@ -23,9 +23,9 @@ namespace Katame
 	class IndexBuffer : public Bindable
 	{
 	public:
-		IndexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride );
+		IndexBuffer( Graphics& gfx, void* buffer, unsigned int size, unsigned int stride );
 		UINT GetCount() const noexcept;
-		void Bind( Graphics* gfx ) override;
+		void Bind( Graphics& gfx ) override;
 	private:
 		UINT m_Count;
 		ID3D11Buffer* m_pIndexBuffer;

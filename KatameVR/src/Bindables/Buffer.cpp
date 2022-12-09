@@ -4,7 +4,7 @@
 
 namespace Katame
 {
-	VertexBuffer::VertexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride )
+	VertexBuffer::VertexBuffer( Graphics& gfx, void* buffer, unsigned int size, unsigned int stride )
 		: m_Stride( stride )
 	{
 		D3D11_BUFFER_DESC bd = {};
@@ -16,16 +16,16 @@ namespace Katame
 		bd.StructureByteStride = stride;
 		D3D11_SUBRESOURCE_DATA sd = {};
 		sd.pSysMem = buffer;
-		gfx->m_Device->CreateBuffer( &bd, &sd, &m_pVertexBuffer );
+		gfx.m_Device->CreateBuffer( &bd, &sd, &m_pVertexBuffer );
 	}
 
-	void VertexBuffer::Bind( Graphics* gfx )
+	void VertexBuffer::Bind( Graphics& gfx )
 	{
 		const UINT offset = 0u;
-		gfx->m_Context->IASetVertexBuffers( 0u, 1u, &m_pVertexBuffer, &m_Stride, &offset );
+		gfx.m_Context->IASetVertexBuffers( 0u, 1u, &m_pVertexBuffer, &m_Stride, &offset );
 	}
 
-	IndexBuffer::IndexBuffer( Graphics* gfx, void* buffer, unsigned int size, unsigned int stride )
+	IndexBuffer::IndexBuffer( Graphics& gfx, void* buffer, unsigned int size, unsigned int stride )
 		: m_Count( size / stride )
 	{
 		D3D11_BUFFER_DESC ibd = {};
@@ -37,7 +37,7 @@ namespace Katame
 		ibd.StructureByteStride = stride;
 		D3D11_SUBRESOURCE_DATA isd = {};
 		isd.pSysMem = buffer;
-		gfx->m_Device->CreateBuffer( &ibd, &isd, &m_pIndexBuffer );
+		gfx.m_Device->CreateBuffer( &ibd, &isd, &m_pIndexBuffer );
 	}
 
 	UINT IndexBuffer::GetCount() const noexcept
@@ -45,8 +45,8 @@ namespace Katame
 		return m_Count;
 	}
 
-	void IndexBuffer::Bind( Graphics* gfx )
+	void IndexBuffer::Bind( Graphics& gfx )
 	{
-		gfx->m_Context->IASetIndexBuffer( m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0u );
+		gfx.m_Context->IASetIndexBuffer( m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0u );
 	}
 }

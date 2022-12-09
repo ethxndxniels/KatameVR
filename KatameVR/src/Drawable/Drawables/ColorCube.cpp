@@ -15,7 +15,7 @@
 
 namespace Katame
 {
-	ColorCube::ColorCube( Graphics* gfx )
+	ColorCube::ColorCube( Graphics& gfx )
 	{
 		VertexShader* m_VS = new VertexShader( gfx, ".\\Shaders\\Bin\\MainVS.cso" );
 		Drawable::AddBind( m_VS );
@@ -32,6 +32,7 @@ namespace Katame
 
 	ColorCube::~ColorCube()
 	{
+		Drawable::~Drawable();
 	}
 
 	void ColorCube::Update( float dt )

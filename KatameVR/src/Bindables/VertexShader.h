@@ -13,8 +13,8 @@ namespace Katame
 	class VertexShader : public Bindable
 	{
 	public:
-		VertexShader( Graphics* gfx, const std::string& path );
-		void Bind( Graphics* gfx ) override;
+		VertexShader( Graphics& gfx, const std::string& path );
+		void Bind( Graphics& gfx ) override;
 		ID3DBlob* GetBytecode() const noexcept;
 	protected:
 		std::string m_sPath;

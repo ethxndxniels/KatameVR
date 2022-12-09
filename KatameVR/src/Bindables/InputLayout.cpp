@@ -4,9 +4,9 @@
 
 namespace Katame
 {
-	InputLayout::InputLayout( Graphics* gfx, std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayout, const VertexShader& vs )
+	InputLayout::InputLayout( Graphics& gfx, std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayout, const VertexShader& vs )
 	{
-		gfx->m_Device->CreateInputLayout(
+		gfx.m_Device->CreateInputLayout(
 			inputLayout.data(), (UINT)inputLayout.size(),
 			vs.GetBytecode()->GetBufferPointer(),
 			vs.GetBytecode()->GetBufferSize(),
@@ -14,8 +14,8 @@ namespace Katame
 		);
 	}
 
-	void InputLayout::Bind( Graphics* gfx )
+	void InputLayout::Bind( Graphics& gfx )
 	{
-		gfx->m_Context->IASetInputLayout( m_InputLayout );
+		gfx.m_Context->IASetInputLayout( m_InputLayout );
 	}
 }

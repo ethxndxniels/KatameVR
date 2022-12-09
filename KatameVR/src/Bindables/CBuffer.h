@@ -11,9 +11,9 @@ namespace Katame
 	class VCBuffer : public Bindable
 	{
 	public:
-		VCBuffer( Graphics* gfx, unsigned int slot, size_t size );
-		void Update( Graphics* gfx, const void* data );
-		void Bind( Graphics* gfx ) override;
+		VCBuffer( Graphics& gfx, unsigned int slot, size_t size );
+		void Update( Graphics& gfx, const void* data );
+		void Bind( Graphics& gfx ) override;
 	private:
 		unsigned int u_Slot;
 		size_t u_Size;
@@ -23,9 +23,9 @@ namespace Katame
 	class PCBuffer : public Bindable
 	{
 	public:
-		PCBuffer( Graphics* gfx, unsigned int slot, size_t size );
-		void Update( Graphics* gfx, const void* data );
-		void Bind( Graphics* gfx ) override;
+		PCBuffer( Graphics& gfx, unsigned int slot, size_t size );
+		void Update( Graphics& gfx, const void* data );
+		void Bind( Graphics& gfx ) override;
 	private:
 		unsigned int u_Slot;
 		size_t u_Size;

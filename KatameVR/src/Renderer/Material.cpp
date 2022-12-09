@@ -12,7 +12,7 @@
 
 namespace Katame
 {
-	Material::Material( Graphics* gfx, const aiMaterial& material, const std::filesystem::path& path ) noexcept
+	Material::Material( Graphics& gfx, const aiMaterial& material, const std::filesystem::path& path ) noexcept
 		:
 		modelPath( path.string() )
 	{
@@ -59,16 +59,28 @@ namespace Katame
 		m_Blender = new Blender( gfx, true );
 		m_Sampler = new Sampler( gfx, Sampler::Type::Anisotropic, true );
 	}
-	void Material::Bind( Graphics* gfx )
+	Material::~Material()
+	{
+		//if ( m_DiffTex ) delete m_DiffTex;
+		//if ( m_SpecTex ) delete m_SpecTex;
+		//if ( m_NormTex ) delete m_NormTex;
+
+		//delete m_InputLayout;
+		//delete m_Topology;
+		//delete m_Rasterizer;
+		//delete m_Blender;
+		//delete m_Sampler;
+	}
+	void Material::Bind( Graphics& gfx )
 	{
 		ID3D11ShaderResourceView* null[1] = {};
 		m_InputLayout->Bind( gfx );
 		if ( m_DiffTex ) m_DiffTex->Bind(gfx);
-		else gfx->m_Context->PSSetShaderResources(0, 1, null);
+		else gfx.m_Context->PSSetShaderResources(0, 1, null);
 		if ( m_SpecTex ) m_SpecTex->Bind( gfx );
-		else gfx->m_Context->PSSetShaderResources(1, 1, null);
+		else gfx.m_Context->PSSetShaderResources(1, 1, null);
 		if ( m_NormTex ) m_NormTex->Bind( gfx );
-		else gfx->m_Context->PSSetShaderResources(2, 1, null);
+		else gfx.m_Context->PSSetShaderResources(2, 1, null);
 		m_VS->Bind( gfx );
 		m_PS->Bind( gfx );
 		m_Topology->Bind( gfx );

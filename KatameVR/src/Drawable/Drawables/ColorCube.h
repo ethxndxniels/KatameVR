@@ -13,7 +13,7 @@ namespace Katame
 	class ColorCube : public Drawable
 	{
 	public:
-		ColorCube( Graphics* gfx );
+		ColorCube( Graphics& gfx );
 		~ColorCube();
 	public:
 		void Update( float dt );

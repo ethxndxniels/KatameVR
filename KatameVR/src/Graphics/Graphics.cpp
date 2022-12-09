@@ -80,8 +80,8 @@ namespace Katame
 		}
 
 		ID3D11Texture2D* const colorTexture = reinterpret_cast<const XrSwapchainImageD3D11KHR*>(swapchainImage)->texture;
-		OutputOnlyRenderTarget* renderTarget = new OutputOnlyRenderTarget(this, colorTexture);
-		m_Renderer->SetMainRenderTarget( renderTarget);
+		OutputOnlyRenderTarget* renderTarget = new OutputOnlyRenderTarget( *this, colorTexture );
+		m_Renderer->SetMainRenderTarget( *renderTarget);
 		
 		m_Width = (float)layerView.subImage.imageRect.extent.width;
 		m_Height = (float)layerView.subImage.imageRect.extent.height;
@@ -106,7 +106,6 @@ namespace Katame
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		}
-
 	}
 
 	int64_t Graphics::SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const
@@ -131,9 +130,9 @@ namespace Katame
 		return *swapchainFormatIt;
 	}
 
-	void Graphics::InitializeRenderer( Renderer* renderer )
+	void Graphics::InitializeRenderer( Renderer& renderer )
 	{
-		m_Renderer = renderer;
+		m_Renderer = &renderer;
 	}
 
 	void Graphics::DrawIndexed( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation )

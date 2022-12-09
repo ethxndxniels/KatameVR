@@ -20,8 +20,8 @@ namespace Katame
 			Point,
 		};
 	public:
-		Sampler( Graphics* gfx, Type type, bool reflect );
-		void Bind( Graphics* gfx ) override;
+		Sampler( Graphics& gfx, Type type, bool reflect );
+		void Bind( Graphics& gfx ) override;
 	protected:
 		ID3D11SamplerState* pSampler;
 		Type type;

@@ -95,9 +95,14 @@ namespace Katame
         return referenceSpaceCreateInfo;
     }
 
-    XRCore::XRCore( Graphics* gfx )
+    XRCore::XRCore( Graphics& gfx )
         : gfx( gfx )
     {
+        CreateInstance();
+        InitializeSystem();
+        InitializeDevice();
+        InitializeSession();
+        CreateSwapchains();
     }
 
     XRCore::~XRCore()
@@ -128,7 +133,7 @@ namespace Katame
 
         // The graphics API can initialize the graphics device now that the systemId and instance
         // handle are available.
-        gfx->InitializeDevice( m_Instance, m_SystemId );
+        gfx.InitializeDevice( m_Instance, m_SystemId );
     }
 
     void XRCore::InitializeSession() 
@@ -137,7 +142,7 @@ namespace Katame
             KM_CORE_INFO( "Creating session..." );
 
             XrGraphicsBindingD3D11KHR binding = { XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
-            binding.device = gfx->m_Device;
+            binding.device = gfx.m_Device;
             XrSessionCreateInfo createInfo{ XR_TYPE_SESSION_CREATE_INFO };
             createInfo.next = &binding;
             createInfo.systemId = m_SystemId;
@@ -188,7 +193,7 @@ namespace Katame
             xrEnumerateSwapchainFormats( m_Session, 0, &swapchainFormatCount, nullptr );
             std::vector<int64_t> swapchainFormats( swapchainFormatCount );
             xrEnumerateSwapchainFormats( m_Session, (uint32_t)swapchainFormats.size(), &swapchainFormatCount, swapchainFormats.data() );
-            m_colorSwapchainFormat = gfx->SelectColorSwapchainFormat( swapchainFormats );
+            m_colorSwapchainFormat = gfx.SelectColorSwapchainFormat( swapchainFormats );
 
             // Print swapchain formats and the selected one.
             {
@@ -236,7 +241,7 @@ namespace Katame
                 xrEnumerateSwapchainImages( swapchain.handle, 0, &imageCount, nullptr );
                 // XXX This should really just return XrSwapchainImageBaseHeader*
                 std::vector<XrSwapchainImageBaseHeader*> swapchainImages =
-                    gfx->AllocateSwapchainImageStructs( imageCount, swapchainCreateInfo );
+                    gfx.AllocateSwapchainImageStructs( imageCount, swapchainCreateInfo );
                 xrEnumerateSwapchainImages( swapchain.handle, imageCount, &imageCount, swapchainImages[0] );
 
                 m_swapchainImages.insert( std::make_pair( swapchain.handle, std::move( swapchainImages ) ) );
@@ -1060,7 +1065,7 @@ namespace Katame
             projectionLayerViews[i].subImage.imageRect.extent = { viewSwapchain.width, viewSwapchain.height };
 
             const XrSwapchainImageBaseHeader* const swapchainImage = m_swapchainImages[viewSwapchain.handle][swapchainImageIndex];
-            gfx->RenderView( projectionLayerViews[i], swapchainImage, m_colorSwapchainFormat );
+            gfx.RenderView( projectionLayerViews[i], swapchainImage, m_colorSwapchainFormat );
 
             XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
             xrReleaseSwapchainImage( viewSwapchain.handle, &releaseInfo );

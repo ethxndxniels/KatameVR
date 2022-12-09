@@ -12,7 +12,7 @@ namespace Katame
 	class DirLight
 	{
 	public:
-		DirLight( Graphics* gfx );
+		DirLight( Graphics& gfx );
 		~DirLight();
 		void Bind();
 		void Update( float dt );
