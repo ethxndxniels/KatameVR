@@ -18,6 +18,7 @@ namespace Katame
 		~PointLight();
 		void Bind();
 		void Update(float dt);
+		void BindViewProj();
 		Drawable* GetLightCore();
 	private:
 		Graphics* gfx;
@@ -32,6 +33,8 @@ namespace Katame
 		LightData m_BufferData;
 		PCBuffer* m_Buffer = nullptr;
 		PointLightCore* m_LightCore = nullptr;
+
+		VCBuffer* m_ViewProjCBuf;
 
 		bool flag = true;
 	};

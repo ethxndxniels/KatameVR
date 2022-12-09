@@ -8,6 +8,7 @@
 #include "../Drawable/Drawable.h"
 #include "../Renderer/Model.h"
 #include "../Graphics/D3DCommon.h"
+#include "../Lights/PointLight.h"
 
 #include "../../vendor/imgui/imgui.h"
 
@@ -23,6 +24,8 @@ namespace Katame
 
 	Renderer::~Renderer()
 	{
+		delete m_ModelCBuf;
+		delete m_ViewProjCBuf;
 	}
 
 	void Renderer::Submit( Drawable& drawable )
@@ -35,20 +38,46 @@ namespace Katame
 		m_Models.push_back( &model );
 	}
 
+	void Renderer::Submit( PointLight& pointLight )
+	{
+		m_PointLights.push_back( &pointLight );
+		Submit( *pointLight.GetLightCore() );
+	}
+
 	void Renderer::Execute()
 	{
 		// Depth Pass
 		// TODO: Add point light transform
+		
+		// Light Data
+		m_PointLights[0]->Bind();
+
+		// Shadow Map Pass
+		ShaderInputDepthStencil* shadowMap = new ShaderInputDepthStencil( gfx, gfx->GetWidth(), gfx->GetHeight(), 5 );
+		shadowMap->Clear( gfx );
+		shadowMap->BindAsBuffer( gfx );
+
+		m_PointLights[0]->BindViewProj();
+
+		Draw( m_ModelCBuf );
+
+
+		// Forward Pass
 		OutputOnlyDepthStencil* depthStencil = new OutputOnlyDepthStencil( gfx, gfx->GetWidth(), gfx->GetHeight() );
 		depthStencil->Clear( gfx );
 
 		m_MainRenderTarget->Clear( gfx );
 		m_MainRenderTarget->BindAsBuffer( gfx, depthStencil );
 
-		m_ModelCBuf->Bind( gfx );
 		m_ViewProjCBuf->Bind( gfx );
 
+		// Resources
+		shadowMap->Bind( gfx );
+
 		Draw( m_ModelCBuf );
+
+		delete shadowMap;
+		delete depthStencil;
 	}
 
 	void Renderer::Draw(VCBuffer* modelCBuf)

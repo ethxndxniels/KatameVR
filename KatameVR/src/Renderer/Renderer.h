@@ -11,6 +11,7 @@ namespace Katame
 	class VCBuffer;
 	class Model;
 	class OutputOnlyRenderTarget;
+	class PointLight;
 
 	class Renderer
 	{
@@ -20,6 +21,7 @@ namespace Katame
 	public:
 		void Submit( Drawable& drawable );
 		void Submit( Model& model );
+		void Submit( PointLight& pointLight );
 		void Execute();
 		void Draw( VCBuffer* modelCBuf );
 		void Clear();
@@ -28,11 +30,12 @@ namespace Katame
 		void UpdateViewProjCBuf( DirectX::XMFLOAT4X4& viewProjection );
 	private:
 		Graphics* gfx;
-		std::vector<Drawable*> m_Drawables;
-		std::vector<Model*> m_Models;
 		OutputOnlyRenderTarget* m_MainRenderTarget;
-
 		VCBuffer* m_ModelCBuf;
 		VCBuffer* m_ViewProjCBuf;
+
+		std::vector<Drawable*> m_Drawables;
+		std::vector<Model*> m_Models;
+		std::vector<PointLight*> m_PointLights;
 	};
 }

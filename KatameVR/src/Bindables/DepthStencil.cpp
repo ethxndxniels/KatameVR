@@ -14,7 +14,7 @@ namespace Katame
 		descDepth.Height = height;
 		descDepth.MipLevels = 1u;
 		descDepth.ArraySize = 1u;
-		descDepth.Format = DXGI_FORMAT_R24G8_TYPELESS; // this will need to be fixed
+		descDepth.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // this will need to be fixed
 		descDepth.SampleDesc.Count = 1u;
 		descDepth.SampleDesc.Quality = 0u;
 		descDepth.Usage = D3D11_USAGE_DEFAULT;
@@ -65,7 +65,7 @@ namespace Katame
 		pDepthStencilView->GetResource(&pRes);
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // this will need to be fixed
+		srvDesc.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS; // this will need to be fixed
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = 1;
