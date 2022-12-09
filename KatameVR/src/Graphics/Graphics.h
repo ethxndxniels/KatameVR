@@ -48,6 +48,8 @@ namespace Katame
 		int64_t SelectColorSwapchainFormat( const std::vector<int64_t>& runtimeFormats ) const;
 		void InitializeRenderer( Renderer* renderer );
 		void DrawIndexed( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation );
+		float GetWidth();
+		float GetHeight();
 	private:
 		void InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels,
 			ID3D11Device** device, ID3D11DeviceContext** deviceContext );
@@ -68,6 +70,9 @@ namespace Katame
 		// Map color buffer to associated depth buffer. This map is populated on demand.
 		std::map<ID3D11Texture2D*, ID3D11DepthStencilView*> m_colorToDepthMap;
 		std::array<float, 4> m_clearColor;
+		
+		float m_Width = 0;
+		float m_Height = 0;
 	};
 
 }

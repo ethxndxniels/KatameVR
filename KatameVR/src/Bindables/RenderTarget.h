@@ -7,12 +7,11 @@
 #include <d3d11.h>
 #include <string>
 
-class Graphics;
-class Surface;
-
 namespace Katame
 {
 	class DepthStencil;
+	class Graphics;
+	class Surface;
 
 	class RenderTarget : public Bindable, public BufferResource
 	{
@@ -24,7 +23,6 @@ namespace Katame
 		void Clear(Graphics* gfx, const std::array<float, 4>& color) noexcept;
 		UINT GetWidth() const noexcept;
 		UINT GetHeight() const noexcept;
-	private:
 		void BindAsBuffer(Graphics* gfx, ID3D11DepthStencilView* pDepthStencilView) noexcept;
 	protected:
 		RenderTarget(Graphics* gfx, ID3D11Texture2D* pTexture);

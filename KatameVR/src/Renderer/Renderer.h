@@ -19,6 +19,7 @@ namespace Katame
 		void Submit( Drawable& drawable );
 		void Submit( Model& model );
 		void Execute( VCBuffer* modelCBuf );
+		void Draw( VCBuffer* modelCBuf );
 		void Clear();
 	private:
 		Graphics* gfx;

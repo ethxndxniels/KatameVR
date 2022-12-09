@@ -19,7 +19,7 @@ namespace Katame
 		void Clear(Graphics* gfx) noexcept  override;
 	protected:
 		DepthStencil(Graphics* gfx, UINT width, UINT height, bool canBindShaderInput);
-		ID3D11DepthStencilView* pDepthStencilView;
+		ID3D11DepthStencilView* pDepthStencilView = nullptr;
 	};
 
 	class ShaderInputDepthStencil : public DepthStencil
@@ -30,7 +30,7 @@ namespace Katame
 		void Bind(Graphics* gfx) noexcept  override;
 	private:
 		UINT slot;
-		ID3D11ShaderResourceView* pShaderResourceView;
+		ID3D11ShaderResourceView* pShaderResourceView = nullptr;
 	};
 
 	class OutputOnlyDepthStencil : public DepthStencil

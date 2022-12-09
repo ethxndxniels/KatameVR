@@ -10,6 +10,8 @@
 #include "../../vendor/imgui/backends/imgui_impl_dx11.h"
 #include "../../vendor/imgui/backends/imgui_impl_win32.h"
 
+#include "../Bindables/RenderTarget.h"
+
 namespace Katame
 {
 	Graphics::~Graphics()
@@ -85,19 +87,18 @@ namespace Katame
 			(float)layerView.subImage.imageRect.extent.height );
 		m_Context->RSSetViewports( 1, &viewport );
 
+		m_Width = (float)layerView.subImage.imageRect.extent.width;
+		m_Height = (float)layerView.subImage.imageRect.extent.height;
+
 		// Create RenderTargetView with original swapchain format (swapchain is typeless).
-		ID3D11RenderTargetView* renderTargetView = { nullptr };
-		const CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc( D3D11_RTV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)swapchainFormat );
-		m_Device->CreateRenderTargetView( colorTexture, &renderTargetViewDesc, &renderTargetView );
+		OutputOnlyRenderTarget* renderTarget = new OutputOnlyRenderTarget( this, colorTexture );
 
 		ID3D11DepthStencilView* depthStencilView = GetDepthStencilView( colorTexture );
 
 		// Clear swapchain and depth buffer. NOTE: This will clear the entire render target view, not just the specified view.
-		m_Context->ClearRenderTargetView( renderTargetView, static_cast<const FLOAT*>(m_clearColor.data()) );
+		renderTarget->Clear( this );
 		m_Context->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-
-		ID3D11RenderTargetView* renderTargets[] = { renderTargetView };
-		m_Context->OMSetRenderTargets( (UINT)ArraySize( renderTargets ), renderTargets, depthStencilView );
+		renderTarget->BindAsBuffer( this, depthStencilView );
 
 		const DirectX::XMMATRIX spaceToView = XMMatrixInverse( nullptr, LoadXrPose( layerView.pose ) );
 		XrMatrix4x4f projectionMatrix;
@@ -111,9 +112,6 @@ namespace Katame
 
 		m_ModelCBuf->Bind( this );
 
-		// TODO: 
-		// - Shadow Pass turning into texture shader resource
-		// - Make Deferred
 		m_Renderer->Execute( m_ModelCBuf );
 
 		// imgui frame end
@@ -155,6 +153,16 @@ namespace Katame
 	void Graphics::DrawIndexed( UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation )
 	{
 		m_Context->DrawIndexed( indexCount, startIndexLocation, baseVertexLocation );
+	}
+
+	float Graphics::GetWidth()
+	{
+		return m_Width;
+	}
+
+	float Graphics::GetHeight()
+	{
+		return m_Height;
 	}
 
 	void Graphics::InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels, ID3D11Device** device, ID3D11DeviceContext** deviceContext )

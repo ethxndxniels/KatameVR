@@ -51,10 +51,10 @@ namespace Katame
 
 		// create the target view on the texture
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-		rtvDesc.Format = textureDesc.Format;
+		rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D = D3D11_TEX2D_RTV{ 0 };
-		gfx->m_Device->CreateRenderTargetView(
+		HRESULT hr = gfx->m_Device->CreateRenderTargetView(
 			pTexture, &rtvDesc, &pTargetView
 		);
 	}
@@ -131,13 +131,13 @@ namespace Katame
 		);
 	}
 
-	void ShaderInputRenderTarget::Bind( Graphics* gfx ) noexcept
+	void ShaderInputRenderTarget::Bind( Graphics* gfx )
 	{
 		gfx->m_Context->PSSetShaderResources( slot, 1, &pShaderResourceView );
 	}
 
 
-	void OutputOnlyRenderTarget::Bind( Graphics* gfx ) noexcept
+	void OutputOnlyRenderTarget::Bind( Graphics* gfx )
 	{
 		assert( "Cannot bind OuputOnlyRenderTarget as shader input" && false );
 	}
@@ -150,7 +150,7 @@ namespace Katame
 		ID3D11Resource* pResSource;
 		pShaderResourceView->GetResource( &pResSource );
 		ID3D11Texture2D* pTexSource;
-		pResSource.As( &pTexSource );
+		pTexSource = (ID3D11Texture2D*)pResSource;
 		D3D11_TEXTURE2D_DESC textureDesc;
 		pTexSource->GetDesc( &textureDesc );
 		textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
