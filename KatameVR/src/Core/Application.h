@@ -40,14 +40,13 @@ namespace Katame
 		Graphics m_Graphics;
 		XRCore m_XRCore;
 		Renderer m_Renderer;
-		Win32Window* m_Window;
+		Win32Window m_Window;
 	private:
-		NormalCube* m_NCube;
-		Model* m_Sponza;
-		Hands* m_Hands;
+		Model m_Sponza;
+		Hands m_Hands;
 	private:
-		DirLight* m_DirLight;
-		PointLight* m_PointLight;
+		DirLight m_DirLight;
+		PointLight m_PointLight;
 	private:
 		FrameTimer m_Timer;
 		float speed_factor = 1.0f;

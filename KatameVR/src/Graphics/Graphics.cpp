@@ -80,8 +80,8 @@ namespace Katame
 		}
 
 		ID3D11Texture2D* const colorTexture = reinterpret_cast<const XrSwapchainImageD3D11KHR*>(swapchainImage)->texture;
-		OutputOnlyRenderTarget* renderTarget = new OutputOnlyRenderTarget( *this, colorTexture );
-		m_Renderer->SetMainRenderTarget( *renderTarget);
+		OutputOnlyRenderTarget renderTarget{ *this, colorTexture };
+		m_Renderer->SetMainRenderTarget( renderTarget);
 		
 		m_Width = (float)layerView.subImage.imageRect.extent.width;
 		m_Height = (float)layerView.subImage.imageRect.extent.height;

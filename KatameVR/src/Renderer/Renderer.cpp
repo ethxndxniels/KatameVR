@@ -39,7 +39,7 @@ namespace Katame
 	void Renderer::Submit( PointLight& pointLight )
 	{
 		m_PointLights.push_back( &pointLight );
-		Submit( *pointLight.GetLightCore() );
+		Submit( pointLight.GetLightCore() );
 	}
 
 	void Renderer::Execute()
@@ -104,7 +104,6 @@ namespace Katame
 
 	void Renderer::SetMainRenderTarget(OutputOnlyRenderTarget& renderTarget)
 	{
-		if ( m_MainRenderTarget != nullptr ) delete m_MainRenderTarget;
 		m_MainRenderTarget = &renderTarget;
 	}
 	void Renderer::UpdateViewProjCBuf( DirectX::XMFLOAT4X4& viewProjection )

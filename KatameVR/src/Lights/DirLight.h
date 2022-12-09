@@ -24,7 +24,7 @@ namespace Katame
 			DirectX::XMFLOAT4 lightDir = { 0.0f, -1.0f, 0.0f, 0.0f };
 		};
 		LightData m_BufferData;
-		PCBuffer* m_Buffer = nullptr;
+		PCBuffer m_Buffer;
 		bool flag = true;
 	};
 }

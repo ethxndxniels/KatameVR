@@ -5,34 +5,22 @@
 namespace Katame
 {
 	Application::Application()
-		: 
+		:
+		m_Graphics(),
 		m_XRCore( m_Graphics ),
-		m_Renderer( m_Graphics )
+		m_Renderer( m_Graphics ),
+		m_Window( 10, 10, "Desktop" ),
+		m_Sponza( m_Graphics, "Models\\sponza\\sponza.obj", 0.125f ),
+		m_Hands( m_Graphics, m_XRCore ),
+		m_PointLight( m_Graphics ),
+		m_DirLight( m_Graphics )
 	{
 		// Renderer
 		m_Graphics.InitializeRenderer( m_Renderer );
-
-		// Win32
-		m_Window = new Win32Window( 10, 10, "Desktop" );
-
-		// Entities
-		m_Sponza = new Model( m_Graphics, "Models\\sponza\\sponza.obj", 0.125f );
-
-		// Player
-		m_Hands = new Hands( m_Graphics, m_XRCore );
-
-		// Lights
-		m_PointLight = new PointLight( m_Graphics );
-		m_DirLight = new DirLight( m_Graphics );
 	}
 
 	Application::~Application()
 	{
-		delete m_Window;
-		delete m_Sponza;
-		delete m_Hands;
-		delete m_PointLight;
-		delete m_DirLight;
 	}
 
 	void Application::Launch()
@@ -42,7 +30,7 @@ namespace Katame
 		{
 			bool exitRenderLoop = false;
 			m_XRCore.PollEvents( &exitRenderLoop, &requestRestart );
-			m_Window->ProcessMessages();
+			m_Window.ProcessMessages();
 			
 			if ( exitRenderLoop ) 
 				break;
@@ -66,23 +54,24 @@ namespace Katame
 
 	void Application::Update( float dt )
 	{
-		m_Hands->Update( dt );
-		m_DirLight->Update( dt );
-		m_PointLight->Update( dt );
+		m_Hands.Update( dt );
+		m_DirLight.Update( dt );
+		m_PointLight.Update( dt );
+		
 	}
 
 	void Application::Submit()	
 	{
 		// Lights
-		m_DirLight->Bind();
-		m_Renderer.Submit( *m_PointLight );
+		m_DirLight.Bind();
+		m_Renderer.Submit( m_PointLight );
 
 
 		// Entities
-		m_Renderer.Submit( *m_Sponza );
+		m_Renderer.Submit( m_Sponza );
 		
 		// Hands
-		m_Renderer.Submit( m_Hands->GetLeftHand() );
-		m_Renderer.Submit( m_Hands->GetRightHand() );
+		m_Renderer.Submit( m_Hands.GetLeftHand() );
+		m_Renderer.Submit( m_Hands.GetRightHand() );
 	}
 }

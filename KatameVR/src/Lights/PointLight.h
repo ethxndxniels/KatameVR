@@ -4,11 +4,11 @@
 #include <DirectXMath.h>
 
 #include "../Bindables/CBuffer.h"
+#include "../Drawable/Drawables/PointLightCore.h"
 
 namespace Katame
 {
 	class Graphics;
-	class PointLightCore;
 	class Drawable;
 
 	class PointLight
@@ -19,7 +19,7 @@ namespace Katame
 		void Bind();
 		void Update(float dt);
 		void BindViewProj();
-		Drawable* GetLightCore();
+		Drawable& GetLightCore();
 	private:
 		Graphics* gfx;
 	private:
@@ -31,11 +31,9 @@ namespace Katame
 			float padding;
 		};
 		LightData m_BufferData;
-		PCBuffer* m_Buffer = nullptr;
-		PointLightCore* m_LightCore = nullptr;
-
-		VCBuffer* m_ViewProjCBuf;
-
+		PCBuffer m_Buffer;
+		PointLightCore m_LightCore;
+		VCBuffer m_ViewProjCBuf;
 		bool flag = true;
 	};
 }

@@ -2,39 +2,26 @@
 
 #include "../Graphics/Graphics.h"
 
-#include "../Drawable/Drawables/PointLightCore.h"
-
 namespace Katame
 {
 	PointLight::PointLight(Graphics& gfx)
-		: gfx( &gfx )
+		: 
+		gfx( &gfx ),
+		m_Buffer( gfx, 3u, sizeof(LightData) ),
+		m_LightCore( gfx ),
+		m_ViewProjCBuf( gfx, 1u, sizeof(DirectX::XMFLOAT4X4) )
 	{
-		D3D11_BUFFER_DESC desc = {};
-		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		desc.MiscFlags = 0u;
-		desc.ByteWidth = sizeof(LightData);
-		desc.StructureByteStride = 0u;
-
-		m_Buffer = new PCBuffer(gfx, 3u, sizeof(LightData));
-		m_LightCore = new PointLightCore(gfx);
-
-		m_ViewProjCBuf = new VCBuffer(gfx, 1u, sizeof(DirectX::XMFLOAT4X4));
 	}
 	PointLight::~PointLight()
 	{
-		delete m_Buffer;
-		delete m_LightCore;
-		delete m_ViewProjCBuf;
 	}
 	void PointLight::Bind()
 	{
 		LightData data;
 		XMStoreFloat3(&data.position, { m_BufferData.position.x,  m_BufferData.position.y,  m_BufferData.position.z });
-		m_Buffer->Update( *gfx, &data);
-		m_Buffer->Bind( *gfx );
-		m_LightCore->SetData({ {}, { m_BufferData.position.x,  m_BufferData.position.y,  m_BufferData.position.z } }, {0.5f,0.5f,0.5f});
+		m_Buffer.Update( *gfx, &data);
+		m_Buffer.Bind( *gfx );
+		m_LightCore.SetData({ {}, { m_BufferData.position.x,  m_BufferData.position.y,  m_BufferData.position.z } }, {0.5f,0.5f,0.5f});
 	}
 	void PointLight::Update(float dt)
 	{
@@ -64,10 +51,10 @@ namespace Katame
 		DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveLH( 1.0f, 9.0f / 16.0f, 0.5f, 400.0f );
 		DirectX::XMMATRIX viewProj = view * proj;
 
-		m_ViewProjCBuf->Update( *gfx, &viewProj);
-		m_ViewProjCBuf->Bind( *gfx );
+		m_ViewProjCBuf.Update( *gfx, &viewProj);
+		m_ViewProjCBuf.Bind( *gfx );
 	}
-	Drawable* PointLight::GetLightCore()
+	Drawable& PointLight::GetLightCore()
 	{
 		return m_LightCore;
 	}
