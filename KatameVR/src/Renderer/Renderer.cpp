@@ -7,6 +7,7 @@
 #include "../Bindables/RenderTarget.h"
 #include "../Drawable/Drawable.h"
 #include "../Renderer/Model.h"
+#include "../Graphics/D3DCommon.h"
 
 #include "../../vendor/imgui/imgui.h"
 
@@ -14,7 +15,11 @@ namespace Katame
 {
 	Renderer::Renderer( Graphics* gfx )
 		: gfx( gfx )
-	{}
+	{
+
+		m_ModelCBuf = new VCBuffer(gfx, 0u, sizeof(ModelConstantBuffer));
+		m_ViewProjCBuf = new VCBuffer(gfx, 1u, sizeof(DirectX::XMFLOAT4X4));
+	}
 
 	Renderer::~Renderer()
 	{
@@ -30,17 +35,20 @@ namespace Katame
 		m_Models.push_back( &model );
 	}
 
-	void Renderer::Execute( VCBuffer* modelCBuf )
+	void Renderer::Execute()
 	{
 		// Depth Pass
 		// TODO: Add point light transform
-		//ShaderInputDepthStencil* depthStencil = new ShaderInputDepthStencil( gfx, gfx->GetWidth(), gfx->GetHeight(), 5);
-		//depthStencil->BindAsBuffer( gfx );
+		OutputOnlyDepthStencil* depthStencil = new OutputOnlyDepthStencil( gfx, gfx->GetWidth(), gfx->GetHeight() );
+		depthStencil->Clear( gfx );
 
+		m_MainRenderTarget->Clear( gfx );
+		m_MainRenderTarget->BindAsBuffer( gfx, depthStencil );
 
-		Draw( modelCBuf );
+		m_ModelCBuf->Bind( gfx );
+		m_ViewProjCBuf->Bind( gfx );
 
-
+		Draw( m_ModelCBuf );
 	}
 
 	void Renderer::Draw(VCBuffer* modelCBuf)
@@ -71,5 +79,14 @@ namespace Katame
 
 		ID3D11ShaderResourceView* const pNullTex = nullptr;
 		gfx->m_Context->PSSetShaderResources( 0u, 1u, &pNullTex );
+	}
+
+	void Renderer::SetMainRenderTarget(OutputOnlyRenderTarget* renderTarget)
+	{
+		m_MainRenderTarget = renderTarget;
+	}
+	void Renderer::UpdateViewProjCBuf( DirectX::XMFLOAT4X4& viewProjection )
+	{
+		m_ViewProjCBuf->Update( gfx, &viewProjection );
 	}
 }

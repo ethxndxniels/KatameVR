@@ -11,6 +11,7 @@
 #include "../../vendor/imgui/backends/imgui_impl_win32.h"
 
 #include "../Bindables/RenderTarget.h"
+#include "../Bindables/DepthStencil.h"
 
 namespace Katame
 {
@@ -41,8 +42,6 @@ namespace Katame
 		CHECK_MSG( featureLevels.size() != 0, "Unsupported minimum feature level!" );
 
 		InitializeD3D11DeviceForAdapter( adapter, featureLevels, &m_Device, &m_Context );
-
-		InitializeResources();
 
 		m_graphicsBinding.device = m_Device;
 
@@ -81,38 +80,25 @@ namespace Katame
 		}
 
 		ID3D11Texture2D* const colorTexture = reinterpret_cast<const XrSwapchainImageD3D11KHR*>(swapchainImage)->texture;
-
-		CD3D11_VIEWPORT viewport( (float)layerView.subImage.imageRect.offset.x, (float)layerView.subImage.imageRect.offset.y,
-			(float)layerView.subImage.imageRect.extent.width,
-			(float)layerView.subImage.imageRect.extent.height );
-		m_Context->RSSetViewports( 1, &viewport );
-
+		OutputOnlyRenderTarget* renderTarget = new OutputOnlyRenderTarget(this, colorTexture);
+		m_Renderer->SetMainRenderTarget( renderTarget);
+		
 		m_Width = (float)layerView.subImage.imageRect.extent.width;
 		m_Height = (float)layerView.subImage.imageRect.extent.height;
 
-		// Create RenderTargetView with original swapchain format (swapchain is typeless).
-		OutputOnlyRenderTarget* renderTarget = new OutputOnlyRenderTarget( this, colorTexture );
-
-		ID3D11DepthStencilView* depthStencilView = GetDepthStencilView( colorTexture );
-
-		// Clear swapchain and depth buffer. NOTE: This will clear the entire render target view, not just the specified view.
-		renderTarget->Clear( this );
-		m_Context->ClearDepthStencilView( depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-		renderTarget->BindAsBuffer( this, depthStencilView );
+		CD3D11_VIEWPORT viewport( (float)layerView.subImage.imageRect.offset.x, (float)layerView.subImage.imageRect.offset.y, m_Width, m_Height );
+		m_Context->RSSetViewports( 1, &viewport );
 
 		const DirectX::XMMATRIX spaceToView = XMMatrixInverse( nullptr, LoadXrPose( layerView.pose ) );
 		XrMatrix4x4f projectionMatrix;
 		XrMatrix4x4f_CreateProjectionFov( &projectionMatrix, GRAPHICS_D3D, layerView.fov, 0.05f, 100.0f );
 
 		// Set shaders and constant buffers.
-		ViewProjectionConstantBuffer viewProjection;
-		XMStoreFloat4x4( &viewProjection.ViewProjection, DirectX::XMMatrixTranspose( spaceToView * LoadXrMatrix( projectionMatrix ) ) );
-		m_ViewProjCBuf->Update( this, &viewProjection );
-		m_ViewProjCBuf->Bind( this );
+		DirectX::XMFLOAT4X4 viewProjection;
+		XMStoreFloat4x4( &viewProjection, DirectX::XMMatrixTranspose( spaceToView * LoadXrMatrix( projectionMatrix ) ) );
+		m_Renderer->UpdateViewProjCBuf( viewProjection );
 
-		m_ModelCBuf->Bind( this );
-
-		m_Renderer->Execute( m_ModelCBuf );
+		m_Renderer->Execute();
 
 		// imgui frame end
 		if (true)
@@ -196,12 +182,6 @@ namespace Katame
 				goto TryAgain;
 			}
 		}
-	}
-
-	void Graphics::InitializeResources()
-	{
-		m_ModelCBuf = new VCBuffer( this, 0u, sizeof( ModelConstantBuffer ) );
-		m_ViewProjCBuf = new VCBuffer( this, 1u, sizeof( ViewProjectionConstantBuffer ) );
 	}
 
 	IDXGIAdapter1* Katame::Graphics::GetAdapter( LUID adapterId )

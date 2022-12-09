@@ -53,7 +53,6 @@ namespace Katame
 	private:
 		void InitializeD3D11DeviceForAdapter( IDXGIAdapter1* adapter, const std::vector<D3D_FEATURE_LEVEL>& featureLevels,
 			ID3D11Device** device, ID3D11DeviceContext** deviceContext );
-		void InitializeResources();
 		IDXGIAdapter1* GetAdapter( LUID adapterId );
 		ID3D11DepthStencilView* GetDepthStencilView( ID3D11Texture2D* colorTexture );
 	public:
@@ -64,8 +63,7 @@ namespace Katame
 		XrGraphicsBindingD3D11KHR m_graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_D3D11_KHR };
 		std::list<std::vector<XrSwapchainImageD3D11KHR>> m_swapchainImageBuffers;
 
-		VCBuffer* m_ModelCBuf;
-		VCBuffer* m_ViewProjCBuf;
+	
 
 		// Map color buffer to associated depth buffer. This map is populated on demand.
 		std::map<ID3D11Texture2D*, ID3D11DepthStencilView*> m_colorToDepthMap;
